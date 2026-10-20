@@ -12,6 +12,7 @@ import { transaction } from '../lib/db.js';
 import { checkOrigin,checkCron,allowedEmail,setSession } from '../lib/auth.js';
 import { period,createHandler } from '../lib/http.js';
 import { createServer } from 'node:http';
+import { vercelHandler } from '../lib/vercel-handler.js';
 import ExcelJS from 'exceljs';
 
 const owner='00000000-0000-4000-8000-000000000001';
@@ -221,4 +222,41 @@ test('HTTP routes enforce auth/origin, reject invalid identifiers, and return re
     assert.equal((await fetch(base+'/api/store-apps/bad/history',{headers})).status,400);
     assert.equal((await fetch(base+'/api/competitors',{method:'POST',headers:{...headers,origin:'http://localhost:4173'},body:'null'})).status,400);
   } finally {await new Promise(resolve=>server.close(resolve));}
+});
+test('Vercel rewrite reaches nested login and protected history routes, preserving query filters',async()=>{
+  const config=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url),'utf8'));
+  assert.equal(config.rewrites[0].source,'/api/:path*');
+  assert.equal(config.rewrites[0].destination,'/api/handler?__route=:path*');
+  let loginCalls=0;
+  const handler=vercelHandler(createHandler({
+    database:()=>database,
+    authenticate:async()=>{throw Object.assign(new Error('로그인이 필요합니다.'),{status:401});},
+    login:async(email,password)=>{
+      loginCalls++;
+      assert.equal(email,'admin@example.com');
+      assert.equal(password,'fixture-password');
+      return {user:{id:owner,email},session:{access_token:'fixture-access',refresh_token:'fixture-refresh',expires_in:3600}};
+    }
+  }));
+  const server=createServer(handler);await new Promise(r=>server.listen(0,'127.0.0.1',r));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  try {
+    const response=await fetch(base+'/api/handler?__route=auth%2Flogin',{
+      method:'POST',headers:{'content-type':'application/json',origin:'http://localhost:4173'},
+      body:JSON.stringify({email:'admin@example.com',password:'fixture-password'})
+    });
+    assert.equal(response.status,200);
+    assert.equal((await response.json()).user.id,owner);
+    assert.equal(loginCalls,1);
+    assert.equal(response.headers.getSetCookie().length,2);
+    const me=await fetch(base+'/api/handler?__route=auth/me');
+    assert.equal(me.status,401);
+    assert.equal((await me.json()).error,'로그인이 필요합니다.');
+    const original=await fetch(base+'/api/auth/me?__route=auth/me');
+    assert.equal(original.status,401);
+  } finally {await new Promise(r=>server.close(r));}
+  let observed;
+  const router=vercelHandler(req=>{observed=req.url;});
+  router({url:'/api/handler?__route=store-apps%2Fabc%2Fhistory&from=2026-01-01&offset=200'},{});
+  assert.equal(observed,'/api/store-apps/abc/history?from=2026-01-01&offset=200');
 });

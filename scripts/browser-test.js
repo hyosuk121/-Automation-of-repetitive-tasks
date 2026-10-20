@@ -7,18 +7,22 @@ import { existsSync } from 'node:fs';
 import { resolve,extname } from 'node:path';
 import assert from 'node:assert/strict';
 import { createHandler } from '../lib/http.js';
+import { vercelHandler } from '../lib/vercel-handler.js';
 import { workOnce,enqueue } from '../lib/queue.js';
 import { listCompetitors } from '../lib/repository.js';
 
 const owner='00000000-0000-4000-8000-000000000001';
 const database=new PGlite();
 await database.exec(await readFile('supabase/migrations/20261020000000_initial.sql','utf8'));
-const handler=createHandler({database:()=>database,authenticate:async()=>({id:owner,email:'fixture@example.com'})});
+const handler=vercelHandler(createHandler({database:()=>database,authenticate:async()=>({id:owner,email:'fixture@example.com'})}));
 let configured=false;
 const server=createServer(async(req,res)=>{
   if(req.url.startsWith('/api/')){
     if(!configured && req.url==='/api/config'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({database:false,authentication:false,origin:false}));return;}
     if(!configured && req.url==='/api/auth/me'){res.statusCode=401;res.end('{"error":"login required"}');return;}
+    const original=new URL(req.url,'http://test');
+    original.searchParams.set('__route',original.pathname.slice('/api/'.length));
+    req.url='/api/handler'+original.search;
     return handler(req,res);
   }
   try{

@@ -173,7 +173,7 @@ Supabase의 백업 또는 PITR 기능을 사용 중인 요금제에서 확인하
 | 경로 | 역할 |
 | --- | --- |
 | `web/` | 카드 포털, 분석 대시보드, 로그인 및 이력 UI |
-| `lib/http.js`, `api/[...path].js` | API 라우팅 및 Vercel 진입점 |
+| `lib/http.js`, `api/handler.js` | API 라우팅 및 Vercel 진입점 |
 | `lib/auth.js` | 관리자 인증, 쿠키, 요청 출처 검증 |
 | `lib/stores.js` | 스토어 URL 검증과 데이터 수집 |
 | `lib/queue.js` | 작업 큐, 잠금, 재시도, 스케줄 |

@@ -6,6 +6,7 @@ import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/600.css';
 import '@fontsource/noto-sans-kr/700.css';
 import './styles.css';
+import { readApiResponse } from './api-response.js';
 
 const icons={ArrowRight,ArrowLeft,ChevronLeft,ChevronRight,ChevronUp,ChevronDown,LayoutGrid,ChartNoAxesCombined,Plane,Clock3,Settings2,Search,Plus,RefreshCw,Download,X,LogOut,ShieldCheck,CircleHelp,ExternalLink,Pencil,Archive,Check,AlertCircle,Database,Menu,GripVertical,Layers,Zap,CalendarDays};
 const $=s=>document.querySelector(s);
@@ -25,9 +26,7 @@ async function api(path,options={},retry=true){
     if(refresh.ok)return api(path,options,false);
     state.user=null;render();throw new Error('로그인이 필요합니다.');
   }
-  const data=await response.json();
-  if(!response.ok)throw new Error(data.error || '요청을 처리하지 못했습니다.');
-  return data;
+  return readApiResponse(response);
 }
 const post=(path,data={},method='POST')=>api(path,{method,body:JSON.stringify(data)});
 function navigate(path){history.pushState({},'',path);state.page='dashboard';render();if(path!=='/')loadData();}
@@ -223,7 +222,7 @@ async function detail(id,query='',offset=0){
 function exportForm(){
   if(needsLogin())return;
   modal('데이터 내보내기',`<form id="export-form" class="form"><label>조회 범위<select name="mode"><option value="latest">최신 현황</option><option value="releases">전체 릴리즈 이력</option><option value="snapshots">기간별 스냅샷</option><option value="changes">변경 이벤트</option></select></label><div class="date-filter"><label>시작일<input name="from" type="date"></label><label>종료일<input name="to" type="date"></label></div><p class="field-note">최신 현황에는 기간이 적용되지 않습니다. 날짜를 비우면 전체 기간을 조회합니다.</p><label>파일 형식<select name="format"><option value="xlsx">Excel (.xlsx)</option><option value="html">HTML 보고서</option><option value="csv">CSV</option><option value="json">JSON</option><option value="markdown">Markdown</option></select></label><p class="form-error" role="alert"></p><button class="button primary full">${icon('Download')} 다운로드</button></form>`);
-  $('#export-form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;try{const params=new URLSearchParams();for(const[k,v]of new FormData(e.target))if(v)params.set(k,v);const response=await fetch('/api/export?'+params);if(!response.ok)throw new Error((await response.json()).error);const blob=await response.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=response.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1]||'export';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('#modal').close();toast('내보내기 파일을 생성했습니다.');}catch(error){e.target.querySelector('.form-error').textContent=error.message;}finally{button.disabled=false;}};
+  $('#export-form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;try{const params=new URLSearchParams();for(const[k,v]of new FormData(e.target))if(v)params.set(k,v);const response=await fetch('/api/export?'+params);if(!response.ok)await readApiResponse(response);const blob=await response.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=response.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1]||'export';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('#modal').close();toast('내보내기 파일을 생성했습니다.');}catch(error){e.target.querySelector('.form-error').textContent=error.message;}finally{button.disabled=false;}};
 }
 render();
 async function initialize(){
