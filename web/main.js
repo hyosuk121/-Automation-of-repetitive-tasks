@@ -81,7 +81,7 @@ function dashboardView(){
   const changed=apps.filter(a=>Number(a.change_count)>0).length;
   const pending=apps.filter(a=>a.job_status).length;
   const failed=apps.filter(a=>a.last_error_message).length;
-  return `<div class="stats-grid">${[['모니터링 경쟁사',active.length,'Layers','등록된 경쟁사 기준'],['변경 감지 앱',changed,'ChartNoAxesCombined','직전 수집과 비교'],['대기 · 수집 중',pending,'RefreshCw','작업 상태 자동 갱신'],['확인이 필요한 앱',failed,'AlertCircle','최근 수집 오류']].map(([title,n,i,sub])=>`<div class="stat-card"><span class="stat-icon">${icon(i)}</span><span class="stat-title">${title}</span><strong>${n}<small>개</small></strong><span class="stat-sub">${sub}</span></div>`).join('')}</div>
+  return `<div class="stats-grid">${[['모니터링 경쟁사',active.length,'Layers','등록된 경쟁사 기준'],['변경 감지 앱',changed,'ChartNoAxesCombined','직전 수집과 비교'],['대기 · 수집 중',pending,'RefreshCw','화면을 열어 두면 대기 작업을 처리합니다'],['확인이 필요한 앱',failed,'AlertCircle','최근 수집 오류']].map(([title,n,i,sub])=>`<div class="stat-card"><span class="stat-icon">${icon(i)}</span><span class="stat-title">${title}</span><strong>${n}<small>개</small></strong><span class="stat-sub">${sub}</span></div>`).join('')}</div>
     <section class="data-panel"><div class="panel-heading"><div class="platform-tabs" role="tablist" aria-label="스토어 선택"><button role="tab" aria-selected="${state.platform==='app_store'}" class="${state.platform==='app_store'?'selected':''}" data-platform="app_store">App Store <span>${apps.filter(a=>a.platform==='app_store').length}</span></button><button role="tab" aria-selected="${state.platform==='play_store'}" class="${state.platform==='play_store'?'selected':''}" data-platform="play_store">Play Store <span>${apps.filter(a=>a.platform==='play_store').length}</span></button></div><button class="button secondary small" data-collect-all>${icon('RefreshCw')} 전체 수집</button></div>
     <div class="table-toolbar"><label class="search-field">${icon('Search')}<input type="search" id="search" placeholder="경쟁사 또는 앱 이름 검색" value="${escape(state.search)}" aria-label="경쟁사 검색"></label><div class="filters"><select id="scope" aria-label="서비스 구분">${[['all','모든 지역'],['domestic','국내'],['global','국외'],['unknown','미분류']].map(([v,l])=>`<option value="${v}" ${state.scope===v?'selected':''}>${l}</option>`).join('')}</select><select id="status" aria-label="수집 상태">${[['all','모든 상태'],['changed','변경 있음'],['error','수집 오류'],['pending','대기 · 실행 중']].map(([v,l])=>`<option value="${v}" ${state.status===v?'selected':''}>${l}</option>`).join('')}</select>${state.page==='manage'?`<label class="checkbox-label"><input type="checkbox" id="archived" ${state.archived?'checked':''}> 보관 포함</label>`:''}</div></div>
     <div id="table-content">${tableContent()}</div><div class="table-footer"><span>전체 ${active.length}개 경쟁사</span><span>${icon('ShieldCheck')} 과거 업데이트 이력 보존</span></div></section>`;
@@ -162,8 +162,23 @@ async function loadData(show=false){
   if(!state.user)return;
   try{
     const [data,runs]=await Promise.all([api('/competitors?archived='+state.archived),api('/collections?offset='+state.runOffset)]);
-    state.competitors=data.competitors;state.runs=runs.runs;render();if(show)toast('최신 상태를 불러왔습니다.');
+    state.competitors=data.competitors;state.runs=runs.runs;render();resumeCollection();if(show)toast('최신 상태를 불러왔습니다.');
   }catch(error){toast(error.message,true);}
+}
+// One awaited request per app; reopening the dashboard resumes persisted jobs.
+let collecting=false, collectionRetryAt=0;
+function hasPending(){return state.competitors.some(c=>c.apps.some(a=>a.job_status));}
+async function resumeCollection(){
+  if(collecting || Date.now()<collectionRetryAt || !state.user || document.hidden || location.pathname==='/' || !hasPending())return;
+  collecting=true;
+  try {
+    while(state.user && !document.hidden && location.pathname!=='/' && hasPending()) {
+      const result=await post('/collections/process');
+      await loadData();
+      if(!result.processed)break; // Another invocation owns the lease or a retry is delayed.
+    }
+  } catch(error){collectionRetryAt=Date.now()+30000;toast(error.message,true);}
+  finally{collecting=false;}
 }
 function modal(title,content,wide=false){
   const d=$('#modal');d.className=wide?'wide':'';
@@ -171,7 +186,7 @@ function modal(title,content,wide=false){
   d.setAttribute('aria-labelledby','modal-title');if(!d.open)d.showModal();d.querySelector('[data-close]').onclick=()=>d.close();initIcons();
 }
 function setupHelp(){
-  modal('서비스 연결 안내',`<div class="help-content"><p>실제 수집과 저장을 위해 아래 서버 설정이 필요합니다.</p><ol><li>Supabase 프로젝트와 관리자 계정을 생성합니다.</li><li>데이터베이스 마이그레이션을 실행합니다.</li><li>Supabase URL·키, DB 연결, 관리자 이메일을 환경 변수에 등록합니다.</li><li>Vercel 배포 주소를 APP_ORIGIN으로 설정합니다.</li><li>별도 수집 Worker를 실행합니다.</li></ol><p class="muted-text">구체적인 명령은 저장소의 README.md에 있습니다. 비밀번호나 서버 키를 이 화면에 입력하지 마세요.</p></div>`);
+  modal('서비스 연결 안내',`<div class="help-content"><p>실제 수집과 저장을 위해 아래 서버 설정이 필요합니다.</p><ol><li>Supabase 프로젝트와 관리자 계정을 생성합니다.</li><li>데이터베이스 마이그레이션을 실행합니다.</li><li>Supabase URL·키, DB 연결, 관리자 이메일을 환경 변수에 등록합니다.</li><li>Vercel 배포 주소를 APP_ORIGIN으로 설정합니다.</li><li>수집 화면을 열면 대기 작업이 자동으로 진행됩니다. 정기 수집에는 CRON_SECRET을 설정합니다.</li></ol><p class="muted-text">구체적인 명령은 저장소의 README.md에 있습니다. 비밀번호나 서버 키를 이 화면에 입력하지 마세요.</p></div>`);
 }
 function help(){modal('기록을 모으는 가장 간단한 방법',`<div class="help-content"><ol><li><strong>경쟁사 등록</strong><p>경쟁사명과 공식 스토어 링크를 입력합니다.</p></li><li><strong>수집과 비교</strong><p>수동 수집 또는 하루 한 번 자동 수집으로 변화를 확인합니다.</p></li><li><strong>이력 확인</strong><p>앱 이름을 선택하면 릴리즈, 설명 개정본과 시점별 수치를 조회할 수 있습니다.</p></li></ol><p>‘부분 성공’은 일부 필드나 버전 기록을 확인하지 못한 상태입니다. 이전 정상 기록은 계속 보존됩니다.</p><p>‘스토어 응답에서 미확인’은 실제 삭제일이 아니라 수집 시점의 관측 결과입니다.</p></div>`);}
 async function account(){
@@ -185,7 +200,7 @@ function competitorForm(c){
   if(needsLogin())return;
   const link=p=>c?.apps.find(a=>a.platform===p)?.store_url || '';
   modal(c?'경쟁사 수정':'새 경쟁사 등록',`<form id="competitor-form" class="form"><label>경쟁사명 <span class="required">*</span><input name="name" maxlength="120" required placeholder="예: 모니터링할 서비스 이름" value="${escape(c?.name||'')}"></label><label>서비스 구분<select name="service_scope"><option value="domestic" ${c?.service_scope==='domestic'?'selected':''}>국내</option><option value="global" ${c?.service_scope==='global'?'selected':''}>국외</option><option value="unknown" ${c?.service_scope==='unknown'?'selected':''}>미분류</option></select></label><label>App Store 링크<input name="app_store" type="url" placeholder="https://apps.apple.com/kr/app/…/id…" value="${escape(link('app_store'))}"></label><label>Play Store 링크<input name="play_store" type="url" placeholder="https://play.google.com/store/apps/details?id=…" value="${escape(link('play_store'))}"></label><p class="field-note">둘 중 하나 이상의 스토어 링크를 입력해 주세요.</p><label class="checkbox-label"><input name="auto_collect" type="checkbox" ${c?.auto_collect!==false?'checked':''}> 하루 한 번 자동 수집</label><p class="form-error" role="alert"></p><button class="button primary full">${c?'변경 사항 저장':'등록하고 첫 수집 시작'}</button></form>`);
-  $('#competitor-form').onsubmit=async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));data.auto_collect=e.target.elements.auto_collect.checked;const button=e.target.querySelector('button');button.disabled=true;try{await post(c?'/competitors/'+c.id:'/competitors',data,c?'PATCH':'POST');$('#modal').close();await loadData();toast(c?'경쟁사 정보를 저장했습니다.':'등록했습니다. Worker가 수집 작업을 처리합니다.');}catch(error){e.target.querySelector('.form-error').textContent=error.message;}finally{button.disabled=false;}};
+  $('#competitor-form').onsubmit=async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));data.auto_collect=e.target.elements.auto_collect.checked;const button=e.target.querySelector('button');button.disabled=true;try{await post(c?'/competitors/'+c.id:'/competitors',data,c?'PATCH':'POST');$('#modal').close();await loadData();toast(c?'경쟁사 정보를 저장했습니다.':'등록했습니다. 수집을 시작합니다.');}catch(error){e.target.querySelector('.form-error').textContent=error.message;}finally{button.disabled=false;}};
 }
 async function collect(id){
   if(needsLogin()||state.busy)return;

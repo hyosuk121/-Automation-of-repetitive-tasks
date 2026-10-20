@@ -5,7 +5,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { parseStoreUrl,parseAppleHistory,normalizeApple,CollectionError } from '../lib/stores.js';
 import { changes,saveSnapshot } from '../lib/history.js';
 import { saveCompetitor,listCompetitors,appHistory,reorder } from '../lib/repository.js';
-import { enqueue,workOnce,claim,scheduleDaily } from '../lib/queue.js';
+import { enqueue,workOnce,claim,scheduleDaily,drainQueue } from '../lib/queue.js';
 import { importRecords } from '../lib/importer.js';
 import { exportData,safeCell } from '../lib/export.js';
 import { transaction } from '../lib/db.js';
@@ -259,4 +259,67 @@ test('Vercel rewrite reaches nested login and protected history routes, preservi
   const router=vercelHandler(req=>{observed=req.url;});
   router({url:'/api/handler?__route=store-apps%2Fabc%2Fhistory&from=2026-01-01&offset=200'},{});
   assert.equal(observed,'/api/store-apps/abc/history?from=2026-01-01&offset=200');
+});
+
+
+test('serverless collection resumes existing jobs, scopes ownership, and cron drains without a worker',async()=>{
+  const previousHour=process.env.SCHEDULE_HOUR_KST;
+  process.env.SCHEDULE_HOUR_KST='0';
+  const isolated=new PGlite();
+  await isolated.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
+  const make=async(id,name)=>{
+    const c=await saveCompetitor(isolated,id,{name,service_scope:'domestic',app_store:'https://apps.apple.com/kr/app/id123456'});
+    await enqueue(isolated,id,{ids:[c.id]});return c;
+  };
+  await make(other,'Other owner');
+  const mine=await make(owner,'My queued job');
+  let called=0;
+  const server=createServer(createHandler({database:()=>isolated,authenticate:async req=>{
+    if(req.headers.authorization!=='admin')throw Object.assign(new Error('Login required'),{status:401});
+    return {id:owner};
+  },collector:async()=>{called++;return payload();}}));
+  await new Promise(r=>server.listen(0,'127.0.0.1',r));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const headers={authorization:'admin',origin:process.env.APP_ORIGIN};
+  try {
+    assert.equal((await fetch(base+'/api/collections/process',{method:'POST',headers:{origin:process.env.APP_ORIGIN}})).status,401);
+    assert.equal((await fetch(base+'/api/collections/process',{method:'POST',headers:{authorization:'admin',origin:'https://evil.test'}})).status,403);
+    const response=await fetch(base+'/api/collections/process',{method:'POST',headers});
+    assert.equal(response.status,200);assert.equal((await response.json()).processed,true);
+    assert.equal(called,1);
+    assert.equal((await isolated.query('SELECT status FROM collection_runs WHERE owner_id=$1',[other])).rows[0].status,'queued');
+    assert.equal((await fetch(base+'/api/collections/process',{method:'POST',headers}).then(r=>r.json())).processed,false);
+    // A timed-out invocation is recovered through the same owner-scoped endpoint.
+    await enqueue(isolated,owner,{ids:[mine.id]});
+    await claim(isolated,owner);
+    await isolated.query("UPDATE collection_items SET lease_until=now()-interval '1 second' WHERE status='running'");
+    assert.equal((await fetch(base+'/api/collections/process',{method:'POST',headers}).then(r=>r.json())).processed,true);
+    assert.equal((await isolated.query('SELECT count(*)::int n FROM store_snapshots')).rows[0].n,2);
+    await isolated.query('UPDATE competitors SET auto_collect=false WHERE owner_id=$1',[other]);
+    assert.equal((await fetch(base+'/api/cron')).status,401);
+    const cron=await fetch(base+'/api/cron',{headers:{authorization:'Bearer '+process.env.CRON_SECRET}});
+    assert.equal(cron.status,200);assert.ok((await cron.json()).processed>=1);
+    assert.equal((await isolated.query("SELECT count(*)::int n FROM collection_items WHERE status IN ('queued','running')")).rows[0].n,0);
+    // A second cron invocation on the same day does not create duplicate runs.
+    const count=(await isolated.query('SELECT count(*)::int n FROM collection_runs')).rows[0].n;
+    await fetch(base+'/api/cron',{headers:{authorization:'Bearer '+process.env.CRON_SECRET}});
+    assert.equal((await isolated.query('SELECT count(*)::int n FROM collection_runs')).rows[0].n,count);
+  } finally {
+    await new Promise(r=>server.close(r));await isolated.close();
+    if(previousHour===undefined)delete process.env.SCHEDULE_HOUR_KST;else process.env.SCHEDULE_HOUR_KST=previousHour;
+  }
+});
+
+test('bounded cron stops launching work at its budget and leaves remaining jobs resumable',async()=>{
+  const isolated=new PGlite();
+  try {
+    await isolated.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
+    const c=await saveCompetitor(isolated,owner,{name:'Budget',service_scope:'domestic',app_store:'https://apps.apple.com/kr/app/id123456',play_store:'https://play.google.com/store/apps/details?id=com.example.app'});
+    await enqueue(isolated,owner,{ids:[c.id]});
+    let clock=0;
+    const first=await drainQueue(isolated,{now:()=>clock,budgetMs:100,collector:async()=>{clock=101;return payload();}});
+    assert.equal(first.processed,1);
+    assert.equal((await isolated.query("SELECT count(*)::int n FROM collection_items WHERE status='queued'")).rows[0].n,1);
+    assert.equal((await drainQueue(isolated,{collector:async()=>payload()})).processed,1);
+  } finally {await isolated.close();}
 });

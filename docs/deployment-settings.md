@@ -79,29 +79,24 @@ Worker 호스트에도 같은 변수를 설정한다. `DATABASE_CA_CERT`가 있�
 
 `NODE_TLS_REJECT_UNAUTHORIZED=0`, `rejectUnauthorized:false`, `sslmode=no-verify`는 사용하지 않는다.
 
-## 4. 수집 Worker
+## 4. Vercel에서 직접 수집
 
-현재 설계에서 **Vercel Cron은 작업을 큐에 넣는 역할만 한다.** 실제 스토어 요청은 별도 Worker가 수행한다.
+별도 Worker나 Render 가입은 필요하지 않다. 최신 main을 Vercel에 배포한 후 로그인하고 수집 화면을 열어 두면 기존 대기 작업부터 처리한다. 브라우저는 한 앱씩 `/api/collections/process`를 호출하고 각 응답 후 결과를 갱신한다. 화면을 닫았다 다시 열면 남은 작업을 이어서 처리한다.
 
-장기 실행 Node.js 24 호스트에 이 저장소를 연결하고:
+기존 DATABASE_URL, DATABASE_CA_CERT 등 환경 변수를 그대로 사용하며 추가 DB 마이그레이션은 없다. Vercel의 Fluid compute 및 300초 함수 실행 지원을 확인한다. `vercel.json`의 maxDuration은 300초다.
 
-```bash
-npm ci --omit=dev
-npm run worker
-```
+Vercel Cron은 매일 UTC 00:00(KST 09시 시간대)에 요청 등록과 실제 수집을 모두 수행한다. CRON_SECRET이 필요하다. 240초의 새 작업 시작 예산이 끝나면 남은 작업은 대기 상태로 보존된다. 지연된 재시도도 다음 화면 접속이나 다음 Cron 호출에서 이어서 처리한다. 모든 앱의 일일 완료 시간을 보장하는 구성은 아니다.
 
-Worker에는 같은 DB의 `DATABASE_URL`, 필요 시 `DATABASE_CA_FILE`, 기본 `SCHEDULE_HOUR_KST=9`를 설정한다. 웹 요청용 Supabase Auth 키는 Worker에 필요하지 않다.
-
-Worker가 없으면 로그인·등록·조회는 가능하지만 수집 요청은 대기 상태에 남는다.
+기존 `npm run worker`는 선택적 로컬 실행 용도로 계속 사용할 수 있다.
 
 ## 5. 연결 후 검증
 
 1. `/api/health`가 `ok:true`, `configured:true`를 반환하는지 확인한다. 이 값은 설정 유무 점검이며 실제 DB 연결·로그인 성공을 보장하지 않는다.
 2. 관리자 로그인 후 경쟁사를 하나 등록한다.
-3. Worker가 해당 작업을 처리하고 실제 스냅샷을 저장하는지 확인한다.
+3. Vercel 수집 API가 해당 작업을 처리하고 실제 스냅샷을 저장하는지 확인한다.
 4. App Store / Play Store 각각 수집하고, 부분 성공이라면 파서 경고를 확인한다.
 5. 두 번째 수집 후 과거 설명과 시점별 수치가 유지되는지 확인한다.
-6. 이력 내보내기, 로그아웃 후 API 접근 차단, Worker 재시작 복구를 확인한다.
+6. 이력 내보내기, 로그아웃 후 API 접근 차단, 화면 재접속 및 만료 작업 복구를 확인한다.
 
 ## 현재 확인된 접근 제한
 

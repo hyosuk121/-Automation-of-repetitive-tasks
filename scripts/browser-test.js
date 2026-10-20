@@ -14,7 +14,9 @@ import { listCompetitors } from '../lib/repository.js';
 const owner='00000000-0000-4000-8000-000000000001';
 const database=new PGlite();
 await database.exec(await readFile('supabase/migrations/20261020000000_initial.sql','utf8'));
-const handler=vercelHandler(createHandler({database:()=>database,authenticate:async()=>({id:owner,email:'fixture@example.com'})}));
+const result={appName:'Fixture App',developerName:'Test developer',iconUrl:null,version:'1.0',sourceUpdatedAt:'2026-10-20',rating:4.5,ratingCount:32,reviewCount:null,downloadsText:null,latestNotes:'첫 번째 업데이트',releases:[{version:'1.0',releaseDate:'2026-10-20',notes:'첫 번째 업데이트'}],historyComplete:true,quality:'complete'};
+let collectionRequests=0;
+const handler=vercelHandler(createHandler({database:()=>database,authenticate:async()=>({id:owner,email:'fixture@example.com'}),collector:async()=>{collectionRequests++;return result;}}));
 let configured=false;
 const server=createServer(async(req,res)=>{
   if(req.url.startsWith('/api/')){
@@ -80,8 +82,9 @@ try{
   await page.getByLabel('App Store 링크').fill('https://apps.apple.com/kr/app/id123456');
   await page.getByRole('button',{name:'등록하고 첫 수집 시작'}).click();
   await page.getByRole('button',{name:'테스트 경쟁사',exact:true}).waitFor();
-  const result={appName:'Fixture App',developerName:'Test developer',iconUrl:null,version:'1.0',sourceUpdatedAt:'2026-10-20',rating:4.5,ratingCount:32,reviewCount:null,downloadsText:null,latestNotes:'첫 번째 업데이트',releases:[{version:'1.0',releaseDate:'2026-10-20',notes:'첫 번째 업데이트'}],historyComplete:true,quality:'complete'};
-  await workOnce(database,async()=>result);
+
+  await page.locator('#table-content').getByText('1.0',{exact:true}).waitFor();
+  assert.equal(collectionRequests,1); // Browser triggered the production process endpoint, no worker.
   const competitor=(await listCompetitors(database,owner))[0];
   await enqueue(database,owner,{ids:[competitor.id]});
   await workOnce(database,async()=>({...result,rating:4.7,latestNotes:'수정된 설명',releases:[{...result.releases[0],notes:'수정된 설명'}]}));
