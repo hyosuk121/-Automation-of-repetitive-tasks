@@ -82,3 +82,10 @@ SQL 테스트는 PGlite(PostgreSQL)를 사용하며 실제 서비스 로직과 �
 - `npm run build`: 성공.
 - `npm run test:browser`: PC/모바일 검증 통과. 등록 후 브라우저가 실제 수집 API를 호출해 SQL 스냅샷을 저장하고 화면에 버전을 표시하는 것을 확인했다. 수집기만 fixture로 대체했으며 별도 Worker를 실행하지 않았다.
 - 실제 운영 Supabase와 스토어를 통한 수집 속도/성공 여부는 이 테스트로 보장하지 않는다. 원격 인증 정보가 없으므로 배포 후 운영 사이트에서 확인해야 한다.
+
+## HTML 보고서 항목 및 앱 아이콘 개선
+
+- 첨부된 두 HTML 보고서를 비교해 최신 정보 24행과 App Store 이력 249행의 항목을 확인했다. 세부 매핑과 제약은 `docs/collection-report-parity.md`에 기록했다.
+- `npm test`: 30개 통과. Apple DOM/JSON/인코딩된 캐시, 공식 도메인 리디렉션 제한, Play 수치·버전·설명 정규화를 검증했다.
+- `npm run build`, `npm run test:browser` 성공. 실제 SQL 스냅샷을 기반으로 아이콘 로드/오류 대체, 평점 수와 최신 설명 펼치기, 기존 이력·내보내기를 확인했다.
+- PC 화면을 캡처해 확장된 표를 시각 검토했다. 원격 스토어 HTTP 접근은 프록시 403으로 차단되어 라이브 수집 성공은 미검증이다.

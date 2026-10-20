@@ -14,7 +14,7 @@ import { listCompetitors } from '../lib/repository.js';
 const owner='00000000-0000-4000-8000-000000000001';
 const database=new PGlite();
 await database.exec(await readFile('supabase/migrations/20261020000000_initial.sql','utf8'));
-const result={appName:'Fixture App',developerName:'Test developer',iconUrl:null,version:'1.0',sourceUpdatedAt:'2026-10-20',rating:4.5,ratingCount:32,reviewCount:null,downloadsText:null,latestNotes:'첫 번째 업데이트',releases:[{version:'1.0',releaseDate:'2026-10-20',notes:'첫 번째 업데이트'}],historyComplete:true,quality:'complete'};
+const result={appName:'Fixture App',developerName:'Test developer',iconUrl:'https://icons.example.test/app.png',version:'1.0',sourceUpdatedAt:'2026-10-20',rating:4.5,ratingCount:32,reviewCount:null,downloadsText:null,latestNotes:'첫 번째 업데이트',releases:[{version:'1.0',releaseDate:'2026-10-20',notes:'첫 번째 업데이트'}],historyComplete:true,quality:'complete'};
 let collectionRequests=0;
 const handler=vercelHandler(createHandler({database:()=>database,authenticate:async()=>({id:owner,email:'fixture@example.com'}),collector:async()=>{collectionRequests++;return result;}}));
 let configured=false;
@@ -41,6 +41,7 @@ process.env.COLLECTION_INTERVAL_SECONDS='0';
 await mkdir('test-results',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':chromium.executablePath()),headless:true,args:['--no-sandbox']});
 const context=await browser.newContext({viewport:{width:1440,height:1050},acceptDownloads:true});
+await context.route('https://icons.example.test/**',route=>route.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII=','base64')}));
 const page=await context.newPage();
 const errors=[];
 page.on('pageerror',e=>errors.push(e.message));
@@ -84,6 +85,13 @@ try{
   await page.getByRole('button',{name:'테스트 경쟁사',exact:true}).waitFor();
 
   await page.locator('#table-content').getByText('1.0',{exact:true}).waitFor();
+  await page.waitForFunction(()=>document.querySelector('img[data-app-icon]')?.naturalWidth>0);
+  assert.equal(await page.locator('img[data-app-icon]').getAttribute('alt'),'테스트 경쟁사 앱 아이콘');
+  await page.getByText('평점 수 32',{exact:true}).waitFor();
+  await page.getByText('업데이트 내용 보기',{exact:true}).click();
+  await page.locator('.latest-notes-cell').getByText('첫 번째 업데이트',{exact:true}).waitFor();
+  await page.locator('img[data-app-icon]').dispatchEvent('error');
+  assert.equal(await page.locator('img[data-app-icon]').count(),0);
   assert.equal(collectionRequests,1); // Browser triggered the production process endpoint, no worker.
   const competitor=(await listCompetitors(database,owner))[0];
   await enqueue(database,owner,{ids:[competitor.id]});
@@ -92,7 +100,7 @@ try{
   await page.screenshot({path:'test-results/dashboard-fixture.png',fullPage:true});
   await page.getByRole('button',{name:'테스트 경쟁사',exact:true}).click();
   await page.getByRole('heading',{name:'테스트 경쟁사',exact:true}).waitFor();
-  await page.getByText('수정된 설명',{exact:true}).first().waitFor();
+  await page.locator('#modal').getByText('수정된 설명',{exact:true}).first().waitFor();
   await page.getByRole('button',{name:'시점별 수치'}).click();
   await page.getByRole('cell',{name:'4.7',exact:true}).waitFor();
   await page.getByRole('button',{name:'릴리즈 이력'}).click();
