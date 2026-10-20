@@ -61,6 +61,8 @@ npm start
 
 ## Supabase 설정
 
+현재 사용자 프로젝트에 맞춘 값과 연결 순서는 [배포 설정 안내](docs/deployment-settings.md)를 참고하세요. Supabase GitHub 연동용 설정과 SQL은 `supabase/` 표준 경로에 있습니다.
+
 1. 프로젝트를 생성하고 Auth 설정에서 공개 회원가입을 비활성화합니다.
 2. 관리자 이메일 계정을 생성합니다. 이메일·비밀번호 인증을 사용합니다.
 3. 다음 변수는 서버/Worker의 보안 환경 변수로 설정합니다. `.env`를 커밋하지 마세요.
@@ -86,7 +88,7 @@ DB 연결은 TLS 인증서 검증을 유지합니다. URL에 `sslmode=no-verify`
 npm run db:migrate
 ```
 
-`db/001_initial.sql`은 테이블, 고유 키, 인덱스, RLS 및 스냅샷 수정·삭제 방지 트리거를 생성합니다. 마이그레이션은 트랜잭션과 DB 잠금 안에서 실행되며 재실행할 수 있습니다. 실제 DB에 적용하기 전 별도 스테이징 프로젝트에서 확인하세요.
+`supabase/migrations/20261020000000_initial.sql`은 테이블, 고유 키, 인덱스, RLS 및 스냅샷 수정·삭제 방지 트리거를 생성합니다. 마이그레이션은 트랜잭션과 DB 잠금 안에서 실행되며 재실행할 수 있습니다. 실제 DB에 적용하기 전 별도 스테이징 프로젝트에서 확인하세요.
 
 ## Vercel 및 Worker 배포
 
@@ -178,6 +180,6 @@ Supabase의 백업 또는 PITR 기능을 사용 중인 요금제에서 확인하
 | `lib/history.js` | 스냅샷·릴리즈·설명 개정 저장 |
 | `lib/importer.js` | 기존 JSON 데이터 이전 |
 | `lib/export.js` | 다섯 형식의 내보내기 |
-| `db/001_initial.sql` | PostgreSQL 스키마 |
+| `supabase/migrations/20261020000000_initial.sql` | PostgreSQL 스키마 |
 | `scripts/worker.js` | 별도 장기 실행 Worker |
 | `docs/competitor-analyzer-plan.md` | 초기 범위와 보존 원칙 |

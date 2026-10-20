@@ -12,7 +12,7 @@ import { listCompetitors } from '../lib/repository.js';
 
 const owner='00000000-0000-4000-8000-000000000001';
 const database=new PGlite();
-await database.exec(await readFile('db/001_initial.sql','utf8'));
+await database.exec(await readFile('supabase/migrations/20261020000000_initial.sql','utf8'));
 const handler=createHandler({database:()=>database,authenticate:async()=>({id:owner,email:'fixture@example.com'})});
 let configured=false;
 const server=createServer(async(req,res)=>{

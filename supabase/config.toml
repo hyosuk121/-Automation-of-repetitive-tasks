@@ -1,0 +1,33 @@
+# Repository configuration for Supabase CLI / GitHub database branching.
+# Link the project explicitly; never commit a database password or access token.
+project_id = "automation-hub"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[db.seed]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "https://automation-of-repetitive-tasks.vercel.app"
+additional_redirect_urls = []
+enable_signup = false
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = false
+enable_confirmations = true

@@ -27,7 +27,7 @@ async function add(name='Competitor',both=false) {
 }
 before(async()=>{
   database=new PGlite();
-  await database.exec(await readFile(new URL('../db/001_initial.sql',import.meta.url),'utf8'));
+  await database.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
   process.env.COLLECTION_INTERVAL_SECONDS='0';
   process.env.APP_ORIGIN='http://localhost:4173';
 });
