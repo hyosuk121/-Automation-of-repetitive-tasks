@@ -72,6 +72,7 @@ npm start
 | `SUPABASE_URL` | Supabase 프로젝트 URL |
 | `SUPABASE_ANON_KEY` | Auth 요청용 publishable/anon key |
 | `DATABASE_URL` | PostgreSQL 연결 URL. 서버·Worker 전용 |
+| `DATABASE_CA_CERT` | Supabase에서 다운로드한 CA 인증서의 PEM 전체. Vercel에서는 파일 경로 대신 이 변수 사용 |
 | `DATABASE_CA_FILE` | 필요한 경우 DB 공급자의 검증 가능한 CA 파일 경로 |
 | `ADMIN_EMAILS` | 허용 관리자 이메일. 쉼표로 구분 |
 | `APP_ORIGIN` | 실제 웹 주소. 운영에서는 반드시 `https://...` |
@@ -83,6 +84,8 @@ npm start
 `DATABASE_URL`은 브라우저에 노출하지 않습니다. API는 사용자를 인증하고 모든 조회·변경을 해당 사용자 ID로 제한합니다. 테이블은 RLS가 활성화되어 있고 브라우저용 정책은 열지 않습니다. 서버의 신뢰된 DB 연결이 필요합니다.
 
 DB 연결은 TLS 인증서 검증을 유지합니다. URL에 `sslmode=no-verify` 같은 우회 옵션을 사용하지 마세요. Supabase 연결 메뉴의 호스트와 연결 방식을 사용하세요. Worker/마이그레이션에는 session pooler, 서버리스 API에는 transaction pooler를 사용할 수 있습니다. TLS 오류는 공급자의 CA와 올바른 호스트로 해결합니다.
+
+`SELF_SIGNED_CERT_IN_CHAIN`이 발생하면 [인증서 등록 안내](docs/deployment-settings.md#db-인증서-오류가-나오는-경우)를 따라 `DATABASE_CA_CERT`를 등록합니다. 실제 줄바꿈 또는 `\n`으로 구분된 PEM을 지원합니다. 인증서는 관리자 화면에서 다운로드한 공식 CA를 사용하며, 서버 인증서 자체를 임의로 신뢰하거나 검증을 끄지 않습니다.
 
 ```bash
 npm run db:migrate

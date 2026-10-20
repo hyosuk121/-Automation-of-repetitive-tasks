@@ -60,6 +60,25 @@ Supabase Authentication → Users에서 관리자 계정을 생성하고 사용 
 - 관리자 이메일이 제공되지 않아 임의의 이메일에 권한을 부여하지 않았다.
 - 비밀번호는 채팅이나 저장소에 보내지 않는다.
 
+## DB 인증서 오류가 나오는 경우
+
+`SELF_SIGNED_CERT_IN_CHAIN`은 서버가 DB의 인증서 체인을 검증하지 못했다는 뜻이다. 이 오류만으로 DB 비밀번호가 틀렸다고 판단하지 않는다.
+
+1. Supabase 프로젝트의 **Database → Settings**에서 **SSL Configuration** 항목을 찾는다. UI 버전에 따라 **Project Settings → Database** 안에 있을 수 있다.
+2. **Download certificate**로 공식 CA 인증서(`.crt`)를 다운로드한다.
+3. 다운로드한 파일을 메모장 같은 텍스트 편집기로 연다. 파일을 더블클릭하면 인증서 정보 창이 나올 수 있으므로, 메모장에서 **파일 → 열기 → 모든 파일**로 선택한다.
+4. `-----BEGIN CERTIFICATE-----`부터 `-----END CERTIFICATE-----`까지 모든 줄을 복사한다. 파일명이나 경로를 복사하는 것이 아니다.
+5. Vercel 프로젝트 **Settings → Environment Variables → Add Environment Variable**에서 다음을 저장한다:
+   - Type: **Config** (공개 CA 인증서이며 비밀번호/개인키가 아니다)
+   - Key: `DATABASE_CA_CERT`
+   - Value: 복사한 인증서 전체. 줄바꿈을 포함해 그대로 붙여 넣는다.
+   - Environment: **Production**
+6. 최신 `main`을 재배포하고 Ready 후 다시 로그인한다.
+
+Worker 호스트에도 같은 변수를 설정한다. `DATABASE_CA_CERT`가 있으면 `DATABASE_CA_FILE`보다 우선한다. 인증서의 CA 형식을 검사하고, DB 서버 인증서와 호스트 이름의 검증은 계속 활성화한다.
+
+`NODE_TLS_REJECT_UNAUTHORIZED=0`, `rejectUnauthorized:false`, `sslmode=no-verify`는 사용하지 않는다.
+
 ## 4. 수집 Worker
 
 현재 설계에서 **Vercel Cron은 작업을 큐에 넣는 역할만 한다.** 실제 스토어 요청은 별도 Worker가 수행한다.
