@@ -91,8 +91,10 @@ try{
   await page.waitForFunction(()=>document.querySelector('img[data-app-icon]')?.naturalWidth>0);
   assert.equal(await page.locator('img[data-app-icon]').getAttribute('alt'),'테스트 경쟁사 앱 아이콘');
   await page.getByText('평점 수 32',{exact:true}).waitFor();
-  await page.getByText('업데이트 내용 보기',{exact:true}).click();
-  await page.locator('.latest-notes-cell').getByText('첫 번째 업데이트',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'▶ 업데이트 내용 보기',exact:true}).click();
+  await page.locator('.expanded-notes').getByText('첫 번째 업데이트',{exact:true}).waitFor();
+  await page.locator('.expanded-notes').getByRole('button',{name:'접기',exact:true}).click();
+  assert.equal(await page.locator('.expanded-notes').isVisible(),false);
   await page.locator('img[data-app-icon]').dispatchEvent('error');
   assert.equal(await page.locator('img[data-app-icon]').count(),0);
   assert.equal(collectionRequests,1); // Browser triggered the production process endpoint, no worker.
@@ -105,8 +107,12 @@ try{
   await page.getByRole('heading',{name:'테스트 경쟁사',exact:true}).waitFor();
   await page.locator('#modal').getByText('수정된 설명',{exact:true}).first().waitFor();
   await page.getByRole('button',{name:'시점별 수치'}).click();
-  await page.getByRole('cell',{name:'4.7',exact:true}).waitFor();
+  await page.getByRole('cell',{name:'4.70',exact:true}).waitFor();
+  assert.equal(await page.locator('#detail-snapshots circle').count(),1);
+  await page.locator('#detail-snapshots circle').hover();
+  assert.match(await page.locator('#detail-snapshots [role=tooltip]').innerText(),/4.70점/);
   await page.getByRole('button',{name:'릴리즈 이력'}).click();
+  assert.equal(await page.locator('#detail-releases details').count(),0);
   assert.equal(await page.locator('.release-published').count(),1);
   assert.ok(!(await page.locator('#detail-releases').innerText()).includes('최초 관측'));
   assert.ok((await page.locator('.release-top .badge').innerText()).includes('마지막 수집일'));
@@ -142,7 +148,11 @@ try{
   assert.match(await page.locator('[role=tooltip]').innerText(),/테스트 경쟁사.*18위/);
   await point.focus();await page.keyboard.press('Escape');
   assert.equal(await page.locator('[role=tooltip]').isVisible(),false);
-  await page.locator('#rank-app').selectOption(competitor.apps[0].id);
+  await page.locator('.rank-toolbar .multi-filter summary').click();
+  await page.locator('[data-rank-app]').uncheck();
+  assert.equal(await page.locator('.rank-chart circle').count(),0);
+  await page.locator('[data-rank-app]').check();
+  await page.locator('.rank-toolbar .multi-filter summary').click();
   assert.equal(await page.locator('.rank-chart circle').count(),2);
 
   await page.getByText('일별 데이터 보기',{exact:true}).click();
@@ -152,9 +162,19 @@ try{
   await page.locator('[data-daily-from]').fill(koreanDay());
   await page.locator('[data-daily-from]').dispatchEvent('change');
   assert.equal(await page.locator('.rank-matrix thead th:not([hidden])').count(),2);
-  await page.locator('[data-daily-app]').selectOption(competitor.apps[0].id);
+  await page.locator('.rank-data-filters .multi-filter summary').click();
+  await page.locator('[data-daily-app]').uncheck();
+  assert.equal(await page.locator('.rank-matrix tbody tr:not([hidden])').count(),0);
+  await page.locator('[data-daily-app]').check();
+  await page.locator('.rank-data-filters .multi-filter summary').click();
   assert.equal(await page.locator('.rank-matrix tbody tr:not([hidden])').count(),1);
 
+  await page.locator('#rank-days').selectOption('custom');
+  await page.locator('#rank-period [name=from]').fill(koreanDay(new Date(Date.now()-2*86400000)));
+  await page.locator('#rank-period [name=to]').fill(koreanDay());
+  await page.getByRole('button',{name:'기간 적용',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelectorAll('.rank-matrix thead th').length===4);
+  await page.getByText('일별 데이터 보기',{exact:true}).click();
   await page.screenshot({path:'test-results/rankings-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.emulateMedia({reducedMotion:'reduce'});
@@ -179,7 +199,14 @@ try{
   assert.equal(guestRequests.includes('/api/collections'),false);assert.equal(guestRequests.includes('/api/automation'),false);
   await page.getByRole('button',{name:'테스트 경쟁사',exact:true}).click();
   await page.locator('#modal').getByText('수정된 설명',{exact:true}).first().waitFor();
-  await page.getByRole('button',{name:'시점별 수치'}).click();await page.getByRole('cell',{name:'4.7',exact:true}).waitFor();
+  const headerTop=await page.locator('#modal .modal-heading').evaluate(el=>el.getBoundingClientRect().top);
+  await page.locator('#modal').evaluate(el=>{el.scrollTop=500;});
+  assert.ok(Math.abs((await page.locator('#modal .modal-heading').evaluate(el=>el.getBoundingClientRect().top))-headerTop)<2);
+  await page.screenshot({path:'test-results/release-sticky-header.png'});
+  await page.locator('#modal').evaluate(el=>{el.scrollTop=0;});
+  await page.getByRole('button',{name:'시점별 수치'}).click();await page.getByRole('cell',{name:'4.70',exact:true}).waitFor();
+  assert.equal(await page.locator('#detail-snapshots tbody tr').count(),1);
+  await page.screenshot({path:'test-results/daily-rating-chart.png'});
   await page.getByRole('button',{name:'닫기',exact:true}).click();
   await page.getByRole('button',{name:'자세히 보기 →',exact:true}).click();
   await page.locator('.rank-chart circle').first().waitFor();

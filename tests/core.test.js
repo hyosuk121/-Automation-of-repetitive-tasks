@@ -362,3 +362,36 @@ test('daily migration merges old rows while preserving release and change refere
   assert.equal((await legacy.query('SELECT count(*)::int n FROM snapshot_receipts')).rows[0].n,2);
  }finally{await legacy.close();}
 });
+
+test('July cleanup removes only ratings/counts and preserves releases and other dates',async()=>{
+ const legacy=new PGlite();
+ try{
+  await legacy.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
+  const c=await saveCompetitor(legacy,owner,{name:'July cleanup',service_scope:'domestic',app_store:'https://apps.apple.com/kr/app/id123456'}),app=(await listCompetitors(legacy,owner))[0].apps[0];
+  const ids=[];
+  for(const at of ['2026-07-08T16:00:00Z','2026-07-09T15:00:00Z']){
+   const run=(await legacy.query("INSERT INTO collection_runs(owner_id,trigger_type,status) VALUES($1,'migration','succeeded') RETURNING id",[owner])).rows[0];
+   ids.push((await legacy.query("INSERT INTO store_snapshots(store_app_id,collection_run_id,collected_at,rating,rating_count,review_count,downloads_text,normalized_payload,content_hash) VALUES($1,$2,$3,4.81968,6000,50,'10,000+', $4,'old') RETURNING id",[app.id,run.id,at,JSON.stringify({rating:4.81968,ratingCount:6000,legacy:{rating:4.81968,ratingCount:6000,reviewCount:50},reviewCount:50})])).rows[0].id);
+  }
+  const release=(await legacy.query("INSERT INTO release_history(store_app_id,release_key,version,release_date,first_seen_at,last_seen_at,first_snapshot_id,last_snapshot_id) VALUES($1,'july','1','2026-06-01','2026-07-09','2026-07-09',$2,$2) RETURNING id",[app.id,ids[0]])).rows[0];
+  await legacy.query("INSERT INTO release_note_revisions(release_history_id,notes,notes_hash,first_seen_at,last_seen_at) VALUES($1,'Keep these notes','notes',now(),now())",[release.id]);
+  await applyFeatureSchema(legacy);
+  const rows=(await legacy.query('SELECT * FROM store_snapshots ORDER BY collected_at')).rows;
+  assert.equal(rows[0].rating,null);assert.equal(rows[0].rating_count,null);assert.equal(Number(rows[0].review_count),50);assert.equal(rows[0].downloads_text,'10,000+');assert.equal(rows[0].normalized_payload.legacy.rating,undefined);
+  assert.equal(Number(rows[1].rating),4.81968);assert.equal(Number(rows[1].rating_count),6000);
+  assert.equal((await legacy.query('SELECT notes FROM release_note_revisions')).rows[0].notes,'Keep these notes');
+  const run=(await legacy.query("INSERT INTO collection_runs(owner_id,trigger_type,status) VALUES($1,'migration','succeeded') RETURNING id",[owner])).rows[0];
+  await transaction(legacy,tx=>saveSnapshot(tx,app,run.id,payload('1','Keep these notes',{quality:'migration'}),'2026-07-09T10:00:00Z'));
+  assert.equal((await legacy.query('SELECT rating FROM store_snapshots WHERE id=$1',[ids[0]])).rows[0].rating,null);
+ }finally{await legacy.close();}
+});
+
+test('release history sorts publication date before observation date',async()=>{
+ const c=await add('Publication ordering'),app=(await listCompetitors(database,owner)).find(x=>x.id===c.id).apps[0];
+ for(const [version,releaseDate,at]of [['2','2026-09-01','2026-10-01'],['1','2026-08-01','2026-10-21']]){
+  const run=(await database.query("INSERT INTO collection_runs(owner_id,trigger_type,status) VALUES($1,'manual','succeeded') RETURNING id",[owner])).rows[0];
+  await transaction(database,tx=>saveSnapshot(tx,app,run.id,payload(version,'Notes',{releases:[{version,releaseDate,notes:'Notes'}]}),at));
+ }
+ const history=await appHistory(database,owner,app.id,'1970-01-01','2100-01-01');
+ assert.deepEqual(history.releases.map(r=>r.version),['2','1']);
+});

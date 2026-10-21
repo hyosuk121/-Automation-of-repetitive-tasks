@@ -9,3 +9,11 @@ test('competitor colors stay fixed across filtering and normalized names',()=>{
  const all=rankingsView({rows});
  for(const r of rows){const filtered=rankingsView({rows},{app:r.app_id});assert.ok(filtered.includes(`fill="${expected[r.name]}"`));assert.ok(all.includes(`fill="${expected[r.name]}"`));}
 });
+
+test('rank filters support multiple apps and show missing daily values as dashes',()=>{
+ const rows=['a','b','c'].map((id,i)=>({app_id:id,name:id,platform:'app_store',day:'2026-10-21',status:i===2?'uncollected':'ranked',rank:i+1}));
+ const html=rankingsView({rows},{app:['a','b'],days:'custom',from:'2026-10-01',to:'2026-10-21'});
+ assert.equal((html.match(/data-rank-point/g)||[]).length,2);
+ assert.ok(html.includes('data-rank-app'));assert.ok(html.includes('data-daily-app'));assert.ok(html.includes('rank-period'));
+ assert.ok(html.includes('a - 1위&#10;2026-10-21'));assert.ok(html.includes('data-day="2026-10-21">-</td>'));
+});

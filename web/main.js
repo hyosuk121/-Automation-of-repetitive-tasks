@@ -1,3 +1,5 @@
+import {ratingLabel,bindChartTooltip} from './chart-utils.js';
+import {ratingChart} from './rating-chart.js';
 import { createIcons, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, LayoutGrid, ChartNoAxesCombined, Plane, Clock3, Settings2, Search, Plus, RefreshCw, Download, X, LogOut, ShieldCheck, CircleHelp, ExternalLink, Pencil, Archive, Check, AlertCircle, Database, Menu, GripVertical, Layers, Zap, CalendarDays } from 'lucide';
 import '@fontsource/dm-sans/400.css';
 import '@fontsource/dm-sans/600.css';
@@ -12,7 +14,7 @@ import { readApiResponse } from './api-response.js';
 
 const icons={ArrowRight,ArrowLeft,ChevronLeft,ChevronRight,ChevronUp,ChevronDown,LayoutGrid,ChartNoAxesCombined,Plane,Clock3,Settings2,Search,Plus,RefreshCw,Download,X,LogOut,ShieldCheck,CircleHelp,ExternalLink,Pencil,Archive,Check,AlertCircle,Database,Menu,GripVertical,Layers,Zap,CalendarDays};
 const $=s=>document.querySelector(s);
-const state={user:null,config:null,competitors:[],runs:[],page:'dashboard',platform:'app_store',search:'',scope:'all',status:'all',archived:false,selectedCard:0,busy:false,runOffset:0,automation:null,rankings:null,rankPlatform:"app_store",rankDays:30,rankApp:"all"};
+const state={user:null,config:null,competitors:[],runs:[],page:'dashboard',platform:'app_store',search:'',scope:'all',status:'all',archived:false,selectedCard:0,busy:false,runOffset:0,automation:null,rankings:null,rankPlatform:"app_store",rankDays:30,rankApp:"all",rankFrom:"",rankTo:""};
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icon=(name,cls='')=>`<i data-lucide="${name.replace(/([a-z0-9])([A-Z])/g,'$1-$2').toLowerCase()}" class="${cls}" aria-hidden="true"></i>`;
 const initIcons=()=>createIcons({icons,attrs:{'stroke-width':1.7}});
@@ -43,7 +45,7 @@ window.addEventListener('popstate',()=>{state.page='dashboard';render();loadData
 function home(){
   const last=state.competitors.flatMap(c=>c.apps).map(a=>a.last_success_at).filter(Boolean).sort().at(-1);
   return `<div class="portal">
-    <header class="portal-nav"><a class="brand" href="/" data-home><span class="brand-mark">${icon('Zap')}</span>automation<span class="brand-light">hub</span></a>
+    <header class="portal-nav"><a class="brand" href="/" data-home><img class="brand-icon" src="/favicon.svg" alt=""><span>Hyoseok's<br>Automation</span></a>
     <div class="nav-right"><span class="personal-label">YOUR WORKSPACE</span><button class="avatar" data-login aria-label="관리자 로그인">${state.user?'MY':icon('ShieldCheck')}</button></div></header>
     <main class="portal-main"><div class="eyebrow"><span></span> SMALL TOOLS. MORE POSSIBILITIES.</div>
     <h1>반복되는 일은 간편하게,<br><span>당신의 시간은 더 가치 있게.</span></h1>
@@ -66,12 +68,12 @@ function home(){
       </article>
     </section>
     <div class="carousel-bottom"><div class="dots"><button class="${state.selectedCard===0?'selected':''}" data-select-card="0" aria-label="첫 번째 카드" aria-pressed="${state.selectedCard===0}"></button><button class="${state.selectedCard===1?'selected':''}" data-select-card="1" aria-label="두 번째 카드" aria-pressed="${state.selectedCard===1}"></button></div><span>필요한 도구는 계속 더해집니다.</span></div>
-    </main><footer class="portal-footer"><span>LESS REPETITION, MORE FOCUS.</span><span>Automation Hub · 나만의 업무 공간</span></footer></div>`;
+    </main><footer class="portal-footer"><span>LESS REPETITION, MORE FOCUS.</span><span>Hyoseok's Automation · 나만의 업무 공간</span></footer></div>`;
 }
 function shell(){
   const pageTitle={dashboard:'업데이트 대시보드',manage:'경쟁사 관리',history:'수집 이력',rankings:'카테고리 순위',setup:'자동 수집 · 과거 기록'}[state.page];
   return `<div class="workspace">
-    <aside class="sidebar"><a class="brand" href="/" data-home><span class="brand-mark">${icon('Zap')}</span>automation<span class="brand-light">hub</span></a>
+    <aside class="sidebar"><a class="brand" href="/" data-home><img class="brand-icon" src="/favicon.svg" alt=""><span>Hyoseok's<br>Automation</span></a>
     <a href="/" data-home class="back-link">${icon('ArrowLeft')} 모든 도구</a><div class="nav-section-label">COMPETITOR ANALYZER</div>
     <nav>${[['dashboard','LayoutGrid','대시보드'],['manage','Layers','경쟁사 관리'],['history','Clock3','수집 이력'],['rankings','ChartNoAxesCombined','카테고리 순위'],['setup','Settings2','자동 수집 · 과거 기록']].filter(([p])=>state.user||['dashboard','rankings'].includes(p)).map(([p,i,n])=>`<button data-page="${p}" class="nav-item ${state.page===p?'selected':''}">${icon(i)}${n}${p==='manage'?`<span>${state.competitors.filter(c=>!c.archived_at).length}</span>`:''}</button>`).join('')}</nav>
     <div class="sidebar-bottom"><div class="preservation-note">${icon('Database')}<strong>기록은 계속 남습니다</strong><p>스토어에서 사라진 업데이트도<br>수집한 기록은 안전하게 보존합니다.</p></div>
@@ -81,7 +83,7 @@ function shell(){
     ${!state.config?.database || !state.config?.authentication || !state.config?.origin?`<div class="notice">${icon('Settings2')}<div><strong>서비스 연결을 준비하고 있습니다</strong><p>Supabase와 관리자 인증 설정 후 실제 수집·저장을 사용할 수 있습니다. 아직 저장된 데이터는 없습니다.</p></div><button class="text-button" data-setup>설정 안내 ${icon('ArrowRight')}</button></div>`:
       !state.user?`<div class="notice">${icon('ShieldCheck')}<div><strong>수집 결과를 자유롭게 확인하세요</strong><p>조회는 로그인 없이 가능합니다. 경쟁사 등록·수집·설정 변경은 관리자만 할 수 있습니다.</p></div><button class="button primary" data-login>로그인</button></div>`:''}
     ${state.user && state.automation && !state.automation.schedulerInstalled && state.page!=='setup'?'<div class="notice"><p>웹을 닫아도 수집하려면 자동 수집 설정을 적용해 주세요.</p><button class="button secondary small" data-page="setup">설정 열기</button></div>':''}
-    ${state.page==='history'?runsView():state.page==='setup'?automationView():state.page==='rankings'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp}):dashboardView()}
+    ${state.page==='history'?runsView():state.page==='setup'?automationView():state.page==='rankings'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp,from:state.rankFrom,to:state.rankTo}):dashboardView()}
     <footer class="content-footer"><span>수집한 과거 기록은 최신 데이터로 덮어쓰지 않습니다.</span><span>모든 시간은 한국 표준시(KST) 기준</span></footer></main></div></div>`;
 }
 function dashboardView(){
@@ -91,7 +93,7 @@ function dashboardView(){
   const pending=apps.filter(a=>a.job_status).length;
   const failed=apps.filter(a=>a.last_error_message).length;
   return `<div class="stats-grid">${[['모니터링 경쟁사',active.length,'Layers','등록된 경쟁사 기준'],['변경 감지 앱',changed,'ChartNoAxesCombined','직전 수집과 비교'],['대기 · 수집 중',pending,'RefreshCw',state.automation?.schedulerInstalled?'웹을 닫아도 서버에서 처리합니다':'자동 수집 설정을 적용하면 웹을 닫아도 처리합니다'],['확인이 필요한 앱',failed,'AlertCircle','최근 수집 오류']].map(([title,n,i,sub])=>`<div class="stat-card"><span class="stat-icon">${icon(i)}</span><span class="stat-title">${title}</span><strong>${n}<small>개</small></strong><span class="stat-sub">${sub}</span></div>`).join('')}</div>
-    ${state.page==='dashboard'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp,compact:true}):''}
+    ${state.page==='dashboard'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp,from:state.rankFrom,to:state.rankTo,compact:true}):''}
     <section class="data-panel"><div class="panel-heading"><div class="platform-tabs" role="tablist" aria-label="스토어 선택"><button role="tab" aria-selected="${state.platform==='app_store'}" class="${state.platform==='app_store'?'selected':''}" data-platform="app_store">App Store <span>${apps.filter(a=>a.platform==='app_store').length}</span></button><button role="tab" aria-selected="${state.platform==='play_store'}" class="${state.platform==='play_store'?'selected':''}" data-platform="play_store">Play Store <span>${apps.filter(a=>a.platform==='play_store').length}</span></button></div>${state.user?`<button class="button secondary small" data-collect-all>${icon('RefreshCw')} 전체 수집</button>`:''}</div>
     <div class="table-toolbar"><label class="search-field">${icon('Search')}<input type="search" id="search" placeholder="경쟁사 또는 앱 이름 검색" value="${escape(state.search)}" aria-label="경쟁사 검색"></label><div class="filters"><select id="scope" aria-label="서비스 구분">${[['all','모든 지역'],['domestic','국내'],['global','국외'],['unknown','미분류']].map(([v,l])=>`<option value="${v}" ${state.scope===v?'selected':''}>${l}</option>`).join('')}</select><select id="status" aria-label="수집 상태">${[['all','모든 상태'],['changed','변경 있음'],['error','수집 오류'],['pending','대기 · 실행 중']].map(([v,l])=>`<option value="${v}" ${state.status===v?'selected':''}>${l}</option>`).join('')}</select>${state.page==='manage'?`<label class="checkbox-label"><input type="checkbox" id="archived" ${state.archived?'checked':''}> 보관 포함</label>`:''}</div></div>
     <div id="table-content">${tableContent()}</div><div class="table-footer"><span>전체 ${active.length}개 경쟁사</span><span>${icon('ShieldCheck')} 과거 업데이트 이력 보존</span></div></section>`;
@@ -109,7 +111,7 @@ function tableContent(){
   if(!list.length)return `<div class="empty-state"><div class="empty-icon">${icon(state.search?'Search':'ChartNoAxesCombined')}</div><h2>${state.competitors.length?'조건에 맞는 경쟁사가 없어요':'첫 번째 경쟁사를 등록해 보세요'}</h2><p>${state.competitors.length?'검색어나 필터를 변경해 다시 확인해 주세요.':'App Store 또는 Play Store 링크만 있으면 시작할 수 있어요.<br>업데이트와 변경 이력을 한곳에서 확인하세요.'}</p>${state.competitors.length||!state.user?'':`<button class="button primary" data-add>${icon('Plus')} 경쟁사 등록하기</button>`}</div>`;
   return `<div class="table-scroll"><table><thead><tr>${state.page==='manage'?'<th>순서</th>':''}<th>경쟁사 / 앱 이름</th><th>구분</th><th>최신 버전</th><th>최신 업데이트</th><th>평점 / ${state.platform==='app_store'?'평점 수':'리뷰 수'}</th>${state.platform==='play_store'?'<th>다운로드</th>':''}<th>업데이트 내용</th><th>변경 상태</th><th>최근 수집</th><th class="align-right">관리</th></tr></thead><tbody>${list.map(c=>{
     const a=c.apps.find(a=>a.platform===state.platform),s=a?.snapshot;
-    return `<tr data-row="${c.id}" ${state.page==='manage'&&!c.archived_at?'draggable="true"':''}><td ${state.page==='manage'?'':'hidden'}><div class="order-actions">${icon('GripVertical')}<button class="icon-button" data-move="${c.id}" data-direction="-1" aria-label="${escape(c.name)} 위로">${icon('ChevronUp')}</button><button class="icon-button" data-move="${c.id}" data-direction="1" aria-label="${escape(c.name)} 아래로">${icon('ChevronDown')}</button></div></td><td><div class="app-cell">${appIcon(s?.icon_url,c.name)}<div><button class="name-button" ${a?`data-detail="${a.id}"`:''}>${escape(c.name)}</button>${c.archived_at?'<span class="badge">보관됨</span>':''}<small>${escape(s?.app_name || (a?'첫 수집 대기':'스토어 미등록'))}</small></div></div></td><td><span class="scope-chip">${{domestic:'국내',global:'국외',unknown:'미분류'}[c.service_scope]}</span></td><td>${a?unknown(s?.version):'—'}</td><td class="date-cell">${unknown(s?.source_updated_at?.slice(0,10))}</td><td>${s?.rating!=null?Number(s.rating).toFixed(2)+' / 5':'—'}<small class="rating-count">${state.platform==='app_store'?'평점':'리뷰'} 수 ${countLabel(state.platform==='app_store'?s?.rating_count:s?.review_count)}</small></td>${state.platform==='play_store'?`<td>${unknown(s?.downloads_text)}</td>`:''}<td class="latest-notes-cell">${s?.latest_notes?`<details><summary>업데이트 내용 보기</summary><p class="release-notes">${escape(s.latest_notes)}</p></details>`:'제공된 설명 없음'}</td><td>${a?.job_status?badge(a.job_status):a?.last_error_message?badge('failed'):Number(a?.change_count)>0?'<span class="badge changed">변경 있음</span>':s?badge((s.quality||s.normalized_payload?.quality)==='partial'?'partial':'succeeded'):'<span class="badge">수집 전</span>'}</td><td class="date-cell">${a?.last_success_at?escape(date(a.last_success_at)):'—'}${Number(a?.missing_count)>0?`<small>과거 릴리즈 ${a.missing_count}개 보존</small>`:''}</td><td><div class="row-actions">${a?`<button class="icon-button" data-detail="${a.id}" aria-label="${escape(c.name)} 이력 보기">${icon('Clock3')}</button>`:''}${state.user&&!c.archived_at?`<button class="icon-button" data-collect="${c.id}" aria-label="${escape(c.name)} 수집">${icon('RefreshCw')}</button><button class="icon-button" data-edit="${c.id}" aria-label="${escape(c.name)} 수정">${icon('Pencil')}</button><button class="icon-button danger" data-archive="${c.id}" aria-label="${escape(c.name)} 보관">${icon('Archive')}</button>`:''}</div></td></tr>`;
+    return `<tr data-row="${c.id}" ${state.page==='manage'&&!c.archived_at?'draggable="true"':''}><td ${state.page==='manage'?'':'hidden'}><div class="order-actions">${icon('GripVertical')}<button class="icon-button" data-move="${c.id}" data-direction="-1" aria-label="${escape(c.name)} 위로">${icon('ChevronUp')}</button><button class="icon-button" data-move="${c.id}" data-direction="1" aria-label="${escape(c.name)} 아래로">${icon('ChevronDown')}</button></div></td><td><div class="app-cell">${appIcon(s?.icon_url,c.name)}<div><button class="name-button" ${a?`data-detail="${a.id}"`:''}>${escape(c.name)}</button>${c.archived_at?'<span class="badge">보관됨</span>':''}<small>${escape(s?.app_name || (a?'첫 수집 대기':'스토어 미등록'))}</small></div></div></td><td><span class="scope-chip">${{domestic:'국내',global:'국외',unknown:'미분류'}[c.service_scope]}</span></td><td>${a?unknown(s?.version):'—'}</td><td class="date-cell">${unknown(s?.source_updated_at?.slice(0,10))}</td><td>${s?.rating!=null?ratingLabel(s.rating)+' / 5':'—'}<small class="rating-count">${state.platform==='app_store'?'평점':'리뷰'} 수 ${countLabel(state.platform==='app_store'?s?.rating_count:s?.review_count)}</small></td>${state.platform==='play_store'?`<td>${unknown(s?.downloads_text)}</td>`:''}<td class="latest-notes-cell">${s?.latest_notes?`<button class="notes-toggle" data-notes="${escape(a.id)}" aria-expanded="false" aria-controls="notes-${escape(a.id)}">▶ 업데이트 내용 보기</button>`:'제공된 설명 없음'}</td><td>${a?.job_status?badge(a.job_status):a?.last_error_message?badge('failed'):Number(a?.change_count)>0?'<span class="badge changed">변경 있음</span>':s?badge((s.quality||s.normalized_payload?.quality)==='partial'?'partial':'succeeded'):'<span class="badge">수집 전</span>'}</td><td class="date-cell">${a?.last_success_at?escape(date(a.last_success_at)):'—'}${Number(a?.missing_count)>0?`<small>과거 릴리즈 ${a.missing_count}개 보존</small>`:''}</td><td><div class="row-actions">${a?`<button class="icon-button" data-detail="${a.id}" aria-label="${escape(c.name)} 이력 보기">${icon('Clock3')}</button>`:''}${state.user&&!c.archived_at?`<button class="icon-button" data-collect="${c.id}" aria-label="${escape(c.name)} 수집">${icon('RefreshCw')}</button><button class="icon-button" data-edit="${c.id}" aria-label="${escape(c.name)} 수정">${icon('Pencil')}</button><button class="icon-button danger" data-archive="${c.id}" aria-label="${escape(c.name)} 보관">${icon('Archive')}</button>`:''}</div></td></tr>${s?.latest_notes?`<tr id="notes-${escape(a.id)}" class="expanded-notes" hidden><td colspan="${9+(state.platform==='play_store'?1:0)+(state.page==='manage'?1:0)}"><div class="expanded-notes-heading"><strong>${escape(c.name)} · 업데이트 내용</strong><button class="text-button" data-notes="${escape(a.id)}" aria-expanded="false" aria-controls="notes-${escape(a.id)}">접기</button></div><p class="release-notes">${escape(s.latest_notes)}</p></td></tr>`:''}`;
   }).join('')}</tbody></table></div>`;
 }
 function automationView(){
@@ -154,7 +156,7 @@ function runsView(){
 }
 function render(){
   $('#app').innerHTML=location.pathname==='/'?home():shell();initIcons();bind();
-  document.title=location.pathname==='/'?'Automation Hub · 업무 자동화':'경쟁사 앱 업데이트 · Automation Hub';
+  document.title=location.pathname==='/'?"Hyoseok's Automation · 업무 자동화":"경쟁사 앱 업데이트 · Hyoseok's Automation";
 }
 function bind(){
   bindRankTooltips();
@@ -173,8 +175,15 @@ function bind(){
   $('[data-import-july]')?.addEventListener('click',importJuly);
   $('[data-rank-refresh]')?.addEventListener('click',()=>loadData(true));
   $('#rank-platform')?.addEventListener('change',e=>{state.rankPlatform=e.target.value;state.rankApp='all';render();});
-  $('#rank-days')?.addEventListener('change',e=>{state.rankDays=Number(e.target.value);loadData();});
-  $('#rank-app')?.addEventListener('change',e=>{state.rankApp=e.target.value;render();});
+  $('#rank-days')?.addEventListener('change',e=>{state.rankDays=e.target.value==='custom'?'custom':Number(e.target.value);if(state.rankDays==='custom'){state.rankFrom=state.rankings?.from||'';state.rankTo=state.rankings?.to||'';render();}else loadData();});
+  document.querySelectorAll('[data-rank-app],[data-rank-all]').forEach(input=>input.addEventListener('change',()=>{
+    if(input.hasAttribute('data-rank-all'))document.querySelectorAll('[data-rank-app]').forEach(box=>box.checked=input.checked);
+    const boxes=[...document.querySelectorAll('[data-rank-app]')];state.rankApp=boxes.filter(box=>box.checked).map(box=>box.value);
+    if(state.rankApp.length===boxes.length)state.rankApp='all';
+    const value=input.value,isAll=input.hasAttribute('data-rank-all');render();
+    const next=isAll?$('[data-rank-all]'):[...document.querySelectorAll('[data-rank-app]')].find(box=>box.value===value);if(next){next.closest('details').open=true;next.focus();}
+  }));
+  $('#rank-period')?.addEventListener('submit',e=>{e.preventDefault();const fields=new FormData(e.target);state.rankFrom=fields.get('from');state.rankTo=fields.get('to');if(!state.rankFrom||!state.rankTo||state.rankFrom>state.rankTo){toast('시작일과 종료일을 확인해 주세요.',true);return;}loadData();});
   document.querySelectorAll('[data-page]').forEach(e=>e.onclick=()=>{state.page=e.dataset.page;state.archived=false;state.runOffset=0;render();loadData();});
   document.querySelectorAll('[data-platform]').forEach(e=>e.onclick=()=>{state.platform=e.dataset.platform;render();});
   document.querySelectorAll('[data-slide]').forEach(e=>e.onclick=()=>slide(Number(e.dataset.slide)));
@@ -195,6 +204,10 @@ function bind(){
   bindTable();
 }
 function bindTable(){
+  document.querySelectorAll('[data-notes]').forEach(button=>button.onclick=()=>{
+    const row=document.getElementById('notes-'+button.dataset.notes);row.hidden=!row.hidden;
+    document.querySelectorAll('[data-notes]').forEach(control=>{if(control.dataset.notes===button.dataset.notes){control.setAttribute('aria-expanded',String(!row.hidden));if(control.classList.contains('notes-toggle'))control.textContent=row.hidden?'▶ 업데이트 내용 보기':'▼ 업데이트 내용 접기';}});
+  });
   document.querySelectorAll('.icon-button[aria-label]').forEach(button=>{
     const action=button.hasAttribute('data-detail')?'릴리즈 이력과 시점별 수치 확인':button.hasAttribute('data-collect')?'최신 스토어 정보 수집':button.hasAttribute('data-edit')?'경쟁사 이름과 스토어 링크 수정':button.hasAttribute('data-archive')?'경쟁사 보관 · 기존 기록은 유지':'';
     button.title=action||button.getAttribute('aria-label');
@@ -225,7 +238,7 @@ async function loadData(show=false){
   const update=fn=>data=>{if(generation===loadGeneration){fn(data);render();}};
   const tasks=[];
   if(['dashboard','manage'].includes(page)||location.pathname==='/')tasks.push(readApi('/competitors?archived='+state.archived).then(update(data=>{state.competitors=data.competitors;})));
-  if(['rankings','dashboard'].includes(page)&&location.pathname!=='/')tasks.push(readApi('/rankings?days='+state.rankDays).then(update(data=>{state.rankings=data;})));
+  if(['rankings','dashboard'].includes(page)&&location.pathname!=='/')tasks.push(readApi('/rankings?'+(state.rankDays==='custom'?new URLSearchParams({from:state.rankFrom,to:state.rankTo}):'days='+state.rankDays)).then(update(data=>{state.rankings=data;})));
   if(state.user&&page==='history')tasks.push(api('/collections?offset='+state.runOffset).then(update(data=>{state.runs=data.runs;})));
   if(state.user&&(page==='setup'||!state.automation))tasks.push(api('/automation').then(update(data=>{state.automation=data;})));
   const results=await Promise.allSettled(tasks);
@@ -252,7 +265,7 @@ async function resumeCollection(){
 }
 function modal(title,content,wide=false){
   const d=$('#modal');d.className=wide?'wide':'';
-  d.innerHTML=`<div class="modal-heading"><div><span class="eyebrow">AUTOMATION HUB</span><h2 id="modal-title">${escape(title)}</h2></div><button class="icon-button" data-close aria-label="닫기">${icon('X')}</button></div>${content}`;
+  d.innerHTML=`<div class="modal-heading"><div><span class="eyebrow">HYOSEOK'S AUTOMATION</span><h2 id="modal-title">${escape(title)}</h2></div><button class="icon-button" data-close aria-label="닫기">${icon('X')}</button></div>${content}`;
   d.setAttribute('aria-labelledby','modal-title');if(!d.open)d.showModal();d.querySelector('[data-close]').onclick=()=>d.close();initIcons();
 }
 function setupHelp(){
@@ -287,6 +300,7 @@ async function detail(id,query='',offset=0){
   try{
     const data=await readApi(`/store-apps/${id}/history?${query}${query?'&':''}offset=${offset}`);
     const c=data.competitor;
+    const metricSnapshots=data.snapshots.filter(s=>{const day=new Date(new Date(s.collected_at).getTime()+9*3600000).toISOString().slice(0,10);return day!=='2026-07-09'||[s.rating,s.rating_count,s.review_count,s.downloads_text].some(value=>value!=null&&value!=='');});
     const params=new URLSearchParams(query);
     modal(c?.name || '앱 이력',`<div class="detail-body"><div class="detail-platform"><span class="scope-chip">${data.app.platform==='app_store'?'App Store':'Play Store'}</span><a href="${escape(data.app.store_url)}" target="_blank" rel="noopener noreferrer">스토어 열기 ${icon('ExternalLink')}</a></div>
     ${c.apps.length>1?`<label class="connection-picker">수집 대상 · 이전 연결 포함<select id="history-connection">${c.apps.map(a=>`<option value="${a.id}" ${a.id===id?'selected':''}>${a.platform==='app_store'?'App Store':'Play Store'} · ${escape(a.external_id)} · ${escape(a.country)}${a.is_active?'':' (이전 연결)'}</option>`).join('')}</select></label>`:''}
@@ -294,10 +308,11 @@ async function detail(id,query='',offset=0){
     ${data.snapshots[0]?.normalized_payload?.warning?`<div class="notice compact"><p>${escape(data.snapshots[0].normalized_payload.warning)}</p></div>`:''}
     <form id="history-filter" class="date-filter"><label>시작일<input type="date" name="from" value="${escape(params.get('from')||'')}"></label><label>종료일<input type="date" name="to" value="${escape(params.get('to')||'')}"></label><button class="button secondary small">기간 조회</button></form>
     <div class="detail-tabs"><button data-detail-tab="releases" class="selected">릴리즈 이력</button><button data-detail-tab="snapshots">시점별 수치</button><button data-detail-tab="changes">변경 이벤트</button></div>
-    <div id="detail-releases">${data.releases.length?data.releases.map(r=>`<article class="release-entry"><div class="release-top"><strong>${r.version?'v'+escape(r.version):'버전 알 수 없음'}</strong><span class="badge ${r.is_present_in_source?'succeeded':''}">마지막 수집일 ${date(r.last_seen_at)}</span></div><div class="release-meta"><span class="release-published">공개일 <strong>${r.release_date?escape(String(r.release_date).slice(0,10)):'알 수 없음'}</strong></span></div>${r.revisions.map((n,i)=>`<details ${i===0?'open':''}><summary>업데이트 설명 ${r.revisions.length>1?`· 개정본 ${r.revisions.length-i}`:''}</summary><p class="release-notes">${escape(n.notes || '제공된 설명 없음')}</p></details>`).join('')}</article>`).join(''):'<p class="detail-empty">해당 기간에 관측된 릴리즈가 없습니다.</p>'}</div>
-    <div id="detail-snapshots" hidden><div class="table-scroll"><table><thead><tr><th>수집 시각</th><th>평점</th><th>평가 수</th><th>리뷰 수</th><th>다운로드 구간</th></tr></thead><tbody>${data.snapshots.map(s=>`<tr><td>${date(s.collected_at)}</td><td>${unknown(s.rating)}</td><td>${unknown(s.rating_count)}</td><td>${unknown(s.review_count)}</td><td>${unknown(s.downloads_text)}</td></tr>`).join('')}</tbody></table>${!data.snapshots.length?'<p class="detail-empty">수집된 스냅샷이 없습니다.</p>':''}</div></div>
-    <div id="detail-changes" hidden>${data.changes.map(e=>`<article class="release-entry"><strong>${escape(e.field)}</strong><span class="release-meta"> · ${date(e.occurred_at)}</span><p class="release-notes"><del>${escape(e.old_value??'알 수 없음')}</del><br>${escape(e.new_value??'알 수 없음')}</p></article>`).join('')||'<p class="detail-empty">해당 기간의 변경 이벤트가 없습니다.</p>'}</div>
+    <div id="detail-releases">${data.releases.length?data.releases.map(r=>`<article class="release-entry release-card"><div class="release-top"><div><strong>업데이트 버전 : ${r.version?'v'+escape(r.version):'알 수 없음'}</strong><div class="release-published">업데이트 일자 : <strong>${r.release_date?escape(String(r.release_date).slice(0,10).replaceAll('-','.')):'알 수 없음'}</strong></div></div><span class="badge succeeded">마지막 수집일 ${date(r.last_seen_at)}</span></div>${r.revisions.map((n,i)=>`<section class="release-description"><h3>[업데이트 내용] ${r.revisions.length>1?`· 개정본 ${r.revisions.length-i}`:''}</h3><p class="release-notes">${escape(n.notes||'제공된 설명 없음')}</p></section>`).join('')}</article>`).join(''):'<p class="detail-empty">해당 기간에 관측된 릴리즈가 없습니다.</p>'}</div>
+    <div id="detail-snapshots" hidden>${ratingChart(data.snapshots,c.name)}<div class="table-scroll"><table><thead><tr><th>수집 시각</th><th>평점</th><th>평가 수</th><th>리뷰 수</th><th>다운로드 구간</th></tr></thead><tbody>${metricSnapshots.map(s=>`<tr><td>${date(s.collected_at)}</td><td>${ratingLabel(s.rating)}</td><td>${unknown(s.rating_count)}</td><td>${unknown(s.review_count)}</td><td>${unknown(s.downloads_text)}</td></tr>`).join('')}</tbody></table>${!metricSnapshots.length?'<p class="detail-empty">표시할 수치가 없습니다.</p>':''}</div></div>
+    <div id="detail-changes" hidden>${data.changes.map(e=>`<article class="release-entry"><strong>${escape(e.field)}</strong><span class="release-meta"> · ${date(e.occurred_at)}</span><p class="release-notes"><del>${e.field==='rating'?ratingLabel(e.old_value):escape(e.old_value??'알 수 없음')}</del><br>${e.field==='rating'?ratingLabel(e.new_value):escape(e.new_value??'알 수 없음')}</p></article>`).join('')||'<p class="detail-empty">해당 기간의 변경 이벤트가 없습니다.</p>'}</div>
     <div class="detail-pagination"><button class="text-button" id="history-prev" ${offset===0?'disabled':''}>이전</button><span>${offset+1}부터 항목별 최대 ${data.limit}건</span><button class="text-button" id="history-next" ${Math.max(data.releases.length,data.snapshots.length,data.changes.length)<data.limit?'disabled':''}>다음</button></div></div>`,true);
+    bindChartTooltip($('#detail-snapshots'));
     $('#history-filter').onsubmit=e=>{e.preventDefault();const q=new URLSearchParams();for(const [k,v]of new FormData(e.target))if(v)q.set(k,v);detail(id,q.toString());};
     $('#history-connection')?.addEventListener('change',e=>detail(e.target.value,query));
     document.querySelectorAll('[data-detail-tab]').forEach(e=>e.onclick=()=>{document.querySelectorAll('[data-detail-tab]').forEach(b=>b.classList.toggle('selected',b===e));for(const t of ['releases','snapshots','changes'])$('#detail-'+t).hidden=t!==e.dataset.detailTab;});
