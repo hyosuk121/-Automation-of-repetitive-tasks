@@ -1,0 +1,184 @@
+/* Presentation only: shared typography, surfaces and spacing for the existing UI. */
+:root {
+  --blue: #4359d8;
+  --ink: #202b40;
+  --muted: #64748b;
+  --border: #e4e9f0;
+  --text-body: 14px;
+  --text-small: 12px;
+  --surface-soft: #f7f9fc;
+  color: var(--ink);
+  background: #f5f7fa;
+  font-size: var(--text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Quiet shell, with clear navigation and a consistent content grid. */
+.sidebar { padding: 28px 16px 18px; }
+.sidebar .brand { padding: 0 10px; }
+.brand > span { font-size: 15px; font-weight: 700; letter-spacing: -.35px; }
+.back-link { margin: 30px 14px; color: var(--muted); }
+.nav-section-label, .eyebrow { font-size: 11px; color: #697a94; letter-spacing: 1.2px; }
+.nav-item { min-height: 44px; padding: 11px 14px; color: #59677c; font-size: var(--text-body); border-radius: 9px; }
+.nav-item.selected { background: #edf0fc; color: #354ec7; }
+.nav-item:hover { background: #f1f4f9; }
+.nav-item.selected:hover { background: #e6ebfc; }
+.preservation-note { background: var(--surface-soft); border-color: var(--border); padding: 16px; }
+.preservation-note strong { font-size: var(--text-small); color: #52617a; }
+.preservation-note p { font-size: var(--text-small); color: var(--muted); line-height: 1.75; }
+.topbar { height: 64px; background: #fff; padding-inline: 32px; }
+.breadcrumbs, .account { font-size: var(--text-small); color: var(--muted); }
+.content { padding: 32px; max-width: 1520px; }
+.page-heading { margin-bottom: 24px; }
+.page-heading .eyebrow { font-size: 11px; color: #6c7b93; }
+.page-heading h1 { font-size: 26px; line-height: 1.4; letter-spacing: -.8px; margin: 6px 0 8px; }
+.page-heading p { font-size: var(--text-body); color: var(--muted); }
+.content-footer, .table-footer { font-size: var(--text-small); color: #68788f; }
+
+/* One control size across toolbars, forms and dialog actions. */
+.button, .small { font-size: 13px; min-height: 38px; padding: 8px 14px; border-radius: 8px; line-height: 1.5; }
+.primary { box-shadow: 0 2px 4px #263b9514; }
+.secondary { color: #4f5f77; border-color: #dce3ed; }
+.icon-button { color: #607088; }
+.row-actions { gap: 3px; }
+.row-actions .icon-button { width: 32px; min-width: 32px; height: 32px; }
+.row-actions svg { width: 16px; height: 16px; }
+.danger { color: #bb465c; }
+.search-field, .filters select, .rank-toolbar select, .multi-filter > summary,
+.rank-data-filters input, .rank-data-filters select, .rank-custom-period input {
+  min-height: 38px;
+  border-color: #dce3ed;
+  border-radius: 8px;
+  color: #43536c;
+  font-size: 13px;
+  background: #fff;
+}
+.search-field { width: 300px; }
+.search-field input { font-size: 13px; color: var(--ink); }
+.search-field input::placeholder, .form input::placeholder { color: #78869b; }
+.multi-filter > summary { padding: 8px 12px; }
+.multi-filter fieldset { box-shadow: 0 12px 32px #2639551a; border-color: var(--border); }
+.multi-filter fieldset label:hover { background: var(--surface-soft); border-radius: 6px; }
+.multi-filter fieldset label { font-size: 13px; }
+.search-field:focus-within { outline: 2px solid #8ba1ff; outline-offset: 2px; }
+
+/* Reusable data surfaces. */
+.stats-grid { gap: 16px; margin-bottom: 24px; }
+.stat-card { padding: 20px; border-color: var(--border); border-radius: 12px; box-shadow: none; }
+.stat-title { font-size: 13px; color: #53647c; margin-bottom: 16px; }
+.stat-card > strong { font-size: 28px; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.stat-sub { font-size: var(--text-small); color: var(--muted); margin-top: 12px; line-height: 1.65; }
+.stat-icon { color: #6375c6; background: #f0f3fc; }
+.data-panel { border-radius: 12px; box-shadow: 0 2px 4px #202b4003; }
+.data-panel + .data-panel { margin-top: 24px; }
+.panel-heading { min-height: 64px; padding: 14px 24px; }
+.panel-heading h2 { font-size: 16px; line-height: 1.5; }
+.panel-heading h2 small { font-size: var(--text-small); color: var(--muted); margin-top: 4px; }
+.platform-tabs { margin-block: -14px; }
+.platform-tabs button { font-size: var(--text-body); color: #65748b; padding-block: 18px; }
+.platform-tabs button.selected { color: #354ec7; }
+.table-toolbar { padding: 18px 24px; }
+table { font-size: 13px; font-variant-numeric: tabular-nums; }
+th { color: #5e6d84; font-size: var(--text-small); font-weight: 600; background: var(--surface-soft); padding: 13px 16px; }
+td { color: #53627a; padding: 16px; border-color: #edf0f5; }
+tbody tr:hover > td { background: #fafbfe; }
+.name-button { font-size: var(--text-body); color: #2c3d56; }
+.app-cell small, .date-cell, .date-cell small, .rating-count { font-size: var(--text-small); color: var(--muted); }
+.app-cell small { max-width: 240px; white-space: normal; line-height: 1.6; }
+.app-symbol { width: 36px; height: 36px; border-radius: 10px; }
+.scope-chip { color: #5b6c86; font-size: 11px; }
+.badge { font-size: var(--text-small); padding: 4px 8px; line-height: 1.5; }
+.badge.succeeded { color: #34745b; background: #edf7f1; }
+.badge.failed { color: #a13f4a; background: #fff0f1; }
+.badge.partial { color: #8c651b; background: #fff6e3; }
+.badge.queued, .badge.running, .badge.changed { color: #485fae; background: #eef2fc; }
+.notes-toggle { background: #fff; font-size: 12px; padding: 7px 10px; }
+.notes-toggle:hover { background: #eef2fc; }
+.notice { background: #eff3fc; color: #52658c; border-color: #e0e7f5; }
+.notice strong { color: #475e8b; font-size: 13px; }
+.notice p { color: #607292; font-size: var(--text-small); }
+
+/* Compact chart controls and a readable, restrained legend. */
+.rank-toolbar { gap: 16px 24px; background: #fcfdff; border-bottom: 1px solid #edf0f5; }
+.rank-toolbar label, .rank-data-filters label { font-size: 13px; color: #5e6d84; }
+.rank-chart { padding: 20px 24px 24px; }
+.rank-chart > p { color: var(--muted); font-size: var(--text-small); margin-bottom: 16px; }
+.rank-plot { max-width: 940px; }
+.rank-chart text { font-size: 10px; fill: #66768e; }
+.rank-legend { max-width: 940px; gap: 8px 16px; margin-top: 16px; }
+.rank-legend span { border: 0; background: var(--surface-soft); padding: 8px 12px; color: #465670; font-size: var(--text-small); }
+.rank-details-link { padding-bottom: 20px; }
+.rank-data { padding: 24px; border-top: 1px solid var(--border); }
+.rank-data summary { color: #34445d; font-size: var(--text-body); }
+.rank-matrix th:first-child, .rank-matrix thead th { background: #f3f6fa; }
+.rank-matrix th, .rank-matrix td { padding: 13px 16px; }
+.rank-tooltip { font-size: 13px; line-height: 1.7; box-shadow: 0 8px 24px #17233d20; }
+
+/* Detail dialogs keep the publication date and update text in focus. */
+dialog { border-radius: 16px; border-color: var(--border); }
+dialog::backdrop { background: #1c294d55; backdrop-filter: blur(2px); }
+.modal-heading { padding: 22px 24px; }
+.modal-heading h2 { font-size: 20px; line-height: 1.4; }
+.modal-heading .eyebrow { color: #697a94; font-size: 10px; margin-bottom: 6px; }
+.detail-body, .form, .help-content { padding: 24px; }
+.detail-tabs button { font-size: var(--text-body); color: #68778d; padding: 12px 0; }
+.detail-tabs button.selected { color: #354ec7; }
+.connection-picker, .form label, .date-filter label { color: #596b83; font-size: 13px; }
+.form input:not([type=checkbox]), .form select, .date-filter input { font-size: var(--text-body); background: #fff; }
+.release-card { padding: 22px; margin-block: 16px; border-radius: 12px; }
+.release-card .release-top strong { font-size: 15px; color: #293b55; }
+.release-card .release-published { font-size: 14px; margin-top: 6px; }
+.release-card .release-published strong { font-size: 16px; }
+.release-top .badge { font-size: 11px; }
+.release-description h3 { color: #4e607a; font-size: 13px; margin: 20px 0 10px; }
+.release-description .release-notes, .release-notes { color: #52647e; font-size: 13px; line-height: 1.9; padding: 18px; background: var(--surface-soft); border-radius: 8px; }
+.rating-chart h3 { font-size: 15px; }
+.muted-text, .field-note, .help-content, .detail-empty { color: var(--muted); }
+.automation-panel p, .automation-panel dl { font-size: var(--text-body); }
+.empty-state p, .empty-state h2 { color: var(--muted); }
+
+/* Preserve the supplied portal card composition. */
+.portal { background: #f5f7fa; }
+.portal-main h1 { font-size: 32px; letter-spacing: -1px; line-height: 1.45; }
+.portal-intro { color: var(--muted); font-size: var(--text-body); }
+.tool-card { box-shadow: 0 8px 24px #2433500a; border-color: var(--border); border-radius: 24px; }
+.card-body h2 { font-size: 23px; }
+.card-body > p { color: #65748a; font-size: 13px; }
+.last-run { color: #68788f; font-size: var(--text-small); }
+.portal-footer { color: #6d7b90; font-size: 11px; }
+
+@media (min-width: 1600px) {
+  .content { padding: 40px; }
+}
+@media (max-width: 1100px) {
+  .content { padding: 24px; }
+  .page-heading h1 { font-size: 24px; }
+  .stat-card { padding: 18px; }
+}
+@media (max-width: 800px) {
+  .topbar { height: 60px; padding-inline: 16px; }
+  .content { padding: 24px 16px; }
+  .account { font-size: 0; }
+  .page-heading h1 { font-size: 23px; }
+  .stats-grid { gap: 12px; }
+  .stat-title { font-size: 12px; }
+  .stat-card > strong { font-size: 26px; }
+  .stat-sub { font-size: 11px; }
+  .search-field { width: 100%; }
+  .table-toolbar, .panel-heading { padding-inline: 16px; }
+}
+@media (max-width: 580px) {
+  .portal-main h1 { font-size: 25px; }
+  .portal-intro { font-size: 13px; }
+  .brand > span { font-size: 14px; }
+  .panel-heading h2 { font-size: 15px; }
+  .rank-chart, .rank-data { padding: 16px; }
+  .rank-toolbar { gap: 14px; }
+  .rank-legend { gap: 6px; }
+  .rank-legend span { padding: 8px; }
+  .modal-heading, .detail-body, .form, .help-content { padding: 20px; }
+  .release-card { padding: 16px; }
+  .release-card .release-published strong { font-size: 16px; }
+  .release-description .release-notes { padding: 14px; }
+}

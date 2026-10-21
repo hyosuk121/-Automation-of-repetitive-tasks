@@ -8,6 +8,7 @@ import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/600.css';
 import '@fontsource/noto-sans-kr/700.css';
 import './styles.css';
+import './design.css';
 import {importInSteps} from './report-import.js';
 import {rankingsView,bindRankTooltips} from './rankings.js';
 import { readApiResponse } from './api-response.js';
