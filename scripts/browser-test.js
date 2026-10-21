@@ -107,6 +107,9 @@ try{
   await page.getByRole('button',{name:'시점별 수치'}).click();
   await page.getByRole('cell',{name:'4.7',exact:true}).waitFor();
   await page.getByRole('button',{name:'릴리즈 이력'}).click();
+  assert.equal(await page.locator('.release-published').count(),1);
+  assert.ok(!(await page.locator('#detail-releases').innerText()).includes('최초 관측'));
+  assert.ok((await page.locator('.release-top .badge').innerText()).includes('마지막 수집일'));
   await page.screenshot({path:'test-results/history-fixture.png',fullPage:true});
   await page.getByRole('button',{name:'닫기',exact:true}).click();
   await page.getByRole('button',{name:'내보내기',exact:true}).click();
@@ -133,14 +136,28 @@ try{
   await page.getByRole('cell',{name:'18위',exact:true}).first().waitFor();
   await page.getByRole('cell',{name:'▲ 2',exact:true}).waitFor();
   assert.equal(await page.locator('.rank-chart circle').count(),2);
+  const point=page.locator('[data-rank-point]').last();
+  await point.hover();
+  assert.equal(await page.locator('[role=tooltip]').isVisible(),true);
+  assert.match(await page.locator('[role=tooltip]').innerText(),/테스트 경쟁사.*18위/);
+  await point.focus();await page.keyboard.press('Escape');
+  assert.equal(await page.locator('[role=tooltip]').isVisible(),false);
+  await page.locator('#rank-app').selectOption(competitor.apps[0].id);
+  assert.equal(await page.locator('.rank-chart circle').count(),2);
+
   await page.getByText('일별 데이터 보기',{exact:true}).click();
   await page.getByRole('cell',{name:'순위권 밖',exact:true}).waitFor();
+  assert.equal(await page.locator('.rank-matrix tbody tr').count(),1);
+  assert.equal(await page.locator('.rank-matrix thead th').count(),31);
   await page.screenshot({path:'test-results/rankings-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
+  await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   await page.screenshot({path:'test-results/rankings-mobile.png',fullPage:true});
   await page.setViewportSize({width:1440,height:1050});
   await page.getByRole('button',{name:'대시보드',exact:true}).click();
+  await page.locator('.rank-chart circle').first().waitFor();
+  await page.screenshot({path:'test-results/dashboard-rankings.png',fullPage:true});
   await page.getByRole('button',{name:'테스트 경쟁사 수정'}).click();
   await page.getByLabel(/경쟁사명/).fill('수정한 경쟁사');
   await page.getByRole('button',{name:'변경 사항 저장'}).click();

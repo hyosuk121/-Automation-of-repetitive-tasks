@@ -7,7 +7,7 @@ import '@fontsource/noto-sans-kr/600.css';
 import '@fontsource/noto-sans-kr/700.css';
 import './styles.css';
 import {importInSteps} from './report-import.js';
-import {rankingsView} from './rankings.js';
+import {rankingsView,bindRankTooltips} from './rankings.js';
 import { readApiResponse } from './api-response.js';
 
 const icons={ArrowRight,ArrowLeft,ChevronLeft,ChevronRight,ChevronUp,ChevronDown,LayoutGrid,ChartNoAxesCombined,Plane,Clock3,Settings2,Search,Plus,RefreshCw,Download,X,LogOut,ShieldCheck,CircleHelp,ExternalLink,Pencil,Archive,Check,AlertCircle,Database,Menu,GripVertical,Layers,Zap,CalendarDays};
@@ -81,7 +81,7 @@ function shell(){
     ${!state.config?.database || !state.config?.authentication || !state.config?.origin?`<div class="notice">${icon('Settings2')}<div><strong>서비스 연결을 준비하고 있습니다</strong><p>Supabase와 관리자 인증 설정 후 실제 수집·저장을 사용할 수 있습니다. 아직 저장된 데이터는 없습니다.</p></div><button class="text-button" data-setup>설정 안내 ${icon('ArrowRight')}</button></div>`:
       !state.user?`<div class="notice">${icon('ShieldCheck')}<div><strong>관리자 로그인이 필요합니다</strong><p>로그인 후 경쟁사 등록, 수집 및 저장된 이력을 이용할 수 있습니다.</p></div><button class="button primary" data-login>로그인</button></div>`:''}
     ${state.user && state.automation && !state.automation.schedulerInstalled && state.page!=='setup'?'<div class="notice"><p>웹을 닫아도 수집하려면 자동 수집 설정을 적용해 주세요.</p><button class="button secondary small" data-page="setup">설정 열기</button></div>':''}
-    ${state.page==='history'?runsView():state.page==='setup'?automationView():state.page==='rankings'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp}):dashboardView()}
+    ${state.page==='history'?runsView():state.page==='setup'?automationView():state.page==='rankings'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp}):dashboardView()}${state.page==='dashboard'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp}):''}
     <footer class="content-footer"><span>수집한 과거 기록은 최신 데이터로 덮어쓰지 않습니다.</span><span>모든 시간은 한국 표준시(KST) 기준</span></footer></main></div></div>`;
 }
 function dashboardView(){
@@ -156,6 +156,7 @@ function render(){
   document.title=location.pathname==='/'?'Automation Hub · 업무 자동화':'경쟁사 앱 업데이트 · Automation Hub';
 }
 function bind(){
+  bindRankTooltips();
   document.querySelectorAll('[data-home]').forEach(e=>e.onclick=event=>{event.preventDefault();navigate('/');});
   document.querySelectorAll('[data-launch]').forEach(e=>e.onclick=()=>navigate('/competitor-analyzer'));
   document.querySelectorAll('[data-login]').forEach(e=>e.onclick=account);
@@ -216,7 +217,7 @@ async function loadData(show=false){
   try{
     const [data,runs,automation]=await Promise.all([api('/competitors?archived='+state.archived),api('/collections?offset='+state.runOffset),api('/automation')]);
     state.automation=automation;
-    if(state.page==='rankings' && automation.schemaReady)state.rankings=await api('/rankings?days='+state.rankDays);
+    if(['rankings','dashboard'].includes(state.page) && automation.schemaReady)state.rankings=await api('/rankings?days='+state.rankDays);
     state.competitors=data.competitors;state.runs=runs.runs;render();resumeCollection();if(show)toast('최신 상태를 불러왔습니다.');
   }catch(error){toast(error.message,true);}
 }
@@ -280,7 +281,7 @@ async function detail(id,query='',offset=0){
     ${data.snapshots[0]?.normalized_payload?.warning?`<div class="notice compact"><p>${escape(data.snapshots[0].normalized_payload.warning)}</p></div>`:''}
     <form id="history-filter" class="date-filter"><label>시작일<input type="date" name="from" value="${escape(params.get('from')||'')}"></label><label>종료일<input type="date" name="to" value="${escape(params.get('to')||'')}"></label><button class="button secondary small">기간 조회</button></form>
     <div class="detail-tabs"><button data-detail-tab="releases" class="selected">릴리즈 이력</button><button data-detail-tab="snapshots">시점별 수치</button><button data-detail-tab="changes">변경 이벤트</button></div>
-    <div id="detail-releases">${data.releases.length?data.releases.map(r=>`<article class="release-entry"><div class="release-top"><strong>${r.version?'v'+escape(r.version):'버전 알 수 없음'}</strong><span class="badge ${r.is_present_in_source?'succeeded':''}">${r.is_present_in_source?'최근 관측된 기록':'스토어 응답에서 미확인'}</span></div><div class="release-meta">공개일 ${unknown(r.release_date)} · 최초 관측 ${date(r.first_seen_at)}<br>마지막 관측 ${date(r.last_seen_at)}${r.missing_since?' · 미확인 시작 '+date(r.missing_since):''}</div>${r.revisions.map((n,i)=>`<details ${i===0?'open':''}><summary>업데이트 설명 ${r.revisions.length>1?`· 개정본 ${r.revisions.length-i}`:''} <span>${date(n.last_seen_at)}</span></summary><p class="release-notes">${escape(n.notes || '제공된 설명 없음')}</p></details>`).join('')}</article>`).join(''):'<p class="detail-empty">해당 기간에 관측된 릴리즈가 없습니다.</p>'}</div>
+    <div id="detail-releases">${data.releases.length?data.releases.map(r=>`<article class="release-entry"><div class="release-top"><strong>${r.version?'v'+escape(r.version):'버전 알 수 없음'}</strong><span class="badge ${r.is_present_in_source?'succeeded':''}">마지막 수집일 ${date(r.last_seen_at)}</span></div><div class="release-meta"><span class="release-published">공개일 <strong>${r.release_date?escape(String(r.release_date).slice(0,10)):'알 수 없음'}</strong></span></div>${r.revisions.map((n,i)=>`<details ${i===0?'open':''}><summary>업데이트 설명 ${r.revisions.length>1?`· 개정본 ${r.revisions.length-i}`:''}</summary><p class="release-notes">${escape(n.notes || '제공된 설명 없음')}</p></details>`).join('')}</article>`).join(''):'<p class="detail-empty">해당 기간에 관측된 릴리즈가 없습니다.</p>'}</div>
     <div id="detail-snapshots" hidden><div class="table-scroll"><table><thead><tr><th>수집 시각</th><th>평점</th><th>평가 수</th><th>리뷰 수</th><th>다운로드 구간</th></tr></thead><tbody>${data.snapshots.map(s=>`<tr><td>${date(s.collected_at)}</td><td>${unknown(s.rating)}</td><td>${unknown(s.rating_count)}</td><td>${unknown(s.review_count)}</td><td>${unknown(s.downloads_text)}</td></tr>`).join('')}</tbody></table>${!data.snapshots.length?'<p class="detail-empty">수집된 스냅샷이 없습니다.</p>':''}</div></div>
     <div id="detail-changes" hidden>${data.changes.map(e=>`<article class="release-entry"><strong>${escape(e.field)}</strong><span class="release-meta"> · ${date(e.occurred_at)}</span><p class="release-notes"><del>${escape(e.old_value??'알 수 없음')}</del><br>${escape(e.new_value??'알 수 없음')}</p></article>`).join('')||'<p class="detail-empty">해당 기간의 변경 이벤트가 없습니다.</p>'}</div>
     <div class="detail-pagination"><button class="text-button" id="history-prev" ${offset===0?'disabled':''}>이전</button><span>${offset+1}부터 항목별 최대 200건</span><button class="text-button" id="history-next" ${Math.max(data.releases.length,data.snapshots.length,data.changes.length)<200?'disabled':''}>다음</button></div></div>`,true);
