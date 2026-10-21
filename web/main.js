@@ -6,6 +6,7 @@ import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/600.css';
 import '@fontsource/noto-sans-kr/700.css';
 import './styles.css';
+import {importInSteps} from './report-import.js';
 import {rankingsView} from './rankings.js';
 import { readApiResponse } from './api-response.js';
 
@@ -124,8 +125,27 @@ async function importJuly(){
  if(needsLogin())return;
  try{
   const data=await api('/imports/july');
-  modal('7월 9일 자료 연결',`<form id="report-import-form" class="form"><p>스토어 링크가 없는 보고서입니다. 이름·플랫폼을 확인하고 같은 앱에 연결해 주세요. 연결하지 않은 항목은 건너뜁니다.</p><div class="report-mappings">${data.rows.map(r=>`<label>${escape(r.name)} · ${r.platform==='app_store'?'App Store':'Play Store'} · 기록 ${r.releases}개${r.importedId?' (가져옴)':''}<select name="${escape(r.key)}" ${r.importedId?'disabled':''}><option value="">건너뛰기</option>${data.apps.filter(a=>a.platform===r.platform).map(a=>`<option value="${a.id}" ${(r.importedId||r.suggestedId)===a.id?'selected':''}>${escape(a.name)} · ${escape(a.country)} · ${escape(a.external_id)}</option>`).join('')}</select></label>`).join('')}</div><p class="form-error" role="alert"></p><button class="button primary">선택한 기록 가져오기</button></form>`,true);
-  $('#report-import-form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;try{const mappings=[...new FormData(e.target)].filter(([,v])=>v).map(([key,appId])=>({key,appId}));const result=await post('/imports/july',{mappings});$('#modal').close();await loadData();toast(`${result.imported}개 앱의 과거 기록을 가져왔습니다. 기존 가져오기 ${result.skipped}개는 유지했습니다.`);}catch(error){e.target.querySelector('.form-error').textContent=error.message;}finally{button.disabled=false;}};
+  modal('7월 9일 자료 연결',`<form id="report-import-form" class="form"><p>스토어 링크가 없는 보고서입니다. 이름·플랫폼을 확인하고 같은 앱에 연결해 주세요. 연결하지 않은 항목은 건너뜁니다.</p><p id="import-progress" role="status" aria-live="polite"></p><div class="report-mappings">${data.rows.map(r=>`<label>${escape(r.name)} · ${r.platform==='app_store'?'App Store':'Play Store'} · 기록 ${r.releases}개${r.importedId?' (가져옴)':''}<select name="${escape(r.key)}" ${r.importedId?'disabled':''}><option value="">건너뛰기</option>${data.apps.filter(a=>a.platform===r.platform).map(a=>`<option value="${a.id}" ${(r.importedId||r.suggestedId)===a.id?'selected':''}>${escape(a.name)} · ${escape(a.country)} · ${escape(a.external_id)}</option>`).join('')}</select></label>`).join('')}</div><p class="form-error" role="alert"></p><button class="button primary">선택한 기록 가져오기</button></form>`,true);
+  $('#report-import-form').onsubmit=async e=>{
+   e.preventDefault();const form=e.target,button=form.querySelector('button');
+   const mappings=[...new FormData(form)].filter(([,v])=>v).map(([key,appId])=>({key,appId}));
+   const selects=[...form.querySelectorAll('select:not(:disabled)')],done=new Set();
+   button.disabled=true;selects.forEach(el=>el.disabled=true);form.querySelector('.form-error').textContent='';
+   try{
+    const result=await importInSteps(mappings,async mapping=>{
+     try{return await api('/imports/july',{method:'POST',body:JSON.stringify({mappings:[mapping]}),signal:AbortSignal.timeout(90000)});}
+     catch(error){if(error.name==='TimeoutError'||error.name==='AbortError')throw new Error('서버 응답 시간이 초과되었습니다. 완료된 앱은 보존됩니다. 잠시 후 다시 가져오기를 누르면 이미 저장된 항목은 건너뜁니다.');throw error;}
+    },progress=>{
+     if(progress.done)done.add(progress.mapping.key);
+     const row=data.rows.find(r=>r.key===progress.mapping.key);
+     form.querySelector('#import-progress').textContent=`${progress.completed} / ${progress.total}개 완료 · ${row.name} ${row.platform==='app_store'?'App Store':'Play Store'} ${progress.done?'저장 완료':'저장 중…'} — 이 창을 열어 두세요.`;
+     button.textContent=`가져오는 중 (${progress.completed}/${progress.total})`;
+    });
+    $('#modal').close();await loadData();toast(`${result.imported}개 앱의 과거 기록을 가져왔습니다. 기존 가져오기 ${result.skipped}개는 유지했습니다.`);
+   }catch(error){form.querySelector('.form-error').textContent=`${error.message} 완료된 항목은 유지되며, 다시 시도하면 남은 항목을 처리합니다.`;}
+   finally{button.disabled=false;button.textContent='선택한 기록 가져오기';selects.forEach(el=>el.disabled=done.has(el.name));}
+  };
+
  }catch(error){toast(error.message,true);}
 }
 function runsView(){
