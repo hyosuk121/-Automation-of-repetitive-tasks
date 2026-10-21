@@ -149,6 +149,12 @@ try{
   await page.getByRole('cell',{name:'순위권 밖',exact:true}).waitFor();
   assert.equal(await page.locator('.rank-matrix tbody tr').count(),1);
   assert.equal(await page.locator('.rank-matrix thead th').count(),31);
+  await page.locator('[data-daily-from]').fill(koreanDay());
+  await page.locator('[data-daily-from]').dispatchEvent('change');
+  assert.equal(await page.locator('.rank-matrix thead th:not([hidden])').count(),2);
+  await page.locator('[data-daily-app]').selectOption(competitor.apps[0].id);
+  assert.equal(await page.locator('.rank-matrix tbody tr:not([hidden])').count(),1);
+
   await page.screenshot({path:'test-results/rankings-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.emulateMedia({reducedMotion:'reduce'});
@@ -157,6 +163,11 @@ try{
   await page.setViewportSize({width:1440,height:1050});
   await page.getByRole('button',{name:'대시보드',exact:true}).click();
   await page.locator('.rank-chart circle').first().waitFor();
+  assert.equal(await page.locator('.rank-data').count(),0);
+  assert.equal(await page.locator('.rank-chart').evaluate(el=>el.getBoundingClientRect().top<document.querySelector('#table-content').getBoundingClientRect().top),true);
+  await page.getByRole('button',{name:'자세히 보기 →',exact:true}).click();
+  await page.locator('.rank-data').waitFor();
+  await page.getByRole('button',{name:'대시보드',exact:true}).click();
   await page.screenshot({path:'test-results/dashboard-rankings.png',fullPage:true});
   await page.getByRole('button',{name:'테스트 경쟁사 수정'}).click();
   await page.getByLabel(/경쟁사명/).fill('수정한 경쟁사');

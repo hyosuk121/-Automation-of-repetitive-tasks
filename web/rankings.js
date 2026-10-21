@@ -4,6 +4,18 @@ export const rankLabel=r=>r?.status==='ranked'?`${r.rank}위`:labels[r?.status]|
 const colors={'로밍도깨비':'#2A7FF6','유심사':'#0065FF','도시락esim':'#416CB0','말톡나우':'#FF650F','모비':'#AA50FF','이심이지':'#F04821','플릿이심':'#4EE0BB','airalo':'#AE4E78','eskimo':'#0077FF','holafly':'#C90C4E','saily':'#FFF500'};
 export const rankColor=name=>colors[String(name).toLowerCase().replace(/\s+/g,'')]||'#525A79';
 export function bindRankTooltips(root=document){
+ const matrix=root.querySelector('.rank-matrix');
+ if(matrix){
+  const update=()=>{
+   const app=root.querySelector('[data-daily-app]').value;
+   const from=root.querySelector('[data-daily-from]').value;
+   const to=root.querySelector('[data-daily-to]').value;
+   matrix.querySelectorAll('tbody tr').forEach(row=>{row.hidden=app!=='all'&&row.dataset.app!==app;});
+   matrix.querySelectorAll('[data-day]').forEach(cell=>{cell.hidden=Boolean((from&&cell.dataset.day<from)||(to&&cell.dataset.day>to));});
+   root.querySelector('.rank-filter-empty').hidden=!(from&&to&&from>to);
+  };
+  root.querySelectorAll('.rank-data-filters input,.rank-data-filters select').forEach(input=>input.addEventListener('change',update));
+ }
  const tooltip=root.querySelector('.rank-tooltip');
  if(!tooltip)return;
  const hide=()=>{tooltip.hidden=true;};
@@ -19,7 +31,7 @@ export function bindRankTooltips(root=document){
   point.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
  });
 }
-export function rankingsView(data,{platform='app_store',days=30,app='all'}={}){
+export function rankingsView(data,{platform='app_store',days=30,app='all',compact=false}={}){
  const all=(data?.rows||[]).filter(r=>r.platform===platform);
  const names=[...new Map(all.map(r=>[r.app_id,r.name])).entries()];
  const rows=all.filter(r=>app==='all'||r.app_id===app);
@@ -39,7 +51,7 @@ export function rankingsView(data,{platform='app_store',days=30,app='all'}={}){
  }).join('');
  const recent=selected.map(([id,name])=>{const series=rows.filter(r=>r.app_id===id),r=series.at(-1),prev=series.at(-2);const delta=r?.status==='ranked'&&prev?.status==='ranked'?prev.rank-r.rank:null;return `<tr><td>${escape(name)}</td><td>${escape(r?.day||'—')}</td><td>${rankLabel(r)}</td><td>${delta==null?'—':delta>0?`▲ ${delta}`:delta<0?`▼ ${-delta}`:'변동 없음'}</td><td>${r?.collected_at?escape(new Date(r.collected_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})):'—'}</td></tr>`;}).join('');
  return `<section class="data-panel"><div class="panel-heading"><h2>스토어 순위 차트 <small>대한민국 · 인기 무료 · 상위 100위</small></h2><button class="button secondary small" data-rank-refresh>새로고침</button></div><div class="table-toolbar rank-toolbar"><label>스토어 <select id="rank-platform"><option value="app_store" ${platform==='app_store'?'selected':''}>App Store · iPhone 여행</option><option value="play_store" ${platform==='play_store'?'selected':''}>Play Store · 여행 및 지역정보</option></select></label><label>기간 <select id="rank-days">${[7,30,90].map(n=>`<option value="${n}" ${days===n?'selected':''}>최근 ${n}일</option>`).join('')}</select></label><label>경쟁사 <select id="rank-app"><option value="all">전체</option>${names.map(([id,name])=>`<option value="${id}" ${app===id?'selected':''}>${escape(name)}</option>`).join('')}</select></label></div>
- <div class="rank-chart"><p>1위가 위쪽입니다. 수집 실패·미수집·순위권 밖은 선으로 연결하지 않습니다.</p><div class="rank-plot"><svg viewBox="0 0 940 345" role="group" aria-label="일별 카테고리 순위 추이. 상세 수치는 아래 일별 데이터 표에서 확인할 수 있습니다.">${[1,25,50,75,100].map(n=>`<line x1="60" x2="880" y1="${y(n)}" y2="${y(n)}" stroke="#e6eaf5"/><text x="15" y="${y(n)+4}">${n}위</text>`).join('')}${chart}${dates.filter((_,i)=>i===0||i===dates.length-1||i===Math.floor(dates.length/2)).map(d=>`<text x="${x(d)}" y="325" text-anchor="middle">${d}</text>`).join('')}</svg></div><div class="rank-legend">${selected.map(([,name],i)=>`<span><i style="background:${rankColor(name)}"></i>${escape(name)}</span>`).join('')}</div>${!rows.some(r=>r.status==='ranked')?'<p>아직 표시할 순위가 없습니다. 미수집과 수집 실패는 순위권 밖을 의미하지 않습니다.</p>':''}</div>
- <div class="table-scroll"><table><thead><tr><th>경쟁사</th><th>기준일</th><th>오늘 순위</th><th>전일 대비</th><th>실제 수집 시각</th></tr></thead><tbody>${recent}</tbody></table></div>
- <details class="rank-data"><summary>일별 데이터 보기</summary><p>위의 스토어·기간·경쟁사 필터로 조회할 정보를 선택하세요. 날짜가 많으면 표를 좌우로 스크롤할 수 있습니다.</p><div class="table-scroll" tabindex="0" role="region" aria-label="앱별 일별 순위 표"><table class="rank-matrix"><thead><tr><th scope="col">앱 이름</th>${dates.map(d=>`<th scope="col">${escape(d)}</th>`).join('')}</tr></thead><tbody>${selected.map(([id,name])=>{const byDay=new Map(rows.filter(r=>r.app_id===id).map(r=>[r.day,r]));return `<tr><th scope="row">${escape(name)}</th>${dates.map(d=>`<td>${rankLabel(byDay.get(d))}</td>`).join('')}</tr>`;}).join('')}</tbody></table></div></details><div id="rank-tooltip" class="rank-tooltip" role="tooltip" hidden></div></section>`;
+ <div class="rank-chart"><p>1위가 위쪽입니다. 수집 실패·미수집·순위권 밖은 선으로 연결하지 않습니다.</p><div class="rank-plot"><svg viewBox="0 0 940 345" role="group" aria-label="일별 카테고리 순위 추이. ${compact?'자세히 보기에서 일별 데이터를 확인할 수 있습니다.':'상세 수치는 아래 일별 데이터 표에서 확인할 수 있습니다.'}">${[1,25,50,75,100].map(n=>`<line x1="60" x2="880" y1="${y(n)}" y2="${y(n)}" stroke="#e6eaf5"/><text x="15" y="${y(n)+4}">${n}위</text>`).join('')}${chart}${dates.filter((_,i)=>i===0||i===dates.length-1||i===Math.floor(dates.length/2)).map(d=>`<text x="${x(d)}" y="325" text-anchor="middle">${d}</text>`).join('')}</svg></div><div class="rank-legend">${selected.map(([,name],i)=>`<span><i style="background:${rankColor(name)}"></i>${escape(name)}</span>`).join('')}</div>${!rows.some(r=>r.status==='ranked')?'<p>아직 표시할 순위가 없습니다. 미수집과 수집 실패는 순위권 밖을 의미하지 않습니다.</p>':''}</div>
+ ${compact?'<div class="rank-details-link"><button class="button secondary" data-page="rankings">자세히 보기 →</button></div>':`<div class="table-scroll"><table><thead><tr><th>경쟁사</th><th>기준일</th><th>오늘 순위</th><th>전일 대비</th><th>실제 수집 시각</th></tr></thead><tbody>${recent}</tbody></table></div>
+ <details class="rank-data"><summary>일별 데이터 보기</summary><p>조회할 경쟁사와 날짜를 선택하세요. 조회 가능한 날짜 범위는 위의 기간 필터로 변경할 수 있습니다.</p><div class="rank-data-filters"><label>경쟁사<select data-daily-app><option value="all">전체</option>${selected.map(([id,name])=>`<option value="${escape(id)}">${escape(name)}</option>`).join('')}</select></label><label>시작일<input type="date" data-daily-from value="${dates[0]||''}" min="${dates[0]||''}" max="${dates.at(-1)||''}"></label><label>종료일<input type="date" data-daily-to value="${dates.at(-1)||''}" min="${dates[0]||''}" max="${dates.at(-1)||''}"></label></div><p class="rank-filter-empty" hidden>종료일을 시작일 이후로 선택해 주세요.</p><div class="table-scroll" tabindex="0" role="region" aria-label="앱별 일별 순위 표"><table class="rank-matrix"><thead><tr><th scope="col">앱 이름</th>${dates.map(d=>`<th scope="col" data-day="${escape(d)}">${escape(d)}</th>`).join('')}</tr></thead><tbody>${selected.map(([id,name])=>{const byDay=new Map(rows.filter(r=>r.app_id===id).map(r=>[r.day,r]));return `<tr data-app="${escape(id)}"><th scope="row">${escape(name)}</th>${dates.map(d=>`<td data-day="${escape(d)}">${rankLabel(byDay.get(d))}</td>`).join('')}</tr>`;}).join('')}</tbody></table></div></details>`}<div id="rank-tooltip" class="rank-tooltip" role="tooltip" hidden></div></section>`;
 }
