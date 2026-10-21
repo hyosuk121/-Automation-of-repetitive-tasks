@@ -29,3 +29,14 @@ dialog{border:1px solid #e7ebf3;border-radius:18px;box-shadow:0 25px 100px #1a25
 .rank-plot{overflow-x:auto}.rank-plot svg{min-width:600px;display:block}.rank-matrix th,.rank-matrix td{font-size:13px}.rank-legend{margin-top:16px}
 
 .rank-details-link{display:flex;justify-content:flex-end;padding:0 24px 22px}.rank-data-filters{display:flex;flex-wrap:wrap;gap:16px;margin:16px 0}.rank-data-filters label{display:flex;flex-direction:column;gap:7px;font-size:13px}.rank-data-filters input,.rank-data-filters select{font:inherit;padding:9px;border:1px solid #e3e9f3;border-radius:7px;background:#fff;color:#52617c;max-width:100%}.rank-matrix [hidden]{display:none}
+
+/* Keep chart labels restrained on wide screens and group the app legend. */
+.rank-plot{max-width:1100px;margin-inline:auto}
+.rank-chart text{font-size:10px;fill:#8490a5;font-weight:400}
+.rank-chart>p{font-size:12px;line-height:1.7;margin-bottom:12px}
+.rank-toolbar{justify-content:flex-start;gap:20px 32px}
+.rank-legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:960px;margin:20px auto 0;padding-top:16px;border-top:1px solid #edf0f6}
+.rank-legend span{min-width:0;padding:9px 12px;border:1px solid #edf0f6;border-radius:8px;background:#fafbfe;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.rank-legend i{width:9px;height:9px;flex-shrink:0}
+@media(max-width:1000px){.rank-legend{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:580px){.rank-legend{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.rank-legend span{padding:8px 10px}.rank-toolbar{gap:14px}}
