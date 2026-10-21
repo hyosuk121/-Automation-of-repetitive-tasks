@@ -18,8 +18,8 @@ const database=new PGlite();
 await database.exec(await readFile('supabase/migrations/20261020000000_initial.sql','utf8'));
 await applyFeatureSchema(database);
 const result={appName:'Fixture App',developerName:'Test developer',iconUrl:'https://icons.example.test/app.png',version:'1.0',sourceUpdatedAt:'2026-10-20',rating:4.5,ratingCount:32,reviewCount:null,downloadsText:null,latestNotes:'첫 번째 업데이트',releases:[{version:'1.0',releaseDate:'2026-10-20',notes:'첫 번째 업데이트'}],historyComplete:true,quality:'complete'};
-let collectionRequests=0;
-const handler=vercelHandler(createHandler({database:()=>database,authenticate:async()=>({id:owner,email:'fixture@example.com'}),collector:async()=>{collectionRequests++;return result;}}));
+let collectionRequests=0,anonymous=false;
+const handler=vercelHandler(createHandler({database:()=>database,resolvePublicOwner:async()=>owner,authenticate:async()=>{if(anonymous)throw Object.assign(new Error('Login required'),{status:401});return {id:owner,email:'fixture@example.com'};},collector:async()=>{collectionRequests++;return result;}}));
 let configured=false;
 const server=createServer(async(req,res)=>{
   if(req.url.startsWith('/api/')){
@@ -171,6 +171,20 @@ try{
   await page.screenshot({path:'test-results/dashboard-rankings.png',fullPage:true});
   assert.match(await page.getByRole('button',{name:'테스트 경쟁사 수정'}).getAttribute('title'),/수정/);
   assert.match(await page.getByRole('button',{name:'테스트 경쟁사 보관'}).getAttribute('title'),/기존 기록은 유지/);
+  anonymous=true;
+  const guestRequests=[];const recordRequest=req=>guestRequests.push(new URL(req.url()).pathname);
+  page.on('request',recordRequest);await page.reload();
+  await page.getByRole('button',{name:'테스트 경쟁사',exact:true}).waitFor();
+  assert.equal(await page.locator('[data-add],[data-edit],[data-archive],[data-collect],[data-collect-all],[data-export],[data-page="setup"]').count(),0);
+  assert.equal(guestRequests.includes('/api/collections'),false);assert.equal(guestRequests.includes('/api/automation'),false);
+  await page.getByRole('button',{name:'테스트 경쟁사',exact:true}).click();
+  await page.locator('#modal').getByText('수정된 설명',{exact:true}).first().waitFor();
+  await page.getByRole('button',{name:'시점별 수치'}).click();await page.getByRole('cell',{name:'4.7',exact:true}).waitFor();
+  await page.getByRole('button',{name:'닫기',exact:true}).click();
+  await page.getByRole('button',{name:'자세히 보기 →',exact:true}).click();
+  await page.locator('.rank-chart circle').first().waitFor();
+  await page.screenshot({path:'test-results/public-rankings.png',fullPage:true});
+  page.off('request',recordRequest);anonymous=false;await page.reload();
   await page.getByRole('button',{name:'테스트 경쟁사 수정'}).click();
   await page.getByLabel(/경쟁사명/).fill('수정한 경쟁사');
   await page.getByRole('button',{name:'변경 사항 저장'}).click();
