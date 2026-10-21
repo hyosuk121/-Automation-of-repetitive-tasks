@@ -195,6 +195,10 @@ function bind(){
   bindTable();
 }
 function bindTable(){
+  document.querySelectorAll('.icon-button[aria-label]').forEach(button=>{
+    const action=button.hasAttribute('data-detail')?'릴리즈 이력과 시점별 수치 확인':button.hasAttribute('data-collect')?'최신 스토어 정보 수집':button.hasAttribute('data-edit')?'경쟁사 이름과 스토어 링크 수정':button.hasAttribute('data-archive')?'경쟁사 보관 · 기존 기록은 유지':'';
+    button.title=action||button.getAttribute('aria-label');
+  });
   document.querySelectorAll('#table-content [data-add]').forEach(e=>e.onclick=()=>competitorForm());
   document.querySelectorAll('#table-content [data-detail]').forEach(e=>e.onclick=()=>detail(e.dataset.detail));
   document.querySelectorAll('#table-content [data-edit]').forEach(e=>e.onclick=()=>competitorForm(state.competitors.find(c=>c.id===e.dataset.edit)));

@@ -89,7 +89,7 @@ test('notes revisions, missing history and reappearance preserve every observati
   }
   const app=(await listCompetitors(database,owner)).find(x=>x.id===c.id).apps[0];
   const history=await appHistory(database,owner,app.id,'1970-01-01','2100-01-01');
-  assert.equal(history.snapshots.length,5);
+  assert.equal(history.snapshots.length,1);
   const old=history.releases.find(r=>r.version==='1.0');
   assert.equal(old.revisions.length,2);assert.equal(old.is_present_in_source,true);assert.equal(old.missing_since,null);
   assert.ok(history.releases.some(r=>r.version==='2.0'&&!r.is_present_in_source));
@@ -297,7 +297,7 @@ test('serverless collection resumes existing jobs, scopes ownership, and cron dr
     await claim(isolated,owner);
     await isolated.query("UPDATE collection_items SET lease_until=now()-interval '1 second' WHERE status='running'");
     assert.equal((await fetch(base+'/api/collections/process',{method:'POST',headers}).then(r=>r.json())).processed,true);
-    assert.equal((await isolated.query('SELECT count(*)::int n FROM store_snapshots')).rows[0].n,2);
+    assert.equal((await isolated.query('SELECT count(*)::int n FROM store_snapshots')).rows[0].n,1);
     await isolated.query('UPDATE competitors SET auto_collect=false WHERE owner_id=$1',[other]);
     assert.equal((await fetch(base+'/api/cron')).status,401);
     const cron=await fetch(base+'/api/cron',{headers:{authorization:'Bearer '+process.env.CRON_SECRET}});
@@ -326,4 +326,39 @@ test('bounded cron stops launching work at its budget and leaves remaining jobs 
     assert.equal((await isolated.query("SELECT count(*)::int n FROM collection_items WHERE status='queued'")).rows[0].n,1);
     assert.equal((await drainQueue(isolated,{collector:async()=>payload()})).processed,1);
   } finally {await isolated.close();}
+});
+
+test('daily snapshots use Korean day, preserve newer values and keep replay receipts',async()=>{
+ const c=await add('Daily latest'),app=(await listCompetitors(database,owner)).find(x=>x.id===c.id).apps[0];
+ const runs=[];
+ for(const [at,rating,version] of [['2026-10-20T14:59:59Z',3,'1'],['2026-10-20T15:00:00Z',4,'2'],['2026-10-21T01:00:00Z',5,'3'],['2026-10-20T20:00:00Z',2,'old']]){
+  const run=(await database.query("INSERT INTO collection_runs(owner_id,trigger_type,status) VALUES($1,'manual','succeeded') RETURNING id",[owner])).rows[0];runs.push(run.id);
+  await transaction(database,tx=>saveSnapshot(tx,app,run.id,payload(version,version,{rating}),at));
+ }
+ const h=await appHistory(database,owner,app.id,'1970-01-01','2100-01-01');
+ assert.equal(h.snapshots.length,2);assert.equal(Number(h.snapshots[0].rating),5);assert.equal(Number(h.snapshots[1].rating),3);
+ assert.equal(h.releases.length,4);
+ assert.equal(await transaction(database,tx=>saveSnapshot(tx,app,runs[1],payload('replay'))),false);
+ assert.equal((await database.query('SELECT count(*)::int n FROM snapshot_receipts WHERE store_app_id=$1',[app.id])).rows[0].n,4);
+});
+
+test('daily migration merges old rows while preserving release and change references',async()=>{
+ const legacy=new PGlite();
+ try{
+  await legacy.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
+  const c=await saveCompetitor(legacy,owner,{name:'Legacy daily',service_scope:'domestic',app_store:'https://apps.apple.com/kr/app/id123456'}),app=(await listCompetitors(legacy,owner)).find(x=>x.id===c.id).apps[0];
+  const ids=[];
+  for(const [at,rating] of [['2026-10-20T16:00:00Z',3],['2026-10-21T01:00:00Z',5]]){
+   const run=(await legacy.query("INSERT INTO collection_runs(owner_id,trigger_type,status) VALUES($1,'manual','succeeded') RETURNING id",[owner])).rows[0];
+   ids.push((await legacy.query("INSERT INTO store_snapshots(store_app_id,collection_run_id,collected_at,rating,normalized_payload,content_hash) VALUES($1,$2,$3,$4,'{}','test') RETURNING id",[app.id,run.id,at,rating])).rows[0].id);
+  }
+  await legacy.query("INSERT INTO release_history(store_app_id,release_key,version,first_seen_at,last_seen_at,first_snapshot_id,last_snapshot_id) VALUES($1,'key','1',now(),now(),$2,$3)",[app.id,...ids]);
+  await legacy.query("INSERT INTO change_events(store_app_id,snapshot_id,occurred_at,field) VALUES($1,$2,now(),'rating')",[app.id,ids[0]]);
+  await applyFeatureSchema(legacy);await applyFeatureSchema(legacy);
+  assert.equal((await legacy.query('SELECT count(*)::int n FROM store_snapshots')).rows[0].n,1);
+  assert.equal((await legacy.query('SELECT rating FROM store_snapshots')).rows[0].rating,'5');
+  assert.equal((await legacy.query('SELECT first_snapshot_id FROM release_history')).rows[0].first_snapshot_id,ids[1]);
+  assert.equal((await legacy.query('SELECT snapshot_id FROM change_events')).rows[0].snapshot_id,ids[1]);
+  assert.equal((await legacy.query('SELECT count(*)::int n FROM snapshot_receipts')).rows[0].n,2);
+ }finally{await legacy.close();}
 });

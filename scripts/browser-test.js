@@ -169,6 +169,8 @@ try{
   await page.locator('.rank-data').waitFor();
   await page.getByRole('button',{name:'대시보드',exact:true}).click();
   await page.screenshot({path:'test-results/dashboard-rankings.png',fullPage:true});
+  assert.match(await page.getByRole('button',{name:'테스트 경쟁사 수정'}).getAttribute('title'),/수정/);
+  assert.match(await page.getByRole('button',{name:'테스트 경쟁사 보관'}).getAttribute('title'),/기존 기록은 유지/);
   await page.getByRole('button',{name:'테스트 경쟁사 수정'}).click();
   await page.getByLabel(/경쟁사명/).fill('수정한 경쟁사');
   await page.getByRole('button',{name:'변경 사항 저장'}).click();
@@ -180,7 +182,7 @@ try{
   await page.getByRole('button',{name:'수정한 경쟁사',exact:true}).waitFor();
   await page.getByRole('button',{name:'수집 이력',exact:true}).click();
   await page.getByText('수동 수집',{exact:true}).first().waitFor();
-  assert.equal((await database.query('SELECT count(*) FROM store_snapshots')).rows[0].count,3);
+  assert.equal((await database.query('SELECT count(*) FROM store_snapshots')).rows[0].count,2);
   assert.deepEqual(errors,[]);
   console.log('PASS: SQL-backed collection, July report merge, rankings/graph on desktop/mobile, history, export, edit and archive');
   console.log('PASS: no uncaught browser exceptions. Fixture data exists only in the ephemeral test database.');
