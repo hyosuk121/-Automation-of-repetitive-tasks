@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { applyFeatureSchema } from '../lib/automation.js';
 import { db,transaction } from '../lib/db.js';
 const database=db();
 try {
@@ -7,5 +8,6 @@ try {
     await client.query(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
     await client.query("INSERT INTO schema_migrations(version) VALUES('001') ON CONFLICT DO NOTHING");
   });
-  console.log('Schema migration 001 complete.');
+  await applyFeatureSchema(database);
+  console.log('Schema migrations complete.');
 } finally {await database.end();}

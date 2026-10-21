@@ -1,3 +1,4 @@
+import {applyFeatureSchema} from '../lib/automation.js';
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -29,6 +30,7 @@ async function add(name='Competitor',both=false) {
 before(async()=>{
   database=new PGlite();
   await database.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
+  await applyFeatureSchema(database);
   process.env.COLLECTION_INTERVAL_SECONDS='0';
   process.env.APP_ORIGIN='http://localhost:4173';
 });
@@ -267,6 +269,7 @@ test('serverless collection resumes existing jobs, scopes ownership, and cron dr
   process.env.SCHEDULE_HOUR_KST='0';
   const isolated=new PGlite();
   await isolated.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
+  await applyFeatureSchema(isolated);
   const make=async(id,name)=>{
     const c=await saveCompetitor(isolated,id,{name,service_scope:'domestic',app_store:'https://apps.apple.com/kr/app/id123456'});
     await enqueue(isolated,id,{ids:[c.id]});return c;
@@ -277,7 +280,7 @@ test('serverless collection resumes existing jobs, scopes ownership, and cron dr
   const server=createServer(createHandler({database:()=>isolated,authenticate:async req=>{
     if(req.headers.authorization!=='admin')throw Object.assign(new Error('Login required'),{status:401});
     return {id:owner};
-  },collector:async()=>{called++;return payload();}}));
+  },collector:async()=>{called++;return payload();},chartCollector:async()=>Array.from({length:100},(_,i)=>String(i+1))}));
   await new Promise(r=>server.listen(0,'127.0.0.1',r));
   const base=`http://127.0.0.1:${server.address().port}`;
   const headers={authorization:'admin',origin:process.env.APP_ORIGIN};
@@ -314,6 +317,7 @@ test('bounded cron stops launching work at its budget and leaves remaining jobs 
   const isolated=new PGlite();
   try {
     await isolated.exec(await readFile(new URL('../supabase/migrations/20261020000000_initial.sql',import.meta.url),'utf8'));
+  await applyFeatureSchema(isolated);
     const c=await saveCompetitor(isolated,owner,{name:'Budget',service_scope:'domestic',app_store:'https://apps.apple.com/kr/app/id123456',play_store:'https://play.google.com/store/apps/details?id=com.example.app'});
     await enqueue(isolated,owner,{ids:[c.id]});
     let clock=0;

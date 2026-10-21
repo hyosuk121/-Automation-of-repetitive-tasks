@@ -1,7 +1,7 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": { "api/handler.js": { "maxDuration": 300 } },
+  "functions": { "api/handler.js": { "maxDuration": 300, "includeFiles": "supabase/**" } },
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/handler?__route=:path*" },
     { "source": "/competitor-analyzer/:path*", "destination": "/index.html" }

@@ -81,6 +81,8 @@ Worker 호스트에도 같은 변수를 설정한다. `DATABASE_CA_CERT`가 있�
 
 ## 4. Vercel에서 직접 수집
 
+2026-10-21부터 **자동 수집 · 과거 기록 → 자동 수집 설정 적용**으로 Supabase Cron을 등록할 수 있다. 적용 후에는 화면을 닫아도 5분마다 미완료 작업을 처리한다. [최신 적용 안내](automation-and-rankings.md)를 우선 참고한다. 아래 브라우저 재개 설명은 자동 실행 설정 전 동작이다.
+
 별도 Worker나 Render 가입은 필요하지 않다. 최신 main을 Vercel에 배포한 후 로그인하고 수집 화면을 열어 두면 기존 대기 작업부터 처리한다. 브라우저는 한 앱씩 `/api/collections/process`를 호출하고 각 응답 후 결과를 갱신한다. 화면을 닫았다 다시 열면 남은 작업을 이어서 처리한다.
 
 기존 DATABASE_URL, DATABASE_CA_CERT 등 환경 변수를 그대로 사용하며 추가 DB 마이그레이션은 없다. Vercel의 Fluid compute 및 300초 함수 실행 지원을 확인한다. `vercel.json`의 maxDuration은 300초다.

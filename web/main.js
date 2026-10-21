@@ -6,11 +6,12 @@ import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/600.css';
 import '@fontsource/noto-sans-kr/700.css';
 import './styles.css';
+import {rankingsView} from './rankings.js';
 import { readApiResponse } from './api-response.js';
 
 const icons={ArrowRight,ArrowLeft,ChevronLeft,ChevronRight,ChevronUp,ChevronDown,LayoutGrid,ChartNoAxesCombined,Plane,Clock3,Settings2,Search,Plus,RefreshCw,Download,X,LogOut,ShieldCheck,CircleHelp,ExternalLink,Pencil,Archive,Check,AlertCircle,Database,Menu,GripVertical,Layers,Zap,CalendarDays};
 const $=s=>document.querySelector(s);
-const state={user:null,config:null,competitors:[],runs:[],page:'dashboard',platform:'app_store',search:'',scope:'all',status:'all',archived:false,selectedCard:0,busy:false,runOffset:0};
+const state={user:null,config:null,competitors:[],runs:[],page:'dashboard',platform:'app_store',search:'',scope:'all',status:'all',archived:false,selectedCard:0,busy:false,runOffset:0,automation:null,rankings:null,rankPlatform:"app_store",rankDays:30,rankApp:"all"};
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icon=(name,cls='')=>`<i data-lucide="${name.replace(/([a-z0-9])([A-Z])/g,'$1-$2').toLowerCase()}" class="${cls}" aria-hidden="true"></i>`;
 const initIcons=()=>createIcons({icons,attrs:{'stroke-width':1.7}});
@@ -67,18 +68,19 @@ function home(){
     </main><footer class="portal-footer"><span>LESS REPETITION, MORE FOCUS.</span><span>Automation Hub · 나만의 업무 공간</span></footer></div>`;
 }
 function shell(){
-  const pageTitle={dashboard:'업데이트 대시보드',manage:'경쟁사 관리',history:'수집 이력'}[state.page];
+  const pageTitle={dashboard:'업데이트 대시보드',manage:'경쟁사 관리',history:'수집 이력',rankings:'카테고리 순위',setup:'자동 수집 · 과거 기록'}[state.page];
   return `<div class="workspace">
     <aside class="sidebar"><a class="brand" href="/" data-home><span class="brand-mark">${icon('Zap')}</span>automation<span class="brand-light">hub</span></a>
     <a href="/" data-home class="back-link">${icon('ArrowLeft')} 모든 도구</a><div class="nav-section-label">COMPETITOR ANALYZER</div>
-    <nav>${[['dashboard','LayoutGrid','대시보드'],['manage','Layers','경쟁사 관리'],['history','Clock3','수집 이력']].map(([p,i,n])=>`<button data-page="${p}" class="nav-item ${state.page===p?'selected':''}">${icon(i)}${n}${p==='manage'?`<span>${state.competitors.filter(c=>!c.archived_at).length}</span>`:''}</button>`).join('')}</nav>
+    <nav>${[['dashboard','LayoutGrid','대시보드'],['manage','Layers','경쟁사 관리'],['history','Clock3','수집 이력'],['rankings','ChartNoAxesCombined','카테고리 순위'],['setup','Settings2','자동 수집 · 과거 기록']].map(([p,i,n])=>`<button data-page="${p}" class="nav-item ${state.page===p?'selected':''}">${icon(i)}${n}${p==='manage'?`<span>${state.competitors.filter(c=>!c.archived_at).length}</span>`:''}</button>`).join('')}</nav>
     <div class="sidebar-bottom"><div class="preservation-note">${icon('Database')}<strong>기록은 계속 남습니다</strong><p>스토어에서 사라진 업데이트도<br>수집한 기록은 안전하게 보존합니다.</p></div>
     <button class="nav-item" data-help>${icon('CircleHelp')} 사용 안내</button><button class="nav-item" data-login>${icon(state.user?'LogOut':'ShieldCheck')}${state.user?'로그아웃':'관리자 로그인'}</button></div></aside>
     <div class="workspace-body"><header class="topbar"><button class="icon-button mobile-menu" data-menu aria-label="메뉴 열기">${icon('Menu')}</button><div class="breadcrumbs">Workspace <span>/</span> <strong>Competitor Analyzer</strong></div><div class="account"><span class="secure-dot"></span>${state.user?'관리자 워크스페이스':'워크스페이스'}<button class="avatar" data-login aria-label="계정">${icon('ShieldCheck')}</button></div></header>
     <main class="content"><div class="page-heading"><div><div class="eyebrow">COMPETITOR INTELLIGENCE</div><h1>${pageTitle}</h1><p>경쟁사의 새로운 움직임, 놓치지 않고 기록하세요.</p></div><div class="heading-actions"><button class="button secondary" data-export>${icon('Download')} 내보내기</button><button class="button primary" data-add>${icon('Plus')} 경쟁사 등록</button></div></div>
     ${!state.config?.database || !state.config?.authentication || !state.config?.origin?`<div class="notice">${icon('Settings2')}<div><strong>서비스 연결을 준비하고 있습니다</strong><p>Supabase와 관리자 인증 설정 후 실제 수집·저장을 사용할 수 있습니다. 아직 저장된 데이터는 없습니다.</p></div><button class="text-button" data-setup>설정 안내 ${icon('ArrowRight')}</button></div>`:
       !state.user?`<div class="notice">${icon('ShieldCheck')}<div><strong>관리자 로그인이 필요합니다</strong><p>로그인 후 경쟁사 등록, 수집 및 저장된 이력을 이용할 수 있습니다.</p></div><button class="button primary" data-login>로그인</button></div>`:''}
-    ${state.page==='history'?runsView():dashboardView()}
+    ${state.user && state.automation && !state.automation.schedulerInstalled && state.page!=='setup'?'<div class="notice"><p>웹을 닫아도 수집하려면 자동 수집 설정을 적용해 주세요.</p><button class="button secondary small" data-page="setup">설정 열기</button></div>':''}
+    ${state.page==='history'?runsView():state.page==='setup'?automationView():state.page==='rankings'?rankingsView(state.rankings,{platform:state.rankPlatform,days:state.rankDays,app:state.rankApp}):dashboardView()}
     <footer class="content-footer"><span>수집한 과거 기록은 최신 데이터로 덮어쓰지 않습니다.</span><span>모든 시간은 한국 표준시(KST) 기준</span></footer></main></div></div>`;
 }
 function dashboardView(){
@@ -87,7 +89,7 @@ function dashboardView(){
   const changed=apps.filter(a=>Number(a.change_count)>0).length;
   const pending=apps.filter(a=>a.job_status).length;
   const failed=apps.filter(a=>a.last_error_message).length;
-  return `<div class="stats-grid">${[['모니터링 경쟁사',active.length,'Layers','등록된 경쟁사 기준'],['변경 감지 앱',changed,'ChartNoAxesCombined','직전 수집과 비교'],['대기 · 수집 중',pending,'RefreshCw','화면을 열어 두면 대기 작업을 처리합니다'],['확인이 필요한 앱',failed,'AlertCircle','최근 수집 오류']].map(([title,n,i,sub])=>`<div class="stat-card"><span class="stat-icon">${icon(i)}</span><span class="stat-title">${title}</span><strong>${n}<small>개</small></strong><span class="stat-sub">${sub}</span></div>`).join('')}</div>
+  return `<div class="stats-grid">${[['모니터링 경쟁사',active.length,'Layers','등록된 경쟁사 기준'],['변경 감지 앱',changed,'ChartNoAxesCombined','직전 수집과 비교'],['대기 · 수집 중',pending,'RefreshCw',state.automation?.schedulerInstalled?'웹을 닫아도 서버에서 처리합니다':'자동 수집 설정을 적용하면 웹을 닫아도 처리합니다'],['확인이 필요한 앱',failed,'AlertCircle','최근 수집 오류']].map(([title,n,i,sub])=>`<div class="stat-card"><span class="stat-icon">${icon(i)}</span><span class="stat-title">${title}</span><strong>${n}<small>개</small></strong><span class="stat-sub">${sub}</span></div>`).join('')}</div>
     <section class="data-panel"><div class="panel-heading"><div class="platform-tabs" role="tablist" aria-label="스토어 선택"><button role="tab" aria-selected="${state.platform==='app_store'}" class="${state.platform==='app_store'?'selected':''}" data-platform="app_store">App Store <span>${apps.filter(a=>a.platform==='app_store').length}</span></button><button role="tab" aria-selected="${state.platform==='play_store'}" class="${state.platform==='play_store'?'selected':''}" data-platform="play_store">Play Store <span>${apps.filter(a=>a.platform==='play_store').length}</span></button></div><button class="button secondary small" data-collect-all>${icon('RefreshCw')} 전체 수집</button></div>
     <div class="table-toolbar"><label class="search-field">${icon('Search')}<input type="search" id="search" placeholder="경쟁사 또는 앱 이름 검색" value="${escape(state.search)}" aria-label="경쟁사 검색"></label><div class="filters"><select id="scope" aria-label="서비스 구분">${[['all','모든 지역'],['domestic','국내'],['global','국외'],['unknown','미분류']].map(([v,l])=>`<option value="${v}" ${state.scope===v?'selected':''}>${l}</option>`).join('')}</select><select id="status" aria-label="수집 상태">${[['all','모든 상태'],['changed','변경 있음'],['error','수집 오류'],['pending','대기 · 실행 중']].map(([v,l])=>`<option value="${v}" ${state.status===v?'selected':''}>${l}</option>`).join('')}</select>${state.page==='manage'?`<label class="checkbox-label"><input type="checkbox" id="archived" ${state.archived?'checked':''}> 보관 포함</label>`:''}</div></div>
     <div id="table-content">${tableContent()}</div><div class="table-footer"><span>전체 ${active.length}개 경쟁사</span><span>${icon('ShieldCheck')} 과거 업데이트 이력 보존</span></div></section>`;
@@ -108,6 +110,24 @@ function tableContent(){
     return `<tr data-row="${c.id}" ${state.page==='manage'&&!c.archived_at?'draggable="true"':''}><td ${state.page==='manage'?'':'hidden'}><div class="order-actions">${icon('GripVertical')}<button class="icon-button" data-move="${c.id}" data-direction="-1" aria-label="${escape(c.name)} 위로">${icon('ChevronUp')}</button><button class="icon-button" data-move="${c.id}" data-direction="1" aria-label="${escape(c.name)} 아래로">${icon('ChevronDown')}</button></div></td><td><div class="app-cell">${appIcon(s?.icon_url,c.name)}<div><button class="name-button" ${a?`data-detail="${a.id}"`:''}>${escape(c.name)}</button>${c.archived_at?'<span class="badge">보관됨</span>':''}<small>${escape(s?.app_name || (a?'첫 수집 대기':'스토어 미등록'))}</small></div></div></td><td><span class="scope-chip">${{domestic:'국내',global:'국외',unknown:'미분류'}[c.service_scope]}</span></td><td>${a?unknown(s?.version):'—'}</td><td class="date-cell">${unknown(s?.source_updated_at?.slice(0,10))}</td><td>${s?.rating!=null?Number(s.rating).toFixed(2)+' / 5':'—'}<small class="rating-count">${state.platform==='app_store'?'평점':'리뷰'} 수 ${countLabel(state.platform==='app_store'?s?.rating_count:s?.review_count)}</small></td>${state.platform==='play_store'?`<td>${unknown(s?.downloads_text)}</td>`:''}<td class="latest-notes-cell">${s?.latest_notes?`<details><summary>업데이트 내용 보기</summary><p class="release-notes">${escape(s.latest_notes)}</p></details>`:'제공된 설명 없음'}</td><td>${a?.job_status?badge(a.job_status):a?.last_error_message?badge('failed'):Number(a?.change_count)>0?'<span class="badge changed">변경 있음</span>':s?badge(s.normalized_payload?.quality==='partial'?'partial':'succeeded'):'<span class="badge">수집 전</span>'}</td><td class="date-cell">${a?.last_success_at?escape(date(a.last_success_at)):'—'}${Number(a?.missing_count)>0?`<small>과거 릴리즈 ${a.missing_count}개 보존</small>`:''}</td><td><div class="row-actions">${a?`<button class="icon-button" data-detail="${a.id}" aria-label="${escape(c.name)} 이력 보기">${icon('Clock3')}</button>`:''}${!c.archived_at?`<button class="icon-button" data-collect="${c.id}" aria-label="${escape(c.name)} 수집">${icon('RefreshCw')}</button><button class="icon-button" data-edit="${c.id}" aria-label="${escape(c.name)} 수정">${icon('Pencil')}</button><button class="icon-button danger" data-archive="${c.id}" aria-label="${escape(c.name)} 보관">${icon('Archive')}</button>`:''}</div></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
+function automationView(){
+ const a=state.automation;
+ return `<section class="data-panel automation-panel"><h2>매일 오전 9시 자동 수집</h2><p>한국 시간 오전 9시부터 일일 수집을 시작합니다. Supabase가 5분마다 서버를 호출해 대기 작업과 재시도를 처리하므로 웹을 열어 둘 필요가 없습니다.</p><p>순위 기준은 대한민국 · 인기 무료 · iPhone 여행 / Google Play 여행 및 지역정보입니다.</p><dl><dt>데이터 저장 준비</dt><dd>${a?.schemaReady?'완료':'설정 필요'}</dd><dt>Supabase 자동 실행</dt><dd>${a?.schedulerInstalled?'등록됨':'설정 필요'}</dd><dt>최근 서버 자동 실행</dt><dd>${a?.lastTick?`${escape(date(a.lastTick.started_at))} · ${escape({succeeded:'실행 완료 (항목별 결과는 수집 이력 확인)',running:'실행 중',failed:'실행 오류'}[a.lastTick.status]||a.lastTick.status)}`:'아직 확인되지 않았습니다.'}</dd></dl><button class="button primary" data-automation-install>자동 수집 설정 적용</button><button class="button secondary" data-automation-schema>데이터 저장 준비만 적용</button><button class="button secondary" data-reload>상태 새로고침</button><p class="field-note">기존 Vercel 환경 변수를 사용해 DB 테이블과 Supabase Cron을 설정합니다. 비밀번호를 입력할 필요가 없습니다. 등록 후 5분 내 최근 실행 시각을 확인해 주세요. 최신 기록은 작업별 완료 시점에 반영됩니다.</p><hr><h2>2026년 7월 9일 기록 가져오기</h2><p>App Store 12개 · Play Store 12개 · App Store 과거 버전 249개. 현재 등록된 앱과 연결해 가져옵니다. 기존 최신 정보는 유지하고 과거 기록과 설명을 누적합니다.</p><button class="button secondary" data-import-july ${a?.schemaReady?'':'disabled'}>7월 9일 자료 연결 · 가져오기</button><p class="field-note">반복 실행해도 같은 자료를 중복 저장하지 않습니다. 이름이 다른 앱은 직접 연결할 수 있습니다.</p></section>`;
+}
+async function applyAutomation(scheduler){
+ if(needsLogin())return;
+ const button=$(scheduler?'[data-automation-install]':'[data-automation-schema]');button.disabled=true;
+ try{state.automation=await post('/automation/'+(scheduler?'install':'schema'));render();toast(scheduler?'자동 실행을 등록했습니다. 5분 후 최근 실행을 확인해 주세요.':'데이터 저장 준비를 완료했습니다.');}
+ catch(error){toast(error.message,true);}finally{button.disabled=false;}
+}
+async function importJuly(){
+ if(needsLogin())return;
+ try{
+  const data=await api('/imports/july');
+  modal('7월 9일 자료 연결',`<form id="report-import-form" class="form"><p>스토어 링크가 없는 보고서입니다. 이름·플랫폼을 확인하고 같은 앱에 연결해 주세요. 연결하지 않은 항목은 건너뜁니다.</p><div class="report-mappings">${data.rows.map(r=>`<label>${escape(r.name)} · ${r.platform==='app_store'?'App Store':'Play Store'} · 기록 ${r.releases}개${r.importedId?' (가져옴)':''}<select name="${escape(r.key)}" ${r.importedId?'disabled':''}><option value="">건너뛰기</option>${data.apps.filter(a=>a.platform===r.platform).map(a=>`<option value="${a.id}" ${(r.importedId||r.suggestedId)===a.id?'selected':''}>${escape(a.name)} · ${escape(a.country)} · ${escape(a.external_id)}</option>`).join('')}</select></label>`).join('')}</div><p class="form-error" role="alert"></p><button class="button primary">선택한 기록 가져오기</button></form>`,true);
+  $('#report-import-form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;try{const mappings=[...new FormData(e.target)].filter(([,v])=>v).map(([key,appId])=>({key,appId}));const result=await post('/imports/july',{mappings});$('#modal').close();await loadData();toast(`${result.imported}개 앱의 과거 기록을 가져왔습니다. 기존 가져오기 ${result.skipped}개는 유지했습니다.`);}catch(error){e.target.querySelector('.form-error').textContent=error.message;}finally{button.disabled=false;}};
+ }catch(error){toast(error.message,true);}
+}
 function runsView(){
   return `<section class="data-panel"><div class="panel-heading"><h2>수집 실행 기록</h2><button class="button secondary small" data-reload>${icon('RefreshCw')} 새로고침</button></div>${state.runs.length?`<div class="run-list">${state.runs.map(r=>`<details class="run-row"><summary><span class="run-icon">${icon('RefreshCw')}</span><div><strong>${label[r.trigger_type]} 수집</strong><small>${date(r.created_at)}</small></div>${badge(r.status)}<span class="run-count">성공 ${r.success_count} / 실패 ${r.failure_count} / 전체 ${r.total_count}</span>${icon('ChevronDown')}</summary><div class="run-details">${r.items.length?r.items.map(i=>`<div><strong>${escape(i.name)} · ${i.platform==='app_store'?'App Store':'Play Store'}</strong>${badge(i.status)}<p>${escape(i.error || '오류 없음')}</p></div>`).join(''):'JSON 데이터 이전 작업입니다.'}</div></details>`).join('')}</div>`:`<div class="empty-state"><div class="empty-icon">${icon('Clock3')}</div><h2>아직 수집 기록이 없어요</h2><p>경쟁사를 등록하고 수집하면 실행 상태와 결과가 여기에 표시됩니다.</p></div>`}<div class="table-footer"><button class="text-button" data-runs-prev ${state.runOffset===0?'disabled':''}>이전 50건</button><span>${state.runOffset+1}부터 최대 50건</span><button class="text-button" data-runs-next ${state.runs.length<50?'disabled':''}>다음 50건</button></div></section>`;
 }
@@ -126,6 +146,13 @@ function bind(){
   document.querySelectorAll('[data-collect-all]').forEach(e=>e.onclick=()=>collect());
   document.querySelectorAll('[data-detail]').forEach(e=>e.onclick=()=>detail(e.dataset.detail));
   document.querySelectorAll('[data-export]').forEach(e=>e.onclick=exportForm);
+  $('[data-automation-install]')?.addEventListener('click',()=>applyAutomation(true));
+  $('[data-automation-schema]')?.addEventListener('click',()=>applyAutomation(false));
+  $('[data-import-july]')?.addEventListener('click',importJuly);
+  $('[data-rank-refresh]')?.addEventListener('click',()=>loadData(true));
+  $('#rank-platform')?.addEventListener('change',e=>{state.rankPlatform=e.target.value;state.rankApp='all';render();});
+  $('#rank-days')?.addEventListener('change',e=>{state.rankDays=Number(e.target.value);loadData();});
+  $('#rank-app')?.addEventListener('change',e=>{state.rankApp=e.target.value;render();});
   document.querySelectorAll('[data-page]').forEach(e=>e.onclick=()=>{state.page=e.dataset.page;state.archived=false;state.runOffset=0;render();loadData();});
   document.querySelectorAll('[data-platform]').forEach(e=>e.onclick=()=>{state.platform=e.dataset.platform;render();});
   document.querySelectorAll('[data-slide]').forEach(e=>e.onclick=()=>slide(Number(e.dataset.slide)));
@@ -167,7 +194,9 @@ function slide(delta){
 async function loadData(show=false){
   if(!state.user)return;
   try{
-    const [data,runs]=await Promise.all([api('/competitors?archived='+state.archived),api('/collections?offset='+state.runOffset)]);
+    const [data,runs,automation]=await Promise.all([api('/competitors?archived='+state.archived),api('/collections?offset='+state.runOffset),api('/automation')]);
+    state.automation=automation;
+    if(state.page==='rankings' && automation.schemaReady)state.rankings=await api('/rankings?days='+state.rankDays);
     state.competitors=data.competitors;state.runs=runs.runs;render();resumeCollection();if(show)toast('최신 상태를 불러왔습니다.');
   }catch(error){toast(error.message,true);}
 }
