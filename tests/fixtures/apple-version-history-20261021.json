@@ -1,0 +1,187 @@
+{
+  "page": "versionHistory",
+  "pageData": {
+    "shelves": [
+      {
+        "contentType": "titledParagraph",
+        "items": [
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "2.1.0",
+            "secondarySubtitle": "Tue Oct 20 2026 05:19:23 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 단말 등록 확인 기능을 개선했어요. 더 많은 상품에서 이용할 수 있도록 적용 범위를 넓히고, 관련 화면도 한층 편리하게 다듬었어요.\n- 승무원 전용 서비스에 취항지 요청 기능을 추가했어요.\n- 로깨비톡에 번호 붙여넣기 기능이 생겼어요. 전화하고 싶은 번호를 복사해서 바로 붙여넣어 보세요!\n- 서비스를 더 안정적으로 이용하실 수 있도록 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "2.0.0",
+            "secondarySubtitle": "Sun Sep 20 2026 23:13:40 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스 이용을 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.9",
+            "secondarySubtitle": "Fri Jul 31 2026 11:31:02 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 로그인 UI를 더 직관적으로 개선했어요.\n- AI 채팅 기능이 런칭되었어요. 24시간 궁금증을 빠르게 해결해드리는 AI 상담사 로깨비에게 무엇이든 물어보세요!\n- 안정적인 서비스 이용을 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.8",
+            "secondarySubtitle": "Wed Jul 29 2026 14:15:23 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 로그인 UI를 더 직관적으로 개선했어요.\n- AI 채팅 기능이 런칭되었어요. 24시간 궁금증을 빠르게 해결해드리는 AI 상담사 로깨비에게 무엇이든 물어보세요!\n- 안정적인 서비스 이용을 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.7",
+            "secondarySubtitle": "Tue Jul 28 2026 23:06:10 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.6",
+            "secondarySubtitle": "Wed Jun 24 2026 23:24:13 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 로밍도깨비 멤버십이 런칭되었어요. 지금 바로 내 등급을 확인하고 등급별 혜택을 만나보세요!\n- 가이드 탭과 고객 지원 화면을 추가해 eSIM 사용 방법과 FAQ를 더 쉽고 빠르게 확인할 수 있어요.\n- 안정적인 서비스 이용을 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.5",
+            "secondarySubtitle": "Thu Jun 18 2026 06:38:45 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.4",
+            "secondarySubtitle": "Fri May 08 2026 04:52:54 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.3",
+            "secondarySubtitle": "Tue Apr 21 2026 23:50:48 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 승무원 전용 서비스가 새롭게 출시됐어요! 우리 항공사 취항지에 꼭 맞는 맞춤형 상품을 합리적인 가격으로 이용해 보세요.\n- 필요한 알림만 골라 받아볼 수 있도록 알림 설정을 개선했어요.\n- 상품을 둘러보실 때 할인 가격을 더 쉽게 확인할 수 있어요.\n- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.2",
+            "secondarySubtitle": "Fri Apr 17 2026 07:22:24 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 상품 구매 전 필요한 정보를 한눈에 확인할 수 있도록 상세 화면을 개선했어요.\n- 로밍도깨비의 최신 혜택과 소식을 모아볼 수 있는 전용 화면을 새롭게 추가했어요.\n- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.10.1",
+            "secondarySubtitle": "Mon Feb 16 2026 05:36:28 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.17",
+            "secondarySubtitle": "Thu Dec 18 2025 00:02:42 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.16",
+            "secondarySubtitle": "Fri Dec 05 2025 00:15:12 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.15",
+            "secondarySubtitle": "Mon Dec 01 2025 12:19:57 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 카트 화면을 더 편리하게 개선했어요.\n- 로깨비톡 이용 후 전달주신 소중한 의견을 반영해 기능을 업데이트하고, 서비스를 한눈에 볼 수 있는 소개 화면을 새롭게 추가했어요.\n- 실명 인증 가이드를 더 쉽게 이해할 수 있도록 개선했어요.\n- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.14",
+            "secondarySubtitle": "Fri Nov 28 2025 03:15:42 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- [5% 할인] 더블팩 상품 출시! 하나만 구매해도 동일한 eSIM 2개가 발송돼요. 여행 동행자와 함께 알뜰하게 나눠 사용해 보세요.\n- 더 안전한 여행을 위해 무료 긴급 통화를 확대했어요. 해외에서 항공사·카드사·보험사로 급히 연락이 필요할 때도 로깨비톡으로 안심하고 이용하세요.\n- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.13",
+            "secondarySubtitle": "Fri Sep 26 2025 00:36:40 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.12",
+            "secondarySubtitle": "Mon Sep 15 2025 00:22:00 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "- 안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.11",
+            "secondarySubtitle": "Wed Sep 03 2025 00:28:39 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "올데이 플러스 상품 런칭! 완전 무제한 데이터에 무료 통화와 환불 보장까지 더한 로밍도깨비만의 프리미엄 상품을 지금 바로 만나보세요.\n사용가이드가 더 편리해졌어요! 설치부터 귀국 후까지 상황별 eSIM 가이드를 이미지와 동영상으로 확인하고, 원하는 이미지는 저장해 언제든 볼 수 있어요.\n더 직관적이고 편리한 결제를 위해 결제 화면 UI를 개선했어요.\n안정적인 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.10",
+            "secondarySubtitle": "Mon Aug 25 2025 05:50:21 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "더 나은 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.9",
+            "secondarySubtitle": "Mon Jul 21 2025 00:10:12 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "더 나은 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.8",
+            "secondarySubtitle": "Fri Jul 11 2025 00:37:26 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "더 나은 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.7",
+            "secondarySubtitle": "Mon Jul 07 2025 00:56:11 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "더 나은 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.6",
+            "secondarySubtitle": "Mon Jun 16 2025 05:45:50 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "실명 인증 가이드를 개선했어요.\n더 나은 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.5",
+            "secondarySubtitle": "Mon Jun 02 2025 00:42:25 GMT+0000 (Coordinated Universal Time)"
+          },
+          {
+            "$kind": "TitledParagraph",
+            "text": "선물하기 기능을 개선했어요.\n더 나은 서비스를 위해 버그를 수정했어요.",
+            "style": "detail",
+            "primarySubtitle": "1.9.4",
+            "secondarySubtitle": "Thu May 29 2025 00:42:16 GMT+0000 (Coordinated Universal Time)"
+          }
+        ]
+      }
+    ]
+  }
+}

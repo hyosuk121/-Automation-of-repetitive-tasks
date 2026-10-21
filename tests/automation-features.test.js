@@ -113,3 +113,28 @@ test('scheduler SQL dispatches authenticated server requests and stores only a p
   await assert.rejects(d.query('SELECT automation_private.dispatch()'),e=>e.code==='42501');
  }finally{await d.close();}
 });
+
+test('current captured Apple history fills July-to-latest gap without deleting older archived releases',async()=>{
+ const {parseAppleHistory,normalizeApple}=await import('../lib/stores.js');
+ const fixture=await readFile(new URL('./fixtures/apple-version-history-20261021.json',import.meta.url),'utf8');
+ const history=parseAppleHistory(`<script type="application/json">${fixture}</script>`);
+ const d=await database(),previousInterval=process.env.COLLECTION_INTERVAL_SECONDS;
+ process.env.COLLECTION_INTERVAL_SECONDS='0';
+ try{
+  const c=await saveCompetitor(d,owner,{name:report[0].name,service_scope:'domestic',app_store:'https://apps.apple.com/kr/app/id1525664178'});
+  const app=(await reportPreview(d,owner)).apps[0];
+  await importReport(d,owner,[{key:report[0].key,appId:app.id}]);
+  const lookup={trackId:1525664178,trackName:'로밍도깨비',version:'2.1.0',currentVersionReleaseDate:'2026-10-20T05:19:23Z',releaseNotes:history[0].notes};
+  await enqueue(d,owner,{ids:[c.id]});await workOnce(d,async()=>normalizeApple(lookup,null));
+  assert.equal((await appHistory(d,owner,app.id,'2000-01-01','2100-01-01')).releases.length,26);
+  await enqueue(d,owner,{ids:[c.id]});await workOnce(d,async()=>normalizeApple(lookup,history));
+  const merged=await appHistory(d,owner,app.id,'2000-01-01','2100-01-01');
+  assert.equal(merged.releases.length,30);
+  for(const version of ['2.0.0','1.10.9','1.10.8','1.10.7'])assert.equal(merged.releases.filter(r=>r.version===version).length,1);
+  for(const old of report[0].payload.releases)assert.ok(merged.releases.some(r=>r.version===old.version));
+  assert.equal(merged.releases.filter(r=>!r.is_present_in_source).length,5);
+  assert.equal(merged.releases.filter(r=>r.version==='2.1.0').length,1);
+  await enqueue(d,owner,{ids:[c.id]});await workOnce(d,async()=>normalizeApple(lookup,history));
+  assert.equal((await appHistory(d,owner,app.id,'2000-01-01','2100-01-01')).releases.length,30);
+ }finally{if(previousInterval===undefined)delete process.env.COLLECTION_INTERVAL_SECONDS;else process.env.COLLECTION_INTERVAL_SECONDS=previousInterval;await d.close();}
+});

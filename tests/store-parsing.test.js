@@ -49,3 +49,20 @@ test('Apple collection follows official same-origin redirects but never third-pa
     assert.ok(!calls.some(url=>url.includes('evil.test')));
   } finally{globalThis.fetch=original;}
 });
+
+test('captured Apple flowAction yields all 25 versions, including the gap after the July report',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const fixture=JSON.parse(await readFile(new URL('./fixtures/apple-version-history-20261021.json',import.meta.url),'utf8'));
+ const html=`<script id="serialized-server-data" type="application/json">${JSON.stringify({data:[{data:{shelfMapping:{mostRecentVersion:{seeAllAction:fixture}}}}]})}</script>`;
+ const history=parseAppleHistory(html);
+ assert.equal(history.length,25);
+ assert.deepEqual(history.slice(0,6).map(r=>r.version),['2.1.0','2.0.0','1.10.9','1.10.8','1.10.7','1.10.6']);
+ assert.equal(history[0].releaseDate,'2026-10-20');
+ assert.equal(history[2].releaseDate,'2026-07-31');
+ assert.ok(history[3].notes.includes('\n- AI 채팅 기능'));
+ assert.equal(normalizeApple({trackId:1525664178,trackName:'로밍도깨비',version:'2.1.0'},history).quality,'complete');
+ fixture.page='reviews';
+ assert.equal(parseAppleHistory(`<script type="application/json">${JSON.stringify(fixture)}</script>`),null);
+ fixture.page='versionHistory';fixture.pageData.shelves[0].items[2].secondarySubtitle='7월 31일';
+ assert.equal(parseAppleHistory(`<script type="application/json">${JSON.stringify(fixture)}</script>`),null);
+});
