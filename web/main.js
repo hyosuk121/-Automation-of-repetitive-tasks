@@ -46,7 +46,7 @@ window.addEventListener('popstate',()=>{state.page='dashboard';render();loadData
 function home(){
   const last=state.competitors.flatMap(c=>c.apps).map(a=>a.last_success_at).filter(Boolean).sort().at(-1);
   return `<div class="portal">
-    <header class="portal-nav"><a class="brand" href="/" data-home><img class="brand-icon" src="/favicon.svg" alt=""><span>Hyoseok's<br>Automation</span></a>
+    <header class="portal-nav"><a class="brand" href="/" data-home><img class="brand-icon" src="/automation-icon.svg" alt=""><span>Hyoseok's<br>Automation</span></a>
     <div class="nav-right"><span class="personal-label">YOUR WORKSPACE</span><button class="avatar" data-login aria-label="관리자 로그인">${state.user?'MY':icon('ShieldCheck')}</button></div></header>
     <main class="portal-main"><div class="eyebrow"><span></span> SMALL TOOLS. MORE POSSIBILITIES.</div>
     <h1>반복되는 일은 간편하게,<br><span>당신의 시간은 더 가치 있게.</span></h1>
@@ -74,7 +74,7 @@ function home(){
 function shell(){
   const pageTitle={dashboard:'업데이트 대시보드',manage:'경쟁사 관리',history:'수집 이력',rankings:'카테고리 순위',setup:'자동 수집 · 과거 기록'}[state.page];
   return `<div class="workspace">
-    <aside class="sidebar"><a class="brand" href="/" data-home><img class="brand-icon" src="/favicon.svg" alt=""><span>Hyoseok's<br>Automation</span></a>
+    <aside class="sidebar"><a class="brand" href="/" data-home><img class="brand-icon" src="/automation-icon.svg" alt=""><span>Hyoseok's<br>Automation</span></a>
     <a href="/" data-home class="back-link">${icon('ArrowLeft')} 모든 도구</a><div class="nav-section-label">COMPETITOR ANALYZER</div>
     <nav>${[['dashboard','LayoutGrid','대시보드'],['manage','Layers','경쟁사 관리'],['history','Clock3','수집 이력'],['rankings','ChartNoAxesCombined','카테고리 순위'],['setup','Settings2','자동 수집 · 과거 기록']].filter(([p])=>state.user||['dashboard','rankings'].includes(p)).map(([p,i,n])=>`<button data-page="${p}" class="nav-item ${state.page===p?'selected':''}">${icon(i)}${n}${p==='manage'?`<span>${state.competitors.filter(c=>!c.archived_at).length}</span>`:''}</button>`).join('')}</nav>
     <div class="sidebar-bottom"><div class="preservation-note">${icon('Database')}<strong>기록은 계속 남습니다</strong><p>스토어에서 사라진 업데이트도<br>수집한 기록은 안전하게 보존합니다.</p></div>
