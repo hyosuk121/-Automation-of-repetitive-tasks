@@ -160,7 +160,7 @@ test('lease token prevents a recovered stale worker from overwriting newer resul
   assert.equal(app.snapshot.version,'fresh');
   assert.equal((await database.query('SELECT count(*) FROM store_snapshots WHERE store_app_id=$1',[app.id])).rows[0].count,1);
 });
-test('Play Store replaces current notes while keeping old unknown-version releases',async()=>{
+test('Play Store preserves note revisions on the same observed update',async()=>{
   const c=await saveCompetitor(database,owner,{name:'Play only',service_scope:'domestic',play_store:'https://play.google.com/store/apps/details?id=com.example.play'});
   for(const notes of ['First notes','Second notes']) {
     await enqueue(database,owner,{ids:[c.id]});
@@ -168,7 +168,8 @@ test('Play Store replaces current notes while keeping old unknown-version releas
   }
   const app=(await listCompetitors(database,owner)).find(x=>x.id===c.id).apps[0];
   const history=await appHistory(database,owner,app.id,'1970-01-01','2100-01-01');
-  assert.equal(history.releases.length,2);
+  assert.equal(history.releases.length,1);
+  assert.equal(history.releases[0].revisions.length,2);
   assert.equal(history.releases.filter(r=>r.is_present_in_source).length,1);
   assert.ok(history.releases.every(r=>r.version===null));
 });
