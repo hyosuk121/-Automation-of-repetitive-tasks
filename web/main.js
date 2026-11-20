@@ -65,7 +65,7 @@ function home(){
         <div class="tool-emblem muted">${icon('Plane')}</div>
         <div class="card-body"><span class="availability upcoming">연결 준비 중</span><h2>항공 데이터<br>자동화</h2><p>인천공항 실적으로 살펴보는 여행 시장.<br>국가별 변화와 계절 패턴을 한곳에서.</p>
         <div class="last-run">${icon('Clock3')}<span>공식 데이터 연동 확인 중</span></div>
-        <button class="launch-button" disabled>연결 준비 중 ${icon('Clock3')}</button></div>
+        <button class="launch-button" ${state.user?'data-aviation-check':'disabled'}>${state.user?'API 연결 확인':'연결 준비 중'} ${icon('Clock3')}</button></div>
       </article>
     </section>
     <div class="carousel-bottom"><div class="dots"><button class="${state.selectedCard===0?'selected':''}" data-select-card="0" aria-label="첫 번째 카드" aria-pressed="${state.selectedCard===0}"></button><button class="${state.selectedCard===1?'selected':''}" data-select-card="1" aria-label="두 번째 카드" aria-pressed="${state.selectedCard===1}"></button></div><span>필요한 도구는 계속 더해집니다.</span></div>
@@ -161,6 +161,7 @@ function render(){
 }
 function bind(){
   bindRankTooltips();
+  $('[data-aviation-check]')?.addEventListener('click',aviationCheck);
   document.querySelectorAll('[data-home]').forEach(e=>e.onclick=event=>{event.preventDefault();navigate('/');});
   document.querySelectorAll('[data-launch]').forEach(e=>e.onclick=()=>navigate('/competitor-analyzer'));
   document.querySelectorAll('[data-login]').forEach(e=>e.onclick=account);
@@ -339,3 +340,16 @@ try {
 }
 initialize();
 setInterval(()=>{if(state.user && !document.hidden && !$('#modal').open && !$('#search')?.matches(':focus') && location.pathname!=='/' && state.competitors.some(c=>c.apps.some(a=>a.job_status)))loadData();},5000);
+
+async function aviationCheck(){
+ if(needsLogin())return;
+ modal('항공 데이터 · API 연결 확인',`<div class="help-content"><p>공식 월간 API의 출발·여객편을 조회합니다. 정기편과 부정기편의 전체 페이지를 확인하며, 최대 90초가 걸릴 수 있습니다.</p><p>아직 통계를 DB에 저장하거나 자동 수집을 시작하지 않습니다. 과거 연월 조회와 일별 자료는 이 API에서 지원하지 않습니다.</p><p>Vercel → Settings → Environment Variables에 <strong>INCHEON_API_SERVICE_KEY</strong>를 입력하고 재배포해 주세요.</p><button class="button primary" id="aviation-inspect">연결 확인 실행</button><div id="aviation-result" role="status" aria-live="polite"></div></div>`,true);
+ const button=$('#aviation-inspect'),result=$('#aviation-result');
+ button.onclick=async()=>{
+  button.disabled=true;result.textContent='전체 페이지를 확인하고 있습니다…';
+  try{
+   const data=await post('/aviation/inspect');
+   result.innerHTML=`<p><strong>${data.rowCount?'응답 확인 완료':'응답은 정상이지만 제공된 자료가 없습니다.'}</strong></p><p>확인 시각: ${escape(date(data.checkedAt))}</p><p>제공 기준월: ${data.months.map(m=>escape(m.slice(0,4)+'.'+m.slice(4))).join(', ')||'없음'}</p><p>전체 실적 ${data.rowCount.toLocaleString()}건 · 정기 ${data.groups[0].count.toLocaleString()}건 · 부정기 ${data.groups[1].count.toLocaleString()}건</p><p>국가·지역: ${data.countries.map(escape).join(', ')||'없음'}</p><p>유임: ${countLabel(data.totals.totalEff)}명 / 무임: ${countLabel(data.totals.totalNff)}명 / 환승: ${countLabel(data.totals.totalTrf)}명</p><p>${escape(data.scope)} 세 항목을 더한 총여객 수는 산출하지 않습니다.</p>`;
+  }catch(error){result.textContent=error.message;}finally{button.disabled=false;}
+ };
+}

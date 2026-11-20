@@ -81,6 +81,12 @@ try{
   process.env.ADMIN_EMAILS='fixture@example.com';
   await page.setViewportSize({width:1440,height:1050});await page.reload();
   await page.getByRole('button',{name:'로그아웃'}).waitFor();
+  await page.locator('[data-home]').first().click();
+  await page.getByRole('button',{name:'API 연결 확인',exact:true}).click();
+  await page.getByRole('button',{name:'연결 확인 실행',exact:true}).click();
+  await page.locator('#aviation-result').getByText('Vercel에 INCHEON_API_SERVICE_KEY를 입력하고 재배포해 주세요.',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'닫기',exact:true}).click();
+  await page.getByRole('button',{name:'실행하기',exact:true}).click();
   await page.getByRole('button',{name:'경쟁사 등록',exact:true}).click();
   await page.getByLabel(/경쟁사명/).fill('테스트 경쟁사');
   await page.getByLabel('App Store 링크').fill('https://apps.apple.com/kr/app/id123456');
