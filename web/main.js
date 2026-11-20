@@ -60,12 +60,12 @@ function home(){
         <div class="last-run">${icon('Clock3')}<span>최근 실행 <b>${last?escape(date(last)):'실행 기록 없음'}</b></span></div>
         <button class="launch-button" data-launch>실행하기 ${icon('ArrowRight')}</button></div>
       </article>
-      <article class="tool-card upcoming-card" aria-label="2 / 2 Aircrew Monitoring 준비 중">
-        <div class="card-color muted"><span class="card-category">OPERATIONS</span><span class="card-number">02</span></div>
+      <article class="tool-card upcoming-card" aria-label="2 / 2 항공 데이터 자동화 연결 준비 중">
+        <div class="card-color muted"><span class="card-category">TRAVEL INSIGHTS</span><span class="card-number">02</span></div>
         <div class="tool-emblem muted">${icon('Plane')}</div>
-        <div class="card-body"><span class="availability upcoming">COMING SOON</span><h2>Aircrew<br>Monitoring</h2><p>또 하나의 반복 업무도 더 간편하게.<br>새로운 자동화 도구를 준비하고 있어요.</p>
-        <div class="last-run">${icon('Clock3')}<span>곧 만나보실 수 있어요</span></div>
-        <button class="launch-button" disabled>준비 중 ${icon('Clock3')}</button></div>
+        <div class="card-body"><span class="availability upcoming">연결 준비 중</span><h2>항공 데이터<br>자동화</h2><p>인천공항 실적으로 살펴보는 여행 시장.<br>국가별 변화와 계절 패턴을 한곳에서.</p>
+        <div class="last-run">${icon('Clock3')}<span>공식 데이터 연동 확인 중</span></div>
+        <button class="launch-button" disabled>연결 준비 중 ${icon('Clock3')}</button></div>
       </article>
     </section>
     <div class="carousel-bottom"><div class="dots"><button class="${state.selectedCard===0?'selected':''}" data-select-card="0" aria-label="첫 번째 카드" aria-pressed="${state.selectedCard===0}"></button><button class="${state.selectedCard===1?'selected':''}" data-select-card="1" aria-label="두 번째 카드" aria-pressed="${state.selectedCard===1}"></button></div><span>필요한 도구는 계속 더해집니다.</span></div>
