@@ -27,10 +27,22 @@ test('pagination completeness and duplicate detection fail closed',async()=>{
  }});
  assert.equal(calls,4);assert.equal(result.rowCount,4);
  await assert.rejects(inspectAviation({env:{INCHEON_API_SERVICE_KEY:'test'},fetcher:async()=>new Response(xml('',1))}),/누락/);
- await assert.rejects(inspectAviation({env:{INCHEON_API_SERVICE_KEY:'test'},fetcher:async url=>new Response(xml(item(),2,Number(url.searchParams.get('pageNo')),1))}),/중복/);
+ const repeated=await inspectAviation({env:{INCHEON_API_SERVICE_KEY:'test'},fetcher:async url=>new Response(xml(item(Number(url.searchParams.get('regularCode'))),2,Number(url.searchParams.get('pageNo')),1))});
+ assert.equal(repeated.status,'review_required');assert.equal(repeated.duplicates.identical,2);assert.equal(repeated.totals.totalEff,null);
+ assert.equal(repeated.duplicates.samples[0].first.page,1);assert.equal(repeated.duplicates.samples[0].next.page,2);
 });
 test('missing key, empty results, and network errors do not expose secrets',async()=>{
  await assert.rejects(inspectAviation({env:{}}),/INCHEON_API_SERVICE_KEY/);
  const result=await inspectAviation({env:{INCHEON_API_SERVICE_KEY:'secret'},fetcher:async()=>new Response(xml('',0))});assert.equal(result.status,'empty');assert.equal(result.totals.totalEff,null);
  await assert.rejects(inspectAviation({env:{INCHEON_API_SERVICE_KEY:'secret'},fetcher:async()=>{throw new Error('URL?serviceKey=secret');}}),e=>!e.message.includes('secret')&&e.code==='aviation_connection_error');
+});
+
+test('same identity with different statistics is diagnostic, never summed or discarded',async()=>{
+ const data=await inspectAviation({env:{INCHEON_API_SERVICE_KEY:'secret'},fetcher:async url=>{
+  const r=Number(url.searchParams.get('regularCode'));
+  return new Response(xml(item(r)+item(r).replace('<totalEff>100</totalEff>','<totalEff>200</totalEff>'),2));
+ }});
+ assert.equal(data.status,'review_required');assert.equal(data.rowCount,4);assert.equal(data.duplicates.different,2);
+ assert.deepEqual(data.duplicates.samples[0].differingFields,['totalEff']);
+ assert.ok(Object.values(data.totals).every(v=>v===null));assert.equal(JSON.stringify(data).includes('secret'),false);
 });
