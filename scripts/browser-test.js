@@ -52,7 +52,11 @@ try{
   await page.goto(base);await page.getByRole('heading',{name:'경쟁사 앱 업데이트 조사 자동화'}).waitFor();
   await page.evaluate(()=>document.fonts.ready);
   await page.screenshot({path:'test-results/portal-desktop.png',fullPage:true});
-  assert.equal(await page.getByRole('button',{name:/준비 중/}).isDisabled(),true);
+  await page.getByRole('button',{name:'항공 데이터 보기'}).click();
+  await page.getByRole('heading',{name:'시장·계절 패턴'}).waitFor();
+  await page.getByRole('button',{name:'최근 변화',exact:true}).click();
+  await page.getByRole('heading',{name:'일별 데이터 미연결'}).waitFor();
+  await page.locator('[data-home]').first().click();
   await page.getByRole('button',{name:'다음 도구'}).click();
   await page.getByRole('button',{name:'이전 도구'}).click();
   await page.getByRole('button',{name:'실행하기'}).click();

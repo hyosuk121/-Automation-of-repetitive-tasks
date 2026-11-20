@@ -1,3 +1,4 @@
+import {aviationView,bindAviation} from './aviation.js';
 import {ratingLabel,bindChartTooltip} from './chart-utils.js';
 import {ratingChart} from './rating-chart.js';
 import { createIcons, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, LayoutGrid, ChartNoAxesCombined, Plane, Clock3, Settings2, Search, Plus, RefreshCw, Download, X, LogOut, ShieldCheck, CircleHelp, ExternalLink, Pencil, Archive, Check, AlertCircle, Database, Menu, GripVertical, Layers, Zap, CalendarDays } from 'lucide';
@@ -60,12 +61,12 @@ function home(){
         <div class="last-run">${icon('Clock3')}<span>최근 실행 <b>${last?escape(date(last)):'실행 기록 없음'}</b></span></div>
         <button class="launch-button" data-launch>실행하기 ${icon('ArrowRight')}</button></div>
       </article>
-      <article class="tool-card upcoming-card" aria-label="2 / 2 항공 데이터 자동화 연결 준비 중">
+      <article class="tool-card upcoming-card" aria-label="2 / 2 항공 데이터 자동화">
         <div class="card-color muted"><span class="card-category">TRAVEL INSIGHTS</span><span class="card-number">02</span></div>
         <div class="tool-emblem muted">${icon('Plane')}</div>
-        <div class="card-body"><span class="availability upcoming">연결 준비 중</span><h2>항공 데이터<br>자동화</h2><p>인천공항 실적으로 살펴보는 여행 시장.<br>국가별 변화와 계절 패턴을 한곳에서.</p>
+        <div class="card-body"><span class="availability">월간 응답 보관</span><h2>항공 데이터<br>자동화</h2><p>인천공항 실적으로 살펴보는 여행 시장.<br>국가별 변화와 계절 패턴을 한곳에서.</p>
         <div class="last-run">${icon('Clock3')}<span>공식 데이터 연동 확인 중</span></div>
-        <button class="launch-button" ${state.user?'data-aviation-check':'disabled'}>${state.user?'API 연결 확인':'연결 준비 중'} ${icon('Clock3')}</button></div>
+        <button class="launch-button" data-aviation-launch>항공 데이터 보기 ${icon('ArrowRight')}</button>${state.user?'<button class="text-button" data-aviation-check>API 연결 확인</button>':''}</div>
       </article>
     </section>
     <div class="carousel-bottom"><div class="dots"><button class="${state.selectedCard===0?'selected':''}" data-select-card="0" aria-label="첫 번째 카드" aria-pressed="${state.selectedCard===0}"></button><button class="${state.selectedCard===1?'selected':''}" data-select-card="1" aria-label="두 번째 카드" aria-pressed="${state.selectedCard===1}"></button></div><span>필요한 도구는 계속 더해집니다.</span></div>
@@ -156,11 +157,13 @@ function runsView(){
   return `<section class="data-panel"><div class="panel-heading"><h2>수집 실행 기록</h2><button class="button secondary small" data-reload>${icon('RefreshCw')} 새로고침</button></div>${state.runs.length?`<div class="run-list">${state.runs.map(r=>`<details class="run-row"><summary><span class="run-icon">${icon('RefreshCw')}</span><div><strong>${label[r.trigger_type]} 수집</strong><small>${date(r.created_at)}</small></div>${badge(r.status)}<span class="run-count">성공 ${r.success_count} / 실패 ${r.failure_count} / 전체 ${r.total_count}</span>${icon('ChevronDown')}</summary><div class="run-details">${r.items.length?r.items.map(i=>`<div><strong>${escape(i.name)} · ${i.platform==='app_store'?'App Store':'Play Store'}</strong>${badge(i.status)}<p>${escape(i.error || '오류 없음')}</p></div>`).join(''):'JSON 데이터 이전 작업입니다.'}</div></details>`).join('')}</div>`:`<div class="empty-state"><div class="empty-icon">${icon('Clock3')}</div><h2>아직 수집 기록이 없어요</h2><p>경쟁사를 등록하고 수집하면 실행 상태와 결과가 여기에 표시됩니다.</p></div>`}<div class="table-footer"><button class="text-button" data-runs-prev ${state.runOffset===0?'disabled':''}>이전 50건</button><span>${state.runOffset+1}부터 최대 50건</span><button class="text-button" data-runs-next ${state.runs.length<50?'disabled':''}>다음 50건</button></div></section>`;
 }
 function render(){
+  if(location.pathname==='/aviation'){ $('#app').innerHTML=aviationView(state.user);initIcons();bind();bindAviation({user:state.user,api,render});document.title="항공 데이터 자동화 · Hyoseok's Automation";return;}
   $('#app').innerHTML=location.pathname==='/'?home():shell();initIcons();bind();
   document.title=location.pathname==='/'?"Hyoseok's Automation · 업무 자동화":"경쟁사 앱 업데이트 · Hyoseok's Automation";
 }
 function bind(){
   bindRankTooltips();
+  $('[data-aviation-launch]')?.addEventListener('click',()=>navigate('/aviation'));
   $('[data-aviation-check]')?.addEventListener('click',aviationCheck);
   document.querySelectorAll('[data-home]').forEach(e=>e.onclick=event=>{event.preventDefault();navigate('/');});
   document.querySelectorAll('[data-launch]').forEach(e=>e.onclick=()=>navigate('/competitor-analyzer'));
@@ -235,6 +238,7 @@ function slide(delta){
 let loadGeneration=0;
 const readApi=path=>api((state.user?'':'/public')+path);
 async function loadData(show=false){
+  if(location.pathname==='/aviation'){render();return;}
   if(!state.config?.database)return;
   const generation=++loadGeneration,page=state.page;
   const update=fn=>data=>{if(generation===loadGeneration){fn(data);render();}};
