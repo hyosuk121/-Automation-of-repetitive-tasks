@@ -1,0 +1,209 @@
+{
+  "checkedAt": "2026-11-20T01:23:24.933Z",
+  "status": "review_required",
+  "months": [
+    "202609"
+  ],
+  "groups": [
+    {
+      "regularCode": 0,
+      "count": 415
+    },
+    {
+      "regularCode": 1,
+      "count": 54
+    }
+  ],
+  "rowCount": 469,
+  "invalidRows": {
+    "count": 1,
+    "fields": {
+      "nationCode": 1,
+      "nationName": 1
+    },
+    "samples": [
+      {
+        "regularCode": 1,
+        "page": 1,
+        "row": 53,
+        "problems": [
+          {
+            "field": "nationCode",
+            "reason": "missing_identifier"
+          },
+          {
+            "field": "nationName",
+            "reason": "missing_identifier"
+          }
+        ],
+        "values": {
+          "yearMonth": "202609",
+          "airlineIcaoCode": "TWB",
+          "airlineIataCode": "TW",
+          "airlineName": "티웨이항공",
+          "airportCode": "YCU",
+          "nationCode": "",
+          "nationName": "",
+          "routeCode": "",
+          "routeName": "",
+          "departuresOrArrivals": "출발",
+          "regularCode": "부정기",
+          "paxCode": "여객",
+          "tmp1": "",
+          "tmp2": "",
+          "totalFrg": "0",
+          "totalTfrg": "0",
+          "totalMail": "0",
+          "totalBag": "4809",
+          "flightCount": "5",
+          "totalEff": "511",
+          "totalNff": "0",
+          "totalTrf": "0"
+        }
+      }
+    ]
+  },
+  "duplicates": {
+    "identical": 0,
+    "different": 2,
+    "samples": [
+      {
+        "kind": "different",
+        "first": {
+          "regularCode": 0,
+          "page": 2,
+          "row": 35,
+          "values": {
+            "yearMonth": "202609",
+            "airlineIcaoCode": "CSN",
+            "airlineIataCode": "CZ",
+            "airlineName": "중국남방항공",
+            "airportCode": "URC",
+            "nationCode": "201",
+            "nationName": "중국",
+            "routeCode": "20",
+            "routeName": "중국",
+            "departuresOrArrivals": "D",
+            "regularCode": 0,
+            "paxCode": "Y",
+            "tmp1": "",
+            "tmp2": "",
+            "totalFrg": "0",
+            "totalTfrg": "0",
+            "totalMail": "0",
+            "totalBag": "5871",
+            "flightCount": 13,
+            "totalEff": 403,
+            "totalNff": 1,
+            "totalTrf": 9
+          }
+        },
+        "next": {
+          "regularCode": 0,
+          "page": 2,
+          "row": 38,
+          "values": {
+            "yearMonth": "202609",
+            "airlineIcaoCode": "CSN",
+            "airlineIataCode": "CZ",
+            "airlineName": "중국남방항공",
+            "airportCode": "URC",
+            "nationCode": "201",
+            "nationName": "중국",
+            "routeCode": "20",
+            "routeName": "중국",
+            "departuresOrArrivals": "D",
+            "regularCode": 0,
+            "paxCode": "Y",
+            "tmp1": "",
+            "tmp2": "",
+            "totalFrg": "28",
+            "totalTfrg": "0",
+            "totalMail": "0",
+            "totalBag": "6428",
+            "flightCount": 0,
+            "totalEff": 567,
+            "totalNff": 4,
+            "totalTrf": 11
+          }
+        },
+        "differingFields": [
+          "totalFrg",
+          "totalBag",
+          "flightCount",
+          "totalEff",
+          "totalNff",
+          "totalTrf"
+        ]
+      },
+      {
+        "kind": "different",
+        "first": {
+          "regularCode": 1,
+          "page": 1,
+          "row": 12,
+          "values": {
+            "yearMonth": "202609",
+            "airlineIcaoCode": "CSN",
+            "airlineIataCode": "CZ",
+            "airlineName": "중국남방항공",
+            "airportCode": "URC",
+            "nationCode": "201",
+            "nationName": "중국",
+            "routeCode": "20",
+            "routeName": "중국",
+            "departuresOrArrivals": "D",
+            "regularCode": 1,
+            "paxCode": "Y",
+            "tmp1": "",
+            "tmp2": "",
+            "totalFrg": "0",
+            "totalTfrg": "0",
+            "totalMail": "0",
+            "totalBag": "503",
+            "flightCount": 4,
+            "totalEff": 26,
+            "totalNff": 0,
+            "totalTrf": 0
+          }
+        },
+        "next": {
+          "regularCode": 1,
+          "page": 1,
+          "row": 14,
+          "values": {
+            "yearMonth": "202609",
+            "airlineIcaoCode": "CSN",
+            "airlineIataCode": "CZ",
+            "airlineName": "중국남방항공",
+            "airportCode": "URC",
+            "nationCode": "201",
+            "nationName": "중국",
+            "routeCode": "20",
+            "routeName": "중국",
+            "departuresOrArrivals": "D",
+            "regularCode": 1,
+            "paxCode": "Y",
+            "tmp1": "",
+            "tmp2": "",
+            "totalFrg": "0",
+            "totalTfrg": "0",
+            "totalMail": "0",
+            "totalBag": "3386",
+            "flightCount": 0,
+            "totalEff": 377,
+            "totalNff": 2,
+            "totalTrf": 5
+          }
+        },
+        "differingFields": [
+          "totalBag",
+          "flightCount",
+          "totalEff",
+          "totalNff",
+          "totalTrf"
+        ]
+      }
+    ]
+  }
+}

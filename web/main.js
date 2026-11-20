@@ -343,13 +343,30 @@ setInterval(()=>{if(state.user && !document.hidden && !$('#modal').open && !$('#
 
 async function aviationCheck(){
  if(needsLogin())return;
- modal('항공 데이터 · API 연결 확인',`<div class="help-content"><p>공식 월간 API의 출발·여객편을 조회합니다. 정기편과 부정기편의 전체 페이지를 확인하며, 최대 90초가 걸릴 수 있습니다.</p><p>아직 통계를 DB에 저장하거나 자동 수집을 시작하지 않습니다. 과거 연월 조회와 일별 자료는 이 API에서 지원하지 않습니다.</p><p>Vercel → Settings → Environment Variables에 <strong>INCHEON_API_SERVICE_KEY</strong>를 입력하고 재배포해 주세요.</p><button class="button primary" id="aviation-inspect">연결 확인 실행</button><div id="aviation-result" role="status" aria-live="polite"></div></div>`,true);
+ modal('항공 데이터 · API 연결 확인',`<div class="help-content"><p>공식 월간 API의 출발·여객편을 조회합니다. 정기편과 부정기편의 전체 페이지를 확인하며, 최대 90초가 걸릴 수 있습니다.</p><p>조회가 완료되면 응답 항목을 모두 보관합니다. 검토가 필요한 행도 삭제하지 않으며, 확정 통계로 합산하지 않습니다. 기존 자동 실행이 설정되어 있으면 오전 9시 이후 실행 여유가 있는 회차에 하루 한 번 응답을 보관합니다. 과거 연월 조회·일별 자료는 아직 연결되지 않았습니다.</p><p>Vercel → Settings → Environment Variables에 <strong>INCHEON_API_SERVICE_KEY</strong>를 입력하고 재배포해 주세요.</p><button class="button primary" id="aviation-inspect">조회 및 응답 보관</button><div id="aviation-result" role="status" aria-live="polite"></div><hr><h3>보관된 월간 응답</h3><p>수치가 변경되면 새 응답으로 남기고, 동일 응답은 확인 횟수만 갱신합니다. 최신 50건을 표시합니다.</p><div id="aviation-archives"></div></div>`,true);
  const button=$('#aviation-inspect'),result=$('#aviation-result');
+ const archives=$('#aviation-archives');
+ async function showArchives(){
+  try{
+   const data=await api('/aviation/archives');
+   if(!archives.isConnected)return;
+   archives.innerHTML=data.archives.length?`<div class="table-scroll"><table><thead><tr><th>기준월</th><th>행 수</th><th>상태</th><th>마지막 확인</th><th>확인 횟수</th><th>응답</th></tr></thead><tbody>${data.archives.map(a=>`<tr><td>${a.months.map(escape).join(', ')||'미확인'}</td><td>${a.row_count}</td><td>${a.quality==='review_required'?'검토 필요':'응답 검증 완료 · 집계 기준 검토 중'}</td><td>${escape(date(a.last_seen_at))}</td><td>${a.check_count}</td><td><button class="button secondary small" data-aviation-archive="${escape(a.id)}">다운로드</button></td></tr>`).join('')}</tbody></table></div>`:'<p>아직 보관된 응답이 없습니다.</p>';
+   archives.insertAdjacentHTML('beforeend',`<p>최근 자동 보관: ${data.checks?.length?data.checks.map(c=>escape(String(c.check_day).slice(0,10))+' · '+escape({running:'확인 중',succeeded:'보관 완료',failed:'실패 · 재시도 대기(일 최대 3회)'}[c.status]||c.status)).join('<br>'):'실행 기록 없음'}</p>`);
+   archives.querySelectorAll('[data-aviation-archive]').forEach(el=>el.onclick=async()=>{
+    el.disabled=true;
+    try{const record=await api('/aviation/archives/'+el.dataset.aviationArchive);const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='aviation-response-'+record.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(error){toast(error.message,true);}finally{el.disabled=false;}
+   });
+  }catch(error){if(archives.isConnected)archives.textContent=error.message;}
+ }
+ void showArchives();
+
  button.onclick=async()=>{
   button.disabled=true;result.textContent='전체 페이지를 확인하고 있습니다…';
   try{
-   const data=await post('/aviation/inspect');
-   result.innerHTML=`<p><strong>${data.status==='review_required'?'API 연결 성공 · 실적 구분 확인 필요':data.rowCount?'응답 확인 완료':'응답은 정상이지만 제공된 자료가 없습니다.'}</strong></p><p>확인 시각: ${escape(date(data.checkedAt))}</p><p>제공 기준월: ${data.months.map(m=>escape(m.slice(0,4)+'.'+m.slice(4))).join(', ')||'없음'}</p><p>전체 실적 ${data.rowCount.toLocaleString()}건 · 정기 ${data.groups[0].count.toLocaleString()}건 · 부정기 ${data.groups[1].count.toLocaleString()}건</p><p>국가·지역: ${data.countries.map(escape).join(', ')||'없음'}</p>${data.status==='review_required'?`<p>필드 누락·형식·조건 확인이 필요한 행 ${data.invalidRows?.count||0}건입니다. 식별 정보가 유효한 행 중 같은 조건에서 확인한 필드가 동일한 추가 행 ${data.duplicates.identical}건, 값이 다른 추가 행 ${data.duplicates.different}건입니다. 원인이 확인되기 전까지 합산·중복 제거·DB 저장을 하지 않습니다.</p><details><summary>진단 정보 보기 (유형별 최대 5개 · 인증키 제외)</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${escape(JSON.stringify({invalidRows:data.invalidRows,duplicates:data.duplicates},null,2))}</pre></details><button class="button secondary" id="aviation-download">진단 결과 다운로드</button>`:`<p>유임: ${countLabel(data.totals.totalEff)}명 / 무임: ${countLabel(data.totals.totalNff)}명 / 환승: ${countLabel(data.totals.totalTrf)}명</p>`}<p>${escape(data.scope)} 세 항목을 더한 총여객 수는 산출하지 않습니다.</p>`;
+   const data=await post('/aviation/capture');
+   result.innerHTML=`<p><strong>${data.status==='review_required'?'API 연결 성공 · 실적 구분 확인 필요':data.rowCount?'응답 확인 완료':'응답은 정상이지만 제공된 자료가 없습니다.'}</strong></p><p>확인 시각: ${escape(date(data.checkedAt))}</p><p>제공 기준월: ${data.months.map(m=>escape(m.slice(0,4)+'.'+m.slice(4))).join(', ')||'없음'}</p><p>전체 실적 ${data.rowCount.toLocaleString()}건 · 정기 ${data.groups[0].count.toLocaleString()}건 · 부정기 ${data.groups[1].count.toLocaleString()}건</p><p>국가·지역: ${data.countries.map(escape).join(', ')||'없음'}</p>${data.status==='review_required'?`<p>필드 누락·형식·조건 확인이 필요한 행 ${data.invalidRows?.count||0}건입니다. 식별 정보가 유효한 행 중 같은 조건에서 확인한 필드가 동일한 추가 행 ${data.duplicates.identical}건, 값이 다른 추가 행 ${data.duplicates.different}건입니다. 원인이 확인되기 전까지 합산·중복 제거는 하지 않고 응답을 검토 필요 상태로 보관합니다.</p><details><summary>진단 정보 보기 (유형별 최대 5개 · 인증키 제외)</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${escape(JSON.stringify({invalidRows:data.invalidRows,duplicates:data.duplicates},null,2))}</pre></details><button class="button secondary" id="aviation-download">진단 결과 다운로드</button>`:`<p>유임: ${countLabel(data.totals.totalEff)}명 / 무임: ${countLabel(data.totals.totalNff)}명 / 환승: ${countLabel(data.totals.totalTrf)}명</p>`}<p>${escape(data.scope)} 세 항목을 더한 총여객 수는 산출하지 않습니다.</p>`;
+   result.insertAdjacentHTML('beforeend',`<p>${data.archive?'응답 보관 완료 · 동일 응답 확인 '+data.archive.check_count+'회':'빈 응답이므로 보관하지 않았습니다.'}</p>`);
+   void showArchives();
    result.querySelector('#aviation-download')?.addEventListener('click',()=>{
     const report={checkedAt:data.checkedAt,status:data.status,months:data.months,groups:data.groups,rowCount:data.rowCount,invalidRows:data.invalidRows,duplicates:data.duplicates};
     const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));

@@ -83,7 +83,7 @@ try{
   await page.getByRole('button',{name:'로그아웃'}).waitFor();
   await page.locator('[data-home]').first().click();
   await page.getByRole('button',{name:'API 연결 확인',exact:true}).click();
-  await page.getByRole('button',{name:'연결 확인 실행',exact:true}).click();
+  await page.getByRole('button',{name:'조회 및 응답 보관',exact:true}).click();
   await page.locator('#aviation-result').getByText('Vercel에 INCHEON_API_SERVICE_KEY를 입력하고 재배포해 주세요.',{exact:true}).waitFor();
   await page.getByRole('button',{name:'닫기',exact:true}).click();
   await page.getByRole('button',{name:'실행하기',exact:true}).click();
