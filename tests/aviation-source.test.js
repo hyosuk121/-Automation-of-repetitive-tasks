@@ -46,3 +46,27 @@ test('same identity with different statistics is diagnostic, never summed or dis
  assert.deepEqual(data.duplicates.samples[0].differingFields,['totalEff']);
  assert.ok(Object.values(data.totals).every(v=>v===null));assert.equal(JSON.stringify(data).includes('secret'),false);
 });
+
+test('missing identifiers and invalid numbers produce bounded diagnostics across all pages',async()=>{
+ let calls=0;
+ const result=await inspectAviation({env:{INCHEON_API_SERVICE_KEY:'private-key'},fetcher:async url=>{
+  calls++;const r=Number(url.searchParams.get('regularCode')),p=Number(url.searchParams.get('pageNo'));
+  const bad=item(r).replace('<yearMonth>202609</yearMonth>','<yearMonth/>').replace('<airportCode>NRT</airportCode>','<airportCode/>').replace('<totalEff>100</totalEff>','<totalEff>not-a-number</totalEff>');
+  return new Response(xml(p===1?bad:item(r),2,p,1));
+ }});
+ assert.equal(calls,4);assert.equal(result.rowCount,4);assert.equal(result.invalidRows.count,2);
+ assert.equal(result.invalidRows.fields.yearMonth,2);assert.equal(result.invalidRows.fields.airportCode,2);assert.equal(result.invalidRows.fields.totalEff,2);
+ assert.equal(result.invalidRows.samples[0].page,1);assert.equal(result.invalidRows.samples[0].row,1);
+ assert.equal(result.invalidRows.samples[0].values.totalEff,'not-a-number');
+ assert.deepEqual(result.months,['202609']);assert.equal(result.status,'review_required');
+ assert.ok(Object.values(result.totals).every(n=>n===null));assert.equal(JSON.stringify(result).includes('private-key'),false);
+});
+test('invalid records are not counted as duplicate identities and samples are capped',async()=>{
+ const result=await inspectAviation({env:{INCHEON_API_SERVICE_KEY:'key'},fetcher:async url=>{
+  const row=item(Number(url.searchParams.get('regularCode'))).replace('<nationName>일본</nationName>','<nationName/>').replace('출발','도착');
+  return new Response(xml(row.repeat(10),10));
+ }});
+ assert.equal(result.invalidRows.count,20);assert.equal(result.invalidRows.samples.length,5);
+ assert.equal(result.invalidRows.fields.departuresOrArrivals,20);assert.deepEqual(result.countries,[]);
+ assert.equal(result.duplicates.identical,0);assert.equal(result.duplicates.different,0);
+});
