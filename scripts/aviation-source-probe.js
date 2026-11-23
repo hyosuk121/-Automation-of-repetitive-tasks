@@ -73,6 +73,7 @@ for(const [name,path] of Object.entries({monthlyAirportLookup:'/common/getAirpor
 const requests={
  dailyIncheon:{path:'/stats/transport/selectDailyStatisticsByRoute.do',body:{startDt:'20261112',endDt:'20261112',koreaAirport:airportCode,airlineType:'I'}},
  monthlyRoute:{path:'/stats/transport/getDetailedAirTransportStats3.do',body:{last_yearmonth:'202609',this_yearmonth:'202609',sn_gubun:'total',airport_gubun:monthlyAirportCode,pass_gubun:'1',carge_gubun:'total',forreign_airport_gubun:'total',di_gubun:'I',arvl_type:'D',pyn_gubun:'Y'}},
+ monthlyRouteHistorical:{path:'/stats/transport/getDetailedAirTransportStats3.do',body:{last_yearmonth:'202101',this_yearmonth:'202101',sn_gubun:'total',airport_gubun:monthlyAirportCode,pass_gubun:'1',carge_gubun:'total',forreign_airport_gubun:'total',di_gubun:'I',arvl_type:'D',pyn_gubun:'Y'}},
  monthlyRecent:{path:'/stats/transport/getDetailedAirTransportStats4.do',body:{last_yearmonth:'202609',this_yearmonth:'202609',sn_gubun:'99',pass_gubun:'1',arvl_type:'D',carge_gubun:'total',pyn_gubun:'Y'}},
  monthlyHistorical:{path:'/stats/transport/getDetailedAirTransportStats4.do',body:{last_yearmonth:'202101',this_yearmonth:'202101',sn_gubun:'99',pass_gubun:'1',arvl_type:'D',carge_gubun:'total',pyn_gubun:'Y'}}
 };
@@ -85,7 +86,7 @@ for(const [name,{path,body}] of Object.entries(requests)){
   if(text.length>1000000)throw new Error('response too large');
   let parsed;try{parsed=JSON.parse(text);}catch{}
   const rows=Array.isArray(parsed?.content)?parsed.content:[];
-  result.samples[name]={status:response.status,contentType:response.headers.get('content-type'),resultCode:parsed?.resultCode,contentCount:rows.length,firstRows:rows.slice(0,2),bodyExcerpt:parsed?undefined:clean(text.slice(0,300))};
+  result.samples[name]={status:response.status,contentType:response.headers.get('content-type'),resultCode:parsed?.resultCode,contentCount:rows.length,firstRows:rows.slice(0,2),...(name==='dailyIncheon'||name.startsWith('monthlyRoute')?{rows:rows.slice(0,1000)}:{}),bodyExcerpt:parsed?undefined:clean(text.slice(0,300))};
  }catch(error){result.samples[name]={error:clean(error?.message||'request failed')};}
 }
 try{
