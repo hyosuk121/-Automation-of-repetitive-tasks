@@ -215,4 +215,9 @@ dialog::backdrop { background: #1c294d55; backdrop-filter: blur(2px); }
 .aviation-details .table-scroll, .aviation-details ul { margin-top: 14px; }
 .aviation-source-table { max-height: 440px; overflow: auto; }
 .aviation-empty { padding: 24px; color: var(--muted); }
+.aviation-section-heading .button { margin-left: auto; }
+.aviation-recent-intro { margin-bottom: 22px; color: var(--muted); }
+.aviation-recent-intro p { margin: 0 0 8px; }
+#aviation-comparison { margin: 18px 0 26px; }
+#aviation-comparison > p { color: var(--muted); font-size: 12px; }
 @media(max-width:800px){.aviation-preview-heading{flex-wrap:wrap}.aviation-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.aviation-preview-body{padding:16px}}

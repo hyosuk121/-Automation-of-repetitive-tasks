@@ -1,5 +1,6 @@
 import {mountDashboard} from './aviation-dashboard.js';
 import {mountPersonal} from './aviation-personal.js';
+import {mountRecent} from './aviation-recent.js';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let tab='market',month='',selectedCountries=null;
 let activeOwner=null;
@@ -9,7 +10,7 @@ export function aviationView(user){
 export function bindAviation({user,api,render}){
  const owner=user?.id??null;
  if(owner!==activeOwner){tab='market';month='';selectedCountries=null;activeOwner=owner;render();return;}
- const recent=document.querySelector('#aviation-recent');if(recent&&!user)recent.textContent='관리자 로그인 후 보관된 월간 응답을 확인할 수 있습니다.';if(recent&&user)void api('/aviation/archives').then(({archives,checks})=>{if(!recent.isConnected)return;recent.innerHTML=archives.length?`<p>원천 실적월과 보관 시각을 구분해 표시합니다. 동일 월의 여러 응답은 합산하지 않습니다.</p><div class="table-scroll"><table><thead><tr><th>실적월</th><th>응답 행</th><th>품질</th><th>최근 확인</th></tr></thead><tbody>${archives.slice(0,12).map(a=>`<tr><td>${a.months.map(esc).join(', ')}</td><td>${a.row_count}</td><td>${a.quality==='review_required'?'검토 필요':'응답 검증 완료'}</td><td>${esc(new Date(a.last_seen_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))}</td></tr>`).join('')}</tbody></table></div>${checks?.length?`<p>최근 자동 확인: ${esc(checks[0].check_day)} · ${esc(checks[0].status)}</p>`:''}`:'<p>보관된 월간 응답이 없습니다.</p>';}).catch(e=>{if(recent.isConnected)recent.textContent=e.message;});
+ const recent=document.querySelector('#aviation-recent');if(recent&&user)void mountRecent(recent,{api});else if(recent)recent.textContent='관리자 로그인 후 보관된 월간 응답을 확인할 수 있습니다.';
  const personal=document.querySelector('#aviation-personal');if(personal&&user)void mountPersonal(personal,{api,context:()=>({tab,month,countries:selectedCountries}),apply:p=>{tab=p.tab;month=p.month;selectedCountries=p.countries;render();}});
  document.querySelectorAll('[data-aviation-tab]').forEach(el=>el.onclick=()=>{tab=el.dataset.aviationTab;render();});
  const input=document.querySelector('#aviation-month');if(input)input.onchange=()=>{month=input.value;void refresh();};
