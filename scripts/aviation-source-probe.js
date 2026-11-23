@@ -45,8 +45,23 @@ for(const [name,url] of Object.entries(pages)){
  }catch(error){result.pages[name]={error:clean(error?.message||'request failed')};}
 }
 result.samples={};
+async function publicPost(path,body){
+ const response=await fetch(origin+path,{method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),headers:{'Content-Type':'application/json;charset=UTF-8','Accept':'application/json','request-call':'web-rest','Origin':origin,'Referer':pages.dailyRoute},body:JSON.stringify(body)});
+ const text=await response.text();
+ if(text.length>1000000)throw new Error('response too large');
+ return {status:response.status,data:JSON.parse(text)};
+}
+let airportCode='ICN';
+try{
+ const airports=await publicPost('/common/searchKrAirportIaco.do',{});
+ const rows=Array.isArray(airports.data?.content)?airports.data.content:[];
+ const incheon=rows.find(row=>row.apIata==='ICN'||String(row.codeVal||'').includes('인천'));
+ if(incheon?.codeId)airportCode=incheon.codeId;
+ result.samples.airportLookup={status:airports.status,resultCode:airports.data?.resultCode,count:rows.length,incheon};
+}catch(error){result.samples.airportLookup={error:clean(error?.message)};}
 const requests={
- dailyIncheon:{path:'/stats/transport/selectDailyStatisticsByRoute.do',body:{startDt:'20261112',endDt:'20261112',koreaAirport:'ICN',airlineType:'I'}},
+ dailyIncheon:{path:'/stats/transport/selectDailyStatisticsByRoute.do',body:{startDt:'20261112',endDt:'20261112',koreaAirport:airportCode,airlineType:'I'}},
+ monthlyRoute:{path:'/stats/transport/getDetailedAirTransportStats3.do',body:{last_yearmonth:'202609',this_yearmonth:'202609',sn_gubun:'total',airport_gubun:airportCode,pass_gubun:'1',carge_gubun:'total',forreign_airport_gubun:'total',di_gubun:'I',arvl_type:'D',pyn_gubun:'Y'}},
  monthlyRecent:{path:'/stats/transport/getDetailedAirTransportStats4.do',body:{last_yearmonth:'202609',this_yearmonth:'202609',sn_gubun:'99',pass_gubun:'1',arvl_type:'D',carge_gubun:'total',pyn_gubun:'Y'}},
  monthlyHistorical:{path:'/stats/transport/getDetailedAirTransportStats4.do',body:{last_yearmonth:'202101',this_yearmonth:'202101',sn_gubun:'99',pass_gubun:'1',arvl_type:'D',carge_gubun:'total',pyn_gubun:'Y'}}
 };
@@ -62,5 +77,9 @@ for(const [name,{path,body}] of Object.entries(requests)){
   result.samples[name]={status:response.status,contentType:response.headers.get('content-type'),resultCode:parsed?.resultCode,contentCount:rows.length,firstRows:rows.slice(0,2),bodyExcerpt:parsed?undefined:clean(text.slice(0,300))};
  }catch(error){result.samples[name]={error:clean(error?.message||'request failed')};}
 }
+try{
+ const robots=await fetch(origin+'/robots.txt',{signal:AbortSignal.timeout(10000)});
+ result.robots={status:robots.status,text:(await robots.text()).slice(0,5000)};
+}catch(error){result.robots={error:clean(error?.message)};}
 await mkdir('docs',{recursive:true});
 await writeFile('docs/aviation-source-probe.json',JSON.stringify(result,null,2)+'\n');
