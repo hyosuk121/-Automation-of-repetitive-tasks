@@ -36,6 +36,9 @@ for(const [name,url] of Object.entries(pages)){
    airportSnippets:name==='dailyRoute'?[...new Set($('script:not([src])').toArray().flatMap(el=>{
     const script=String($(el).html()||'');return [...script.matchAll(/koreaAirportSelect|airlineType/g)].slice(0,20).map(match=>script.slice(Math.max(0,match.index-450),Math.min(script.length,match.index+650)));
    }))].slice(0,25):[],
+   lookupSnippets:name==='monthlyRoute'?[...new Set($('script:not([src])').toArray().flatMap(el=>{
+    const script=String($(el).html()||'');return [...script.matchAll(/getAirportGubun\.do|getForeignAirportGubun\.do/g)].slice(0,12).map(match=>script.slice(Math.max(0,match.index-500),Math.min(script.length,match.index+650)));
+   }))].slice(0,15):[],
    selectOptions:$('select').toArray().slice(0,30).map(el=>({id:clean($(el).attr('id')),options:$(el).find('option').toArray().slice(0,40).map(option=>({value:clean($(option).attr('value')),label:clean($(option).text())}))})),
    tabs:$('.sel_min_tab [data-type]').toArray().map(el=>({label:clean($(el).text()),type:clean($(el).attr('data-type'))})),
    forms:$('form').toArray().slice(0,25).map(el=>({method:clean($(el).attr('method')||'GET').toUpperCase(),action:absolute($(el).attr('action')||'',final.href),fields:$(el).find('input[name],select[name],textarea[name]').toArray().slice(0,60).map(field=>({name:clean($(field).attr('name')),type:clean($(field).attr('type')||field.tagName)}))})),
@@ -52,6 +55,7 @@ async function publicPost(path,body){
  return {status:response.status,data:JSON.parse(text)};
 }
 let airportCode='ICN';
+let monthlyAirportCode='RKSI';
 try{
  const airports=await publicPost('/common/searchKrAirportIaco.do',{});
  const rows=Array.isArray(airports.data?.content)?airports.data.content:[];
@@ -59,9 +63,16 @@ try{
  if(incheon?.codeId)airportCode=incheon.codeId;
  result.samples.airportLookup={status:airports.status,resultCode:airports.data?.resultCode,count:rows.length,incheon};
 }catch(error){result.samples.airportLookup={error:clean(error?.message)};}
+for(const [name,path] of Object.entries({monthlyAirportLookup:'/common/getAirportGubun.do',foreignAirportLookup:'/common/getForeignAirportGubun.do'})){
+ try{
+  const response=await publicPost(path,{}),rows=Array.isArray(response.data?.content)?response.data.content:[];
+  result.samples[name]={status:response.status,resultCode:response.data?.resultCode,count:rows.length,firstRows:rows.slice(0,5),incheon:rows.find(row=>Object.values(row).some(value=>String(value).includes('인천')||value==='RKSI'||value==='ICN'))};
+  if(name==='monthlyAirportLookup'&&result.samples[name].incheon)monthlyAirportCode=result.samples[name].incheon.codeId||result.samples[name].incheon.code_id||monthlyAirportCode;
+ }catch(error){result.samples[name]={error:clean(error?.message)};}
+}
 const requests={
  dailyIncheon:{path:'/stats/transport/selectDailyStatisticsByRoute.do',body:{startDt:'20261112',endDt:'20261112',koreaAirport:airportCode,airlineType:'I'}},
- monthlyRoute:{path:'/stats/transport/getDetailedAirTransportStats3.do',body:{last_yearmonth:'202609',this_yearmonth:'202609',sn_gubun:'total',airport_gubun:airportCode,pass_gubun:'1',carge_gubun:'total',forreign_airport_gubun:'total',di_gubun:'I',arvl_type:'D',pyn_gubun:'Y'}},
+ monthlyRoute:{path:'/stats/transport/getDetailedAirTransportStats3.do',body:{last_yearmonth:'202609',this_yearmonth:'202609',sn_gubun:'total',airport_gubun:monthlyAirportCode,pass_gubun:'1',carge_gubun:'total',forreign_airport_gubun:'total',di_gubun:'I',arvl_type:'D',pyn_gubun:'Y'}},
  monthlyRecent:{path:'/stats/transport/getDetailedAirTransportStats4.do',body:{last_yearmonth:'202609',this_yearmonth:'202609',sn_gubun:'99',pass_gubun:'1',arvl_type:'D',carge_gubun:'total',pyn_gubun:'Y'}},
  monthlyHistorical:{path:'/stats/transport/getDetailedAirTransportStats4.do',body:{last_yearmonth:'202101',this_yearmonth:'202101',sn_gubun:'99',pass_gubun:'1',arvl_type:'D',carge_gubun:'total',pyn_gubun:'Y'}}
 };
