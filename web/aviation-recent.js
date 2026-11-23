@@ -3,6 +3,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const monthLabel=m=>/^\d{6}$/.test(m)?`${m.slice(0,4)}.${m.slice(4)}`:m;
 const date=v=>new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
 const statusLabel={succeeded:'성공',failed:'실패',running:'진행 중',pending:'대기 중'};
+const checkDay=value=>String(value||'').slice(0,10).replaceAll('-','.');
 export function recentMonths(archives){
  return [...new Set(archives.flatMap(a=>a.months||[]))].filter(m=>/^\d{6}$/.test(m)).sort().reverse();
 }
@@ -13,7 +14,7 @@ export async function mountRecent(root,{api}){
   if(!root.isConnected)return;
   const monthly=monthArchives||archives,months=recentMonths(monthly);
   const table=archives.length?`<div class="table-scroll"><table><thead><tr><th>원천 실적월</th><th>응답 행</th><th>품질</th><th>최근 확인</th></tr></thead><tbody>${archives.slice(0,12).map(a=>`<tr><td>${(a.months||[]).map(monthLabel).map(esc).join(', ')||'미확인'}</td><td>${a.row_count}</td><td>${a.quality==='review_required'?'검토 필요':'응답 검증 완료'}</td><td>${esc(date(a.last_seen_at))}</td></tr>`).join('')}</tbody></table></div>`:'<p>보관된 월간 응답이 없습니다.</p>';
-  const checksText=checks?.length?`<p>최근 자동 확인: ${esc(checks[0].check_day)} · ${esc(statusLabel[checks[0].status]||checks[0].status)}</p>`:'';
+  const checksText=checks?.length?`<p>월간 API 자동 확인일: ${esc(checkDay(checks[0].check_day))} · ${esc(statusLabel[checks[0].status]||checks[0].status)} (실적일이 아닙니다)</p>`:'';
   root.innerHTML=`<div class="aviation-recent-intro"><p>이 화면은 <strong>월간 원천 실적</strong>의 최근 확보 상태를 보여줍니다. 보관 시각은 실적월과 다릅니다.</p>${checksText}</div><div id="aviation-comparison"></div><details class="aviation-details"><summary>최근 보관 응답 보기</summary>${table}</details>`;
   const comparison=root.querySelector('#aviation-comparison');
   if(months.length<2){comparison.innerHTML='<div class="aviation-empty">비교 가능한 서로 다른 실적월이 아직 2개월 미만입니다. 다음 월의 공식 응답이 보관되면 나란히 표시합니다.</div>';return;}

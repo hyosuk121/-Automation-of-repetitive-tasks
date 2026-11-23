@@ -1,5 +1,7 @@
 # 새 채팅 인계 — Hyoseok's Automation
 
+과거·일별 공식 소스 자동 연계 조사: [aviation-source-assessment.md](aviation-source-assessment.md). 현재 월간 API는 과거 연월·일별 조회를 지원하지 않는다. 항공포털의 월간/일별 웹 화면은 후보지만 공식 기계 판독 주소와 응답 형식은 아직 미검증이다. Codex 실행 환경에서 공식 사이트 접속은 프록시 CONNECT 403으로 차단됐다. 추측한 비공개 호출을 서비스에 붙이지 않는다.
+
 작성: 2026-11-23 (Asia/Seoul)
 
 ## 지금 할 일
