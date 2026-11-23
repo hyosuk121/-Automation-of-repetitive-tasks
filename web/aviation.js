@@ -19,14 +19,16 @@ export function bindAviation({user,api,render}){
   const target=document.querySelector('#aviation-months');if(!target||!user)return;
   document.querySelector('[data-observed-dashboard]')?.remove();
   const selected=month;target.textContent='불러오는 중…';
-  try{const {archives}=await api('/aviation/archives');if(!target.isConnected||selected!==month)return;
-   const available=[...new Set(archives.flatMap(a=>a.months||[]))].filter(m=>/^\d{6}$/.test(m)).sort().reverse();
+  try{const {archives,monthArchives}=await api('/aviation/archives');if(!target.isConnected||selected!==month)return;
+   const months=monthArchives||archives;
+   const available=[...new Set(months.flatMap(a=>a.months||[]))].filter(m=>/^\d{6}$/.test(m)).sort().reverse();
    input.innerHTML='<option value="">최신 확보 월</option>'+available.map(m=>`<option value="${m.slice(0,4)}-${m.slice(4)}">${m.slice(0,4)}.${m.slice(4)}</option>`).join('');
    if(month&&!available.includes(month.replace('-','')))input.innerHTML+=`<option value="${esc(month)}">${esc(month)} · 미확보</option>`;
    input.value=month;
-   const dashboard=document.createElement('section');dashboard.className='aviation-preview';document.querySelector('[data-observed-dashboard]')?.remove();dashboard.dataset.observedDashboard='';target.before(dashboard);void mountDashboard(dashboard,{api,archives,month:selected});
-   const rows=archives.filter(a=>!month||a.months.includes(month.replace('-','')));
-   target.innerHTML=rows.length?`<p>최근 보관 응답 최대 50건에서 조회합니다. 같은 월의 여러 응답은 정정 또는 변경 관측이며 서로 합산하지 않습니다.</p><div class="table-scroll"><table><thead><tr><th>실적월</th><th>응답 행 수</th><th>품질</th><th>최초 보관</th><th>최근 확인</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${a.months.map(esc).join(', ')||'미확인'}</td><td>${a.row_count}</td><td>${a.quality==='review_required'?'검토 필요':'응답 검증 완료 · 집계 검토 중'}</td><td>${esc(new Date(a.first_seen_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))}</td><td>${esc(new Date(a.last_seen_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))}</td></tr>`).join('')}</tbody></table></div>`:'<p>해당 조건에서 확인되는 보관 응답이 없습니다. 미확보 자료를 0으로 표시하지 않습니다.</p>';
+   const dashboard=document.createElement('section');dashboard.className='aviation-preview';document.querySelector('[data-observed-dashboard]')?.remove();dashboard.dataset.observedDashboard='';target.before(dashboard);void mountDashboard(dashboard,{api,archives:months,month:selected});
+   const recentRows=archives.filter(a=>!month||a.months.includes(month.replace('-','')));
+   const rows=recentRows.length?recentRows:months.filter(a=>a.months.includes(month.replace('-','')));
+   target.innerHTML=rows.length?`<p>최근 보관 응답 50건입니다. 같은 월의 여러 응답은 정정 또는 변경 관측이며 서로 합산하지 않습니다. 월 선택에는 모든 확보 월의 최신 응답을 사용합니다.</p><div class="table-scroll"><table><thead><tr><th>실적월</th><th>응답 행 수</th><th>품질</th><th>최초 보관</th><th>최근 확인</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${a.months.map(esc).join(', ')||'미확인'}</td><td>${a.row_count}</td><td>${a.quality==='review_required'?'검토 필요':'응답 검증 완료 · 집계 검토 중'}</td><td>${esc(new Date(a.first_seen_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))}</td><td>${esc(new Date(a.last_seen_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))}</td></tr>`).join('')}</tbody></table></div>`:'<p>해당 조건에서 확인되는 보관 응답이 없습니다. 미확보 자료를 0으로 표시하지 않습니다.</p>';
   }catch(e){if(target.isConnected)target.textContent=e.message;}
  }
  void refresh();

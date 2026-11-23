@@ -9,15 +9,15 @@ export function recentMonths(archives){
 export async function mountRecent(root,{api}){
  root.textContent='최근 관측 자료를 불러오는 중…';
  try{
-  const {archives,checks}=await api('/aviation/archives');
+  const {archives,monthArchives,checks}=await api('/aviation/archives');
   if(!root.isConnected)return;
-  const months=recentMonths(archives);
+  const monthly=monthArchives||archives,months=recentMonths(monthly);
   const table=archives.length?`<div class="table-scroll"><table><thead><tr><th>원천 실적월</th><th>응답 행</th><th>품질</th><th>최근 확인</th></tr></thead><tbody>${archives.slice(0,12).map(a=>`<tr><td>${(a.months||[]).map(monthLabel).map(esc).join(', ')||'미확인'}</td><td>${a.row_count}</td><td>${a.quality==='review_required'?'검토 필요':'응답 검증 완료'}</td><td>${esc(date(a.last_seen_at))}</td></tr>`).join('')}</tbody></table></div>`:'<p>보관된 월간 응답이 없습니다.</p>';
   const checksText=checks?.length?`<p>최근 자동 확인: ${esc(checks[0].check_day)} · ${esc(statusLabel[checks[0].status]||checks[0].status)}</p>`:'';
   root.innerHTML=`<div class="aviation-recent-intro"><p>이 화면은 <strong>월간 원천 실적</strong>의 최근 확보 상태를 보여줍니다. 보관 시각은 실적월과 다릅니다.</p>${checksText}</div><div id="aviation-comparison"></div><details class="aviation-details"><summary>최근 보관 응답 보기</summary>${table}</details>`;
   const comparison=root.querySelector('#aviation-comparison');
   if(months.length<2){comparison.innerHTML='<div class="aviation-empty">비교 가능한 서로 다른 실적월이 아직 2개월 미만입니다. 다음 월의 공식 응답이 보관되면 나란히 표시합니다.</div>';return;}
-  const pair=months.slice(0,2),records=pair.map(month=>archives.find(a=>a.months.includes(month)));
+  const pair=months.slice(0,2),records=pair.map(month=>monthly.find(a=>a.months.includes(month)));
   comparison.textContent='최근 두 실적월을 비교하는 중…';
   const [current,previous]=await Promise.all(records.map(a=>api('/aviation/archives/'+a.id)));
   if(!comparison.isConnected)return;

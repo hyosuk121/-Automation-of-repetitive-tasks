@@ -96,7 +96,7 @@ try{
       {yearMonth:'202609',nationCode:'JP',nationName:'일본',airlineIataCode:'AA',airportCode:'NRT',regularCode:'0',departuresOrArrivals:'D',paxCode:'Y',totalEff:'100',totalNff:'0',totalTrf:'5',flightCount:'1'},
       {yearMonth:'202609',nationCode:'',nationName:'',airlineIataCode:'BB',airportCode:'YCU',regularCode:'1',departuresOrArrivals:'D',paxCode:'Y',totalEff:'20',totalNff:'0',totalTrf:'0',flightCount:'1'},
       {yearMonth:'202608',nationCode:'JP',nationName:'일본',airlineIataCode:'AA',airportCode:'NRT',regularCode:'0',departuresOrArrivals:'D',paxCode:'Y',totalEff:'90',totalNff:'0',totalTrf:'4',flightCount:'1'}
-    ]}:{archives:[{id:'fixture',months:['202608','202609'],row_count:3,quality:'review_required',first_seen_at:'2026-10-01T00:00:00Z',last_seen_at:'2026-10-02T00:00:00Z'}],checks:[]})});
+    ]}:{archives:[{id:'fixture',months:['202608','202609'],row_count:3,quality:'review_required',first_seen_at:'2026-10-01T00:00:00Z',last_seen_at:'2026-10-02T00:00:00Z'}],monthArchives:['202609','202608'].map(month=>({id:'fixture',months:[month],row_count:3,quality:'review_required',first_seen_at:'2026-10-01T00:00:00Z',last_seen_at:'2026-10-02T00:00:00Z'})),checks:[]})});
   });
   await page.goto(base+'/aviation');
   await page.getByRole('heading',{name:'2026.09 국가별 관측'}).waitFor();
