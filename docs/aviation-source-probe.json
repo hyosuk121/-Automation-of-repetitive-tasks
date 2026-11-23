@@ -1,0 +1,180 @@
+{
+  "checkedAt": "2026-11-23T05:44:58.292Z",
+  "pages": {
+    "monthlyCountry": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/chartDetail4.do",
+      "title": "항공정보포털시스템",
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/chartDetail4.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    },
+    "monthlySeries": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/chartDetail5.do",
+      "title": "항공정보포털시스템",
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/chartDetail5.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    },
+    "dailyRoute": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/dailyRoute.do",
+      "title": "항공정보포털시스템",
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/jquery-ui.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dailyRoute.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    }
+  }
+}
