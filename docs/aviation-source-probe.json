@@ -1,0 +1,940 @@
+{
+  "checkedAt": "2026-11-23T05:48:13.529Z",
+  "pages": {
+    "monthlyCountry": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/chartDetail4.do",
+      "title": "항공정보포털시스템",
+      "controls": [
+        {
+          "tag": "input",
+          "id": "headerSearchText",
+          "name": "",
+          "type": "text"
+        },
+        {
+          "tag": "select",
+          "id": "startYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "startMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "snGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "passGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "cargeGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "pYNGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "arvlType",
+          "name": "",
+          "type": ""
+        }
+      ],
+      "inlinePaths": [
+        "/library/ebookSearchList.do",
+        "/login/login.do",
+        "/login/userInfo.do",
+        "/oauth2/removeAccessToken.do",
+        "/getMainMenu.do",
+        "/airport/airport.do",
+        "/airport/aircraftInfo.do",
+        "//aim.koca.go.kr/aim/main.do",
+        "/airline/airCompanyInfo.do",
+        "/airline/airplaneSchedule.do",
+        "/airline/invest.do",
+        "/airline/reservation.do",
+        "/airplane/airplaneInfo.do",
+        "/airplane/uamMain.do",
+        "/airplane/leisure.do",
+        "/stats/transport/dashboard.do",
+        "/stats/industry/industryTransit.do",
+        "/stats/survey/odMain.do",
+        "/stats/leisure/flight01.do",
+        ".pdf/downloadFile.do",
+        "/library/history.do",
+        "/library/statute.do",
+        "/library/ebookLink.do",
+        "/library/international.do",
+        "/library/ebookinfo.do",
+        "/library/safety.do",
+        "/library/security.do",
+        "/news/eventAirzine.do",
+        "/news/newsMain.do",
+        "/news/eventScheduleImg.do",
+        "/news/airplaneVideo.do",
+        "/work/workMain.do",
+        "/work/employment/workList.do",
+        "/work/fair/workFair.do",
+        "/work/guide/jobQuest.do",
+        "/work/program/programList.do",
+        "/work/alarm/alarmBoardList.do",
+        "/work/center/center.do",
+        "/oauth2/oauthLogin.do",
+        "/main.do",
+        "/search/searchResult.do",
+        "/login/checkPw.do",
+        "/login/logoutProc.do",
+        "/stats/leisure/certification01.do",
+        "/stats/leisure/accident.do",
+        "/stats/leisure/etc.do",
+        "/stats/industry/industryData.do",
+        "/stats/industry/industryAirData.do",
+        "/stats/industry/industryWork.do",
+        "/stats/industry/industryAirplane.do",
+        "/stats/industry/oilPrice.do",
+        "/common/getNationGubun.do",
+        "/stats/transport/getAirTransportStatsYearMonthCount.do",
+        "/stats/transport/getDetailedAirTransportStats4TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats4Excel.do",
+        "/stats/transport/getDetailedAirTransportStats4Time.do",
+        "/stats/transport/getDetailedAirTransportStats4.do"
+      ],
+      "relevantSnippets": [
+        "++) {\n\n\t\t\t$('#startDate').append(\"<option value='\" + i + \"'>\" + i + \"</option>\");\n\n\t\t}\n\n\t\t// 시작일 selected\n\t\tif(currentDate == lastDate) {\n\n\t\t\t$('#startDate option[value=\"' + prevLastDate + '\"]').prop(\"selected\", true);\n\n\t\t} else {\n\n\t\t\t$('#startDate option[value=\"' + currentDate + '\"]').prop(\"selected\", true);\n\n\t\t}\n\n\t\t// 종료일 selected\n\t\t$('#endDate option[value=\"' + currentDate + '\"]').prop(\"selected\", true);\n\n\t\t// PMS-2690-ydg : 이전월 데이터 존재 여부 확인 후 년월 초기값 설정\n\t\tvar prevYearMonth = (prevMonth == 12 ? currentYear - 1 : currentYear) + '' + (prevMonth < 10 ? '0' + prevMonth : '' + prevMonth);\n\t\tvar param = JSON.stringify({ yearmonth: prevYearMonth });\n\t\tvar countResult = cmm.call(\"/stats/transport/getAirTransportStatsYearMonthCount.do\", param);\n\n\t\tvar targetMonth, targetYear;\n\t\tif (countResult != null && countResult.content != null && countResult.content > 0) {\n\t\t\ttargetMonth = prevMonth;\n\t\t\ttargetYear  = (prevMonth == 12) ? currentYear - 1 : currentYear;\n\t\t} else {\n\t\t\ttargetMonth = (prevMonth == 1) ? 12 : prevMonth - 1;\n\t\t\ttargetYear  = (prevMonth == 1) ? currentYear - 1 : ((prevMonth == 12) ? currentYear - 1 : currentYear);\n\t\t}\n\n\t\t// 년 selected\n\t\t$('#startYear option[value=\"' + targetYear + '\"]').prop(\"selected\", true);\n\t\t$('#endYear option[value=\"' + targetYear + '\"]').prop(\"selected\", true);\n\n\t\t// 월 selected\n\t\t$('#startMonth option[value=\"' + targetMonth + '\"]').prop(\"selected\", true);\n\t\t$('#endMonth option[value=\"' + targetMonth + '\"]').prop(\"selected\", true);\n\n\t}\n\n\n\tfunction excelFn() {\n\t\tvar startYear = $('#startYear').val();\n\t\tvar endYear = $('#endYear').val();\n\t\tvar start",
+        "PMS-2690-ydg : 여객화물 조건 추가\n\n\n\n\t\tif(startMonth < 10) {\n\n\t\t\tstartMonth = '0' + startMonth;\n\n\t\t}\n\n\t\tif(endMonth < 10) {\n\n\t\t\tendMonth = '0' + endMonth;\n\n\t\t}\n\n\t\tvar param = {};\n\n\n\t\tparam['last_yearmonth'] = startYear + startMonth; // + startDate;\n\t\tparam['this_yearmonth'] = endYear + endMonth; \t  // + endDate;;\n\t\tparam['sn_gubun'] = snGubun;\n// \t\tparam['area_gubun'] = areaGubun;\n// \t\tparam['nation_gubun'] = nationGubun;\n\t\tparam['pass_gubun'] = passGubun;\n\t\tparam['arvl_type'] = arvlType;\n\t\tparam['carge_gubun'] = cargeGubun;\n\t\tparam['pyn_gubun'] = pYNGubun; // PMS-2690-ydg : 여객화물 조건 추가\n\n\t\tparam = JSON.stringify(param);\n\n\t\tif ($('#time').is(':checked')) {\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats4TimeExcel.do\", param, \"항공통계상세조회(지역/국가시계열)\");\n\t\t} else {\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats4Excel.do\", param, \"항공통계상세조회(지역/국가)\");\n\t\t}\n\t}\n\n\t// PMS-2585-ydg : 시작년월~종료년월 구간이 최대 12개월을 넘는지 검사 (양끝 달 포함)\n\tfunction isWithinMaxMonthRange(startYear, startMonth, endYear, endMonth, maxMonths) {\n\t\tvar monthDiff = (parseInt(endYear, 10) - parseInt(startYear, 10)) * 12\n\t\t\t+ (parseInt(endMonth, 10) - parseInt(startMonth, 10)) + 1;\n\n\t\treturn monthDiff <= maxMonths;\n\t}\n\n\t/** 상세통계 - 지역/국가 **/\n\t// PMS-2870-ydg : 조회 로딩/결과없음 상태를 표에 표시하기 위한 공통 헬퍼.\n\tfunction renderStatusRow(headerRow, message, colspan) {\n\t\t$('#tblTbody').empty();\n\t\tif (headerRow) {\n\t\t\t$('#tblTbody').append(headerRow);\n\t\t}\n\t\t$('#tblTbody').append(\"<tr><td colspan='\" + colspan + \"' style='text-align:center; padding:24px 0;'>\" + message + \"</td></tr>\");\n\t}\n\n\tfunction buildRegionHeaderRow",
+        "h = '0' + endMonth;\n\n\t\t}\n\n\t\tvar param = {};\n\n\n\t\tparam['last_yearmonth'] = startYear + startMonth; // + startDate;\n\t\tparam['this_yearmonth'] = endYear + endMonth; \t  // + endDate;;\n\t\tparam['sn_gubun'] = snGubun;\n// \t\tparam['area_gubun'] = areaGubun;\n// \t\tparam['nation_gubun'] = nationGubun;\n\t\tparam['pass_gubun'] = passGubun;\n\t\tparam['arvl_type'] = arvlType;\n\t\tparam['carge_gubun'] = cargeGubun;\n\t\tparam['pyn_gubun'] = pYNGubun; // PMS-2690-ydg : 여객화물 조건 추가\n\n\t\tparam = JSON.stringify(param);\n\n\t\tif ($('#time').is(':checked')) {\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats4TimeExcel.do\", param, \"항공통계상세조회(지역/국가시계열)\");\n\t\t} else {\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats4Excel.do\", param, \"항공통계상세조회(지역/국가)\");\n\t\t}\n\t}\n\n\t// PMS-2585-ydg : 시작년월~종료년월 구간이 최대 12개월을 넘는지 검사 (양끝 달 포함)\n\tfunction isWithinMaxMonthRange(startYear, startMonth, endYear, endMonth, maxMonths) {\n\t\tvar monthDiff = (parseInt(endYear, 10) - parseInt(startYear, 10)) * 12\n\t\t\t+ (parseInt(endMonth, 10) - parseInt(startMonth, 10)) + 1;\n\n\t\treturn monthDiff <= maxMonths;\n\t}\n\n\t/** 상세통계 - 지역/국가 **/\n\t// PMS-2870-ydg : 조회 로딩/결과없음 상태를 표에 표시하기 위한 공통 헬퍼.\n\tfunction renderStatusRow(headerRow, message, colspan) {\n\t\t$('#tblTbody').empty();\n\t\tif (headerRow) {\n\t\t\t$('#tblTbody').append(headerRow);\n\t\t}\n\t\t$('#tblTbody').append(\"<tr><td colspan='\" + colspan + \"' style='text-align:center; padding:24px 0;'>\" + message + \"</td></tr>\");\n\t}\n\n\tfunction buildRegionHeaderRow() {\n\t\tvar tr = $(\"<tr>\");\n\t\ttr.append(\"<th>지역</th>\");\n\t\ttr.append(\"<th>국가</th>\");\n\t\ttr.append(\"<th>운항(편)</th>\");\n\t\ttr.append(\"",
+        " // + startDate;\n\t\tparam['this_yearmonth'] = endYear + endMonth; \t  // + endDate;;\n\t\tparam['sn_gubun'] = snGubun;\n// \t\tparam['area_gubun'] = areaGubun;\n// \t\tparam['nation_gubun'] = nationGubun;\n\t\tparam['pass_gubun'] = passGubun;\n\t\tparam['arvl_type'] = arvlType;\n\t\tparam['carge_gubun'] = cargeGubun;\n\t\tparam['pyn_gubun'] = pYNGubun; // PMS-2690-ydg : 여객화물 조건 추가\n\n\t\tparam = JSON.stringify(param);\n\n\t\t// PMS-2870-ydg : 조회 시작 시 \"조회중입니다.\" 먼저 표시 -> setTimeout(0)으로 실제 호출을 한 틱 미뤄서\n\t\t// 로딩 로우가 화면에 그려질 기회를 준다 (cmm.call은 콜백 없이 호출하면 동기 통신).\n\t\trenderStatusRow(buildRegionHeaderRow(), \"조회중입니다.\", 5);\n\n\t\tsetTimeout(function() {\n\n\t\t\tif ($('#time').is(':checked')) {\n\n\t\t\t\tvar result = cmm.call(\"/stats/transport/getDetailedAirTransportStats4Time.do\", param);\n\n\t\t\t\tif(result != null && result.content != null && result.content.length > 0) {\n\n\t\t\t\t\tvar list = result.content;\n\n\t\t\t\t\t$('#tblTbody').empty();\n\t\t\t\t\t$('#tblTbody').append(buildRegionHeaderRow());\n\n\t\t\t\t\tfor(var i = 0; i < list.length; i++) {\n\t\t\t\t\t\tvar tr = $(\"<tr>\");\n\n\t\t\t\t\t\t\ttr.append(\"<td class='bg'>\"+list[i].area_name+\"</td>\");\n\t\t\t\t\t\t\ttr.append(\"<td class='bg'>\" + list[i].nation_name + \"</td>\");\n\n\t\t\t\t\t\t\tif (list[i].flight_cnt == null || list[i].flight_cnt === undefined) {\n\t\t\t\t\t        \ttr.append(\"<td>0</td>\");\n\t\t\t\t\t\t    } else {\n\t\t\t\t\t\t    \ttr.append(\"<td>\" + truncComma(list[i].flight_cnt) + \"</td>\");\n\t\t\t\t\t\t    }\n\t\t\t\t\t\t\tif (list[i].pass == null || list[i].pass === undefined) {\n\t\t\t\t\t        \ttr.append(\"<td>0</td>\");\n\t\t\t\t\t\t    } else {\n\t\t\t\t\t\t    \ttr.append(\"<td>\" + truncComma(list[i].pass) + \"</td>\");\n\t\t\t\t\t\t    }\n\t\t\t\t\t\t    if (list[i].cargo == nu",
+        "  \ttr.append(\"<td>\" + truncComma(list[i].flight_cnt) + \"</td>\");\n\t\t\t\t\t\t    }\n\t\t\t\t\t\t\tif (list[i].pass == null || list[i].pass === undefined) {\n\t\t\t\t\t        \ttr.append(\"<td>0</td>\");\n\t\t\t\t\t\t    } else {\n\t\t\t\t\t\t    \ttr.append(\"<td>\" + truncComma(list[i].pass) + \"</td>\");\n\t\t\t\t\t\t    }\n\t\t\t\t\t\t    if (list[i].cargo == null || list[i].cargo === undefined) {\n\t\t\t\t\t        \ttr.append(\"<td>0</td>\");\n\t\t\t\t\t\t    } else {\n\t\t\t\t\t\t    \ttr.append(\"<td>\" + truncComma(list[i].cargo) + \"</td>\");\n\t\t\t\t\t\t    }\n\n\t\t\t\t\t\t\ttr.append(\"</tr>\");\n\t\t\t\t\t\t$('#tblTbody').append(tr);\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\trenderStatusRow(buildRegionHeaderRow(), \"조회된 데이터가 없습니다.\", 5);\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tvar result = cmm.call(\"/stats/transport/getDetailedAirTransportStats4.do\", param);\n\n\t\t\t\tif(result != null && result.content != null && result.content.length > 0) {\n\n\t\t\t\t\tvar list = result.content;\n\n\t\t\t\t\t$('#tblTbody').empty();\n\t\t\t\t\t$('#tblTbody').append(buildRegionHeaderRow());\n\n\t\t\t\t\tfor(var i = 0; i < list.length; i++) {\n\t\t\t\t\t\tvar tr = $(\"<tr>\");\n\n\t\t\t\t\t\t\ttr.append(\"<td class='bg'>\"+list[i].area_name+\"</td>\");\n\t\t\t\t\t\t\ttr.append(\"<td class='bg'>\" + list[i].nation_name + \"</td>\");\n\n\t\t\t\t\t\t\tif (list[i].flight_cnt == null || list[i].flight_cnt === undefined) {\n\t\t\t\t\t        \ttr.append(\"<td>0</td>\");\n\t\t\t\t\t\t    } else {\n\t\t\t\t\t\t    \ttr.append(\"<td>\" + truncComma(list[i].flight_cnt) + \"</td>\");\n\t\t\t\t\t\t    }\n\t\t\t\t\t\t\tif (list[i].pass == null || list[i].pass === undefined) {\n\t\t\t\t\t        \ttr.append(\"<td>0</td>\");\n\t\t\t\t\t\t    } else {\n\t\t\t\t\t\t    \ttr.append(\"<td>\" + truncComma(list[i].pass) + \"</td>\");\n\t\t\t\t\t\t    }\n\t\t\t\t\t\t    if (list[i].cargo == null |"
+      ],
+      "airportSnippets": [],
+      "selectOptions": [
+        {
+          "id": "startYear",
+          "options": []
+        },
+        {
+          "id": "startMonth",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            },
+            {
+              "value": "5",
+              "label": "5"
+            },
+            {
+              "value": "6",
+              "label": "6"
+            },
+            {
+              "value": "7",
+              "label": "7"
+            },
+            {
+              "value": "8",
+              "label": "8"
+            },
+            {
+              "value": "9",
+              "label": "9"
+            },
+            {
+              "value": "10",
+              "label": "10"
+            },
+            {
+              "value": "11",
+              "label": "11"
+            },
+            {
+              "value": "12",
+              "label": "12"
+            }
+          ]
+        },
+        {
+          "id": "endYear",
+          "options": []
+        },
+        {
+          "id": "endMonth",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            },
+            {
+              "value": "5",
+              "label": "5"
+            },
+            {
+              "value": "6",
+              "label": "6"
+            },
+            {
+              "value": "7",
+              "label": "7"
+            },
+            {
+              "value": "8",
+              "label": "8"
+            },
+            {
+              "value": "9",
+              "label": "9"
+            },
+            {
+              "value": "10",
+              "label": "10"
+            },
+            {
+              "value": "11",
+              "label": "11"
+            },
+            {
+              "value": "12",
+              "label": "12"
+            }
+          ]
+        },
+        {
+          "id": "snGubun",
+          "options": [
+            {
+              "value": "99",
+              "label": "전체"
+            },
+            {
+              "value": "0",
+              "label": "정기"
+            },
+            {
+              "value": "1",
+              "label": "부정기"
+            }
+          ]
+        },
+        {
+          "id": "passGubun",
+          "options": [
+            {
+              "value": "total",
+              "label": "전체"
+            },
+            {
+              "value": "1",
+              "label": "유임여객"
+            },
+            {
+              "value": "2",
+              "label": "무임여객"
+            },
+            {
+              "value": "3",
+              "label": "환승여객"
+            },
+            {
+              "value": "4",
+              "label": "유임 + 환승"
+            }
+          ]
+        },
+        {
+          "id": "cargeGubun",
+          "options": [
+            {
+              "value": "total",
+              "label": "전체"
+            },
+            {
+              "value": "1",
+              "label": "순화물"
+            },
+            {
+              "value": "2",
+              "label": "수하물"
+            },
+            {
+              "value": "3",
+              "label": "우편물"
+            }
+          ]
+        },
+        {
+          "id": "pYNGubun",
+          "options": [
+            {
+              "value": "total",
+              "label": "여객 + 화물"
+            },
+            {
+              "value": "Y",
+              "label": "여객기"
+            },
+            {
+              "value": "N",
+              "label": "화물기"
+            }
+          ]
+        },
+        {
+          "id": "arvlType",
+          "options": [
+            {
+              "value": "ALL",
+              "label": "출발 + 도착"
+            },
+            {
+              "value": "D",
+              "label": "출발"
+            },
+            {
+              "value": "A",
+              "label": "도착"
+            }
+          ]
+        }
+      ],
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/chartDetail4.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    },
+    "monthlySeries": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/chartDetail5.do",
+      "title": "항공정보포털시스템",
+      "controls": [
+        {
+          "tag": "input",
+          "id": "headerSearchText",
+          "name": "",
+          "type": "text"
+        },
+        {
+          "tag": "select",
+          "id": "startYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "startMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "input",
+          "id": "division01",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division02",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division03",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division04",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division13",
+          "name": "division2",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division11",
+          "name": "division2",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division12",
+          "name": "division2",
+          "type": "radio"
+        },
+        {
+          "tag": "select",
+          "id": "diGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "arvlType",
+          "name": "",
+          "type": ""
+        }
+      ],
+      "inlinePaths": [
+        "/library/ebookSearchList.do",
+        "/login/login.do",
+        "/login/userInfo.do",
+        "/oauth2/removeAccessToken.do",
+        "/getMainMenu.do",
+        "/airport/airport.do",
+        "/airport/aircraftInfo.do",
+        "//aim.koca.go.kr/aim/main.do",
+        "/airline/airCompanyInfo.do",
+        "/airline/airplaneSchedule.do",
+        "/airline/invest.do",
+        "/airline/reservation.do",
+        "/airplane/airplaneInfo.do",
+        "/airplane/uamMain.do",
+        "/airplane/leisure.do",
+        "/stats/transport/dashboard.do",
+        "/stats/industry/industryTransit.do",
+        "/stats/survey/odMain.do",
+        "/stats/leisure/flight01.do",
+        ".pdf/downloadFile.do",
+        "/library/history.do",
+        "/library/statute.do",
+        "/library/ebookLink.do",
+        "/library/international.do",
+        "/library/ebookinfo.do",
+        "/library/safety.do",
+        "/library/security.do",
+        "/news/eventAirzine.do",
+        "/news/newsMain.do",
+        "/news/eventScheduleImg.do",
+        "/news/airplaneVideo.do",
+        "/work/workMain.do",
+        "/work/employment/workList.do",
+        "/work/fair/workFair.do",
+        "/work/guide/jobQuest.do",
+        "/work/program/programList.do",
+        "/work/alarm/alarmBoardList.do",
+        "/work/center/center.do",
+        "/oauth2/oauthLogin.do",
+        "/main.do",
+        "/search/searchResult.do",
+        "/login/checkPw.do",
+        "/login/logoutProc.do",
+        "/stats/leisure/certification01.do",
+        "/stats/leisure/accident.do",
+        "/stats/leisure/etc.do",
+        "/stats/industry/industryData.do",
+        "/stats/industry/industryAirData.do",
+        "/stats/industry/industryWork.do",
+        "/stats/industry/industryAirplane.do",
+        "/stats/industry/oilPrice.do",
+        "/common/getAirlineGubun.do",
+        "/stats/transport/getAirTransportStatsYearMonthCount.do",
+        "/stats/transport/getDetailedAirTransportStats1TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats2TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats3TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats4TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats1Time.do",
+        "/stats/transport/getDetailedAirTransportStats2Time.do",
+        "/stats/transport/getDetailedAirTransportStats3Time.do",
+        "/stats/transport/getDetailedAirTransportStats4Time.do"
+      ],
+      "relevantSnippets": [
+        "++) {\n\n\t\t\t$('#startDate').append(\"<option value='\" + i + \"'>\" + i + \"</option>\");\n\n\t\t}\n\n\t\t// 시작일 selected\n\t\tif(currentDate == lastDate) {\n\n\t\t\t$('#startDate option[value=\"' + prevLastDate + '\"]').prop(\"selected\", true);\n\n\t\t} else {\n\n\t\t\t$('#startDate option[value=\"' + currentDate + '\"]').prop(\"selected\", true);\n\n\t\t}\n\n\t\t// 종료일 selected\n\t\t$('#endDate option[value=\"' + currentDate + '\"]').prop(\"selected\", true);\n\n\t\t// PMS-2690-ydg : 이전월 데이터 존재 여부 확인 후 년월 초기값 설정\n\t\tvar prevYearMonth = (prevMonth == 12 ? currentYear - 1 : currentYear) + '' + (prevMonth < 10 ? '0' + prevMonth : '' + prevMonth);\n\t\tvar param = JSON.stringify({ yearmonth: prevYearMonth });\n\t\tvar countResult = cmm.call(\"/stats/transport/getAirTransportStatsYearMonthCount.do\", param);\n\n\t\t// 종료년월 확정\n\t\tvar endTargetMonth, endTargetYear;\n\t\tif (countResult != null && countResult.content != null && countResult.content > 0) {\n\t\t\t// 이전월 데이터 존재 → 이전월 그대로\n\t\t\tendTargetMonth = prevMonth;\n\t\t\tendTargetYear  = (prevMonth == 12) ? currentYear - 1 : currentYear;\n\t\t} else {\n\t\t\t// 이전월 데이터 없음 → -1개월 추가\n\t\t\tendTargetMonth = (prevMonth == 1) ? 12 : prevMonth - 1;\n\t\t\tendTargetYear  = (prevMonth == 1) ? currentYear - 1 : ((prevMonth == 12) ? currentYear - 1 : currentYear);\n\t\t}\n\n\t\t// 시작년월 = 종료년월 기준 -3개월\n\t\tvar startTargetMonth = endTargetMonth - 3;\n\t\tvar startTargetYear  = endTargetYear;\n\t\tif (startTargetMonth <= 0) {\n\t\t\tstartTargetMonth += 12;\n\t\t\tstartTargetYear  = endTargetYear - 1;\n\t\t}\n\n\t\t// 종료년월 selected\n\t\t$('#endYear option[value=\"' + endTargetYear + '\"]').prop(\"selected\", true);\n\t\t$('#endMonth option[value=\"' + endTargetMonth + '\"]').prop(\"",
+        "위한 라벨 매핑\n\t\tvar statLabelMap = { 1: \"여객\", 2: \"화물\", 3: \"운항\" };\n\t\tvar statLabel = statLabelMap[regType2] || \"\";\n\n\t\tparam['last_yearmonth'] = startYear + startMonth; // + startDate;\n\t\tparam['this_yearmonth'] = endYear + endMonth; \t  // + endDate;;\n\t\tparam['di_gubun'] = diGubun;\n\t\tparam['arvl_type'] = arvlType;\n\t\tif(regType1 == 1) {\n\t\t\tparam['airline_gubun'] = 'total';\n\n\t\t\t// PMS-2679-ydg : searchFn과 파라미터 일치하도록 추가\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats1TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(항공사시계열-\" + statLabel + \")\");\n\t\t}\n\t\tif(regType1 == 2) {\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\tparam['airport_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats2TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(공항시계열-\" + statLabel + \")\");\n\t\t}\n\n\t\tif(regType1 == 3) {\n\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\t\t\tparam['airport_gubun'] = 'total';\n\t\t\t",
+        "bun'] = 'total';\n\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats1TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(항공사시계열-\" + statLabel + \")\");\n\t\t}\n\t\tif(regType1 == 2) {\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\tparam['airport_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats2TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(공항시계열-\" + statLabel + \")\");\n\t\t}\n\n\t\tif(regType1 == 3) {\n\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\t\t\tparam['airport_gubun'] = 'total';\n\t\t\tparam['forreign_airport_gubun'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats3TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(노선시계열-\" + statLabel + \")\");\n\t\t}\n\n\t\tif(regType1 == 4) {\n\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 't",
+        "ram);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats2TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(공항시계열-\" + statLabel + \")\");\n\t\t}\n\n\t\tif(regType1 == 3) {\n\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\t\t\tparam['airport_gubun'] = 'total';\n\t\t\tparam['forreign_airport_gubun'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats3TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(노선시계열-\" + statLabel + \")\");\n\t\t}\n\n\t\tif(regType1 == 4) {\n\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\t\t\tparam['airline_gubun'] = 'total';\n\t\t\tparam['forreign_airport_gubun'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats4TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(지역/국가시계열-\" + statLabel + \")\");\n\t\t}\n\n\n\t}\n\n\t// 문자열 파싱 함수\n\t// PMS-2690-ydg : 라벨 컬럼(항공사명/공항명/노선/지역국가 등)은 고정폭으로 박아두고,\n\t//                월 컬럼만 동적으로 폭 계산\n\t//   - 월 1~3개: 남는 공간을 그 개수만큼 나눠서 꽉 채움 (스크롤 없음)\n\t//   - 월 4개(기본 조회 단위): 라벨고정폭 + 4개월이 박스에 정확히 맞음\n\t// ",
+        "ram);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats3TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(노선시계열-\" + statLabel + \")\");\n\t\t}\n\n\t\tif(regType1 == 4) {\n\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\t\t\tparam['airline_gubun'] = 'total';\n\t\t\tparam['forreign_airport_gubun'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\t// PMS-2585-ydg : 운항/여객/화물 중 선택된 통계만 엑셀에 남기기 위해 regType2를 statType으로 전달\n\t\t\tvar data = cmm.excel(\"/stats/transport/getDetailedAirTransportStats4TimeExcel.do?statType=\" + regType2, param, \"항공통계상세조회(지역/국가시계열-\" + statLabel + \")\");\n\t\t}\n\n\n\t}\n\n\t// 문자열 파싱 함수\n\t// PMS-2690-ydg : 라벨 컬럼(항공사명/공항명/노선/지역국가 등)은 고정폭으로 박아두고,\n\t//                월 컬럼만 동적으로 폭 계산\n\t//   - 월 1~3개: 남는 공간을 그 개수만큼 나눠서 꽉 채움 (스크롤 없음)\n\t//   - 월 4개(기본 조회 단위): 라벨고정폭 + 4개월이 박스에 정확히 맞음\n\t//   - 월 5개 이상: 월 컬럼폭은 \"4개일 때\" 폭으로 고정 유지, 넘치는 만큼 스크롤\n\tvar BASE_MONTH_COUNT = 4;\n\tvar SAFETY_MARGIN = 4; // px, 테두리/서브픽셀 렌더링 오차로 우측 끝이 가려지는 것 방지\n\tvar MIN_MONTH_WIDTH = 70; // PMS-2585-ydg : 월 컬럼 최소폭(px). 모바일처럼 화면폭이 라벨폭보다 좁아 계산값이 0 이하로 나오는 것 방지\n\n\tfunction setColgroup(labelWidths, monthCount) {\n\n\t\tvar $table = $('#tblColgroup').closest('table');\n\t\tvar containerWidth = ($('.bx_data_list .inner').width() || $('.bx_data_list').width()) - SAFETY_MARGIN;\n\n\t\tvar totalLabelWidth = 0;\n\t\tfor (var i = 0; i < labelWidths.length; i++) {\n\t\t\ttotalLabelWidth += labelWidths[i];\n\t\t}\n\n\t\t// ",
+        "tMonth;\n\n\t\t}\n\n\t\tif(endMonth < 10) {\n\n\t\t\tendMonth = '0' + endMonth;\n\n\t\t}\n\n\t\tvar param = {};\n\n\n\t\tparam['last_yearmonth'] = startYear + startMonth; // + startDate;\n\t\tparam['this_yearmonth'] = endYear + endMonth; \t  // + endDate;;\n\n\t\tparam['di_gubun'] = diGubun;\n\t\tparam['arvl_type'] = arvlType;\n\n\t\t// PMS-2870-ydg : 조회 시작 시 \"조회중입니다.\" 먼저 표시 -> setTimeout(0)으로 실제 호출을 한 틱 미뤄서\n\t\t// 로딩 로우가 화면에 그려질 기회를 준다 (cmm.call은 콜백 없이 호출하면 동기 통신).\n\t\trenderStatusRow(buildLabelHeaderRow(regType1), \"조회중입니다.\", labelColspan(regType1));\n\n\t\tsetTimeout(function() {\n\n\t\t/* 상세구분:항공사 */\n\t\tif (regType1 == 1) {\n\n\t\t\tparam['airline_gubun'] = 'total';\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\tvar result = cmm.call(\"/stats/transport/getDetailedAirTransportStats1Time.do\", param);\n\n\t\t\tif (result && result.content && result.content.length > 0) {\n\n\t\t\t\tvar list = result.content;\n\n\t\t\t\t$('#tblTbody').empty();\n\n\t\t\t\tvar typeMap = {\n\t\t\t\t\t1: \"pass\",\n\t\t\t\t\t2: \"cargo\",\n\t\t\t\t\t3: \"flight_cnt\"\n\t\t\t\t};\n\n\t\t\t\tvar selectedType = typeMap[regType2] || \"pass\";\n\n\t\t\t\tvar monthSet = new Set();\n\t\t\t\tvar airlineMap = {};\n\n\t\t\t\t// PMS-2690-ydg : 쿼리가 전체합계/국적사계/외항사계까지 정렬 포함하여 내려주므로\n\t\t\t\t//                클라이언트 측 국적사/외항사 별도 계산 로직 제거\n\t\t\t\tlist.forEach(function (item) {\n\n\t\t\t\t\tvar parsed = parseAirlineAndMonth(item.airline_name);\n\t\t\t\t\tif (!parsed) return;\n\n\t\t\t\t\tvar airline = parsed.airline;\n\t\t\t\t\tvar ym = parsed.yearMonth;\n\n\t\t\t\t\tmonthSet.add(ym);\n\n\t\t\t\t\tif (!airlineMap[airline]) {\n\t\t\t\t\t\tairlineMap[airline] = {};\n\t\t\t\t\t}\n\n\t\t\t\t\tairlineMap[airline][ym] = Number(item[selectedType]) || 0;\n\t\t\t\t});\n\n\t\t\t\tvar monthList = Array.from(monthSet).sort();\n\n\t\t\t\t// ==============",
+        "(\"<td class='bg'\" + nameStyle + \">\" + airline + \"</td>\");\n\n\t\t\t\t\tmonthList.forEach(function (m) {\n\t\t\t\t\t\tvar val = airlineMap[airline][m] || 0;\n\t\t\t\t\t\ttr.append(\"<td>\" + truncComma(val) + \"</td>\");\n\t\t\t\t\t});\n\n\t\t\t\t\t$('#tblTbody').append(tr);\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\trenderStatusRow(buildLabelHeaderRow(1), \"조회된 데이터가 없습니다.\", labelColspan(1));\n\t\t\t}\n\t\t}\n\t\t/* 상세구분:공항 */\n\t\tif(regType1 == 2) {\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\tparam['airport_gubun'] = 'total';\n\t\t\t//param['di_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\t//param['arvl_type'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\tvar result = cmm.call(\"/stats/transport/getDetailedAirTransportStats2Time.do\", param);\n\n\t\t\tif(result != null && result.content != null && result.content.length > 0) {\n\n\t\t\t   var list = result.content;\n\n\t\t\t   $('#tblTbody').empty();\n\n\t\t\t   var typeMap = {\n\t\t\t\t   1: \"pass\",\n\t\t\t\t   2: \"cargo\",\n\t\t\t\t   3: \"flight_cnt\"\n\t\t\t   };\n\n\t\t\t   var selectedType = typeMap[regType2] || \"pass\";\n\n\t\t\t   var monthSet = new Set();\n\t\t\t   var airlineMap = {};\n\n\t\t\t   // PMS-2690-ydg : 쿼리가 전체합계까지 년월별로 정렬 포함하여 내려주므로\n\t\t\t   //                클라이언트 측 전체합계 누적 로직 제거\n\t\t\t   list.forEach(function (item) {\n\n\t\t\t\t   var parsed = parseAirlineAndMonth(item.airport_name);\n\t\t\t\t   if (!parsed) return;\n\n\t\t\t\t   var airline = parsed.airline;\n\t\t\t\t   var ym = parsed.yearMonth;\n\n\t\t\t\t   monthSet.add(ym);\n\n\t\t\t\t   if (!airlineMap[airline]) {\n\t\t\t\t\t   airlineMap[airline] = {};\n\t\t\t\t   }\n\n\t\t\t\t   airlineMap[airline][ym] = Number(item[selectedType]) || 0;\n\t\t\t   });\n\n\t\t\t   var monthList =",
+        " 배경색 적용\n\t\t\t\t\ttr.append(\"<td class='bg'\" + nameStyle + \">\" + airline + \"</td>\");\n\n\t\t\t\t\tmonthList.forEach(function (m) {\n\t\t\t\t\t\tvar val = airlineMap[airline][m] || 0;\n\t\t\t\t\t\ttr.append(\"<td>\" + truncComma(val) + \"</td>\");\n\t\t\t\t\t});\n\n\t\t\t\t\t$('#tblTbody').append(tr);\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\trenderStatusRow(buildLabelHeaderRow(2), \"조회된 데이터가 없습니다.\", labelColspan(2));\n\t\t\t}\n\t\t}\n\t\t/* 상세구분:노선 */\n\t\tif(regType1 == 3) {\n\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\tparam['airport_gubun'] = 'total';\n\t\t\tparam['forreign_airport_gubun'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\tvar result = cmm.call(\"/stats/transport/getDetailedAirTransportStats3Time.do\", param);\n\n\t\t\tif (result && result.content && result.content.length > 0) {\n\n\t\t\t\t$('#tblTbody').empty();\n\n\t\t\t\tvar list = result.content;\n\n\t\t\t\tvar typeMap = {\n\t\t\t\t\t1: \"pass\",\n\t\t\t\t\t2: \"cargo\",\n\t\t\t\t\t3: \"flight_cnt\"\n\t\t\t\t};\n\n\t\t\t\tvar selectedType = typeMap[regType2] || \"pass\";\n\n\t\t\t\tvar monthSet = new Set();\n\t\t\t\tvar routeMap = {};\n\t\t\t\tvar totalMap = {};   // PMS-2690-ydg : 서버가 내려준 전체합계 행을 그대로 누적(중복합산 방지)\n\n\t\t\t\tlist.forEach(function (item) {\n\n\t\t\t\t\tif (!item.airport_name) return;\n\n\t\t\t\t\tvar parsed = parseAirportAndMonth(item.airport_name);\n\t\t\t\t\tif (!parsed.yearMonth) return;\n\n\t\t\t\t\tvar ym = parsed.yearMonth;\n\t\t\t\t\tmonthSet.add(ym);\n\n\t\t\t\t\tvar value = item[selectedType] ? Number(item[selectedType]) : 0;\n\n\t\t\t\t\t// PMS-2690-ydg : 전체합계 행은 routeMap이 아니라 totalMap으로 분리\n\t\t\t\t\tif (item.code_name === '전체 합계') {\n\t\t\t\t\t\ttotalMap[ym] = value;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tvar route = ite",
+        "\"</td>\");\n\t\t\t\t\ttr.append(\"<td class='bg'>\" + routeMap[key].airport + \"</td>\");\n\n\t\t\t\t\tmonthList.forEach(function (m) {\n\t\t\t\t\t\tvar val = routeMap[key].data[m] || 0;\n\t\t\t\t\t\ttr.append(\"<td>\" + truncComma(val) + \"</td>\");\n\t\t\t\t\t});\n\n\t\t\t\t\t$('#tblTbody').append(tr);\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\trenderStatusRow(buildLabelHeaderRow(3), \"조회된 데이터가 없습니다.\", labelColspan(3));\n\t\t\t}\n\t\t}\n\t\t/* 상세구분:지역/국가 */\n\t\tif(regType1 == 4) {\n\t\t\tparam['sn_gubun'] = 'total';\n\t\t\tparam['pass_gubun'] = '4';\n\t\t\tparam['carge_gubun'] = 'total';\n\t\t\tparam['pyn_gubun'] = 'total';\n\t\t\tparam['airline_gubun'] = 'total';\n\t\t\tparam['forreign_airport_gubun'] = 'total';\n\n\t\t\tparam = JSON.stringify(param);\n\n\t\t\tvar result = cmm.call(\"/stats/transport/getDetailedAirTransportStats4Time.do\", param);\n\n\t\t\tif (result && result.content && result.content.length > 0) {\n\n\t\t\t\t$('#tblTbody').empty();\n\n\t\t\t\tvar list = result.content;\n\n\t\t\t\tvar typeMap = {\n\t\t\t\t\t1: \"pass\",\n\t\t\t\t\t2: \"cargo\",\n\t\t\t\t\t3: \"flight_cnt\"\n\t\t\t\t};\n\n\t\t\t\tvar selectedType = typeMap[regType2] || \"pass\";\n\n\t\t\t\tvar monthSet = new Set();\n\t\t\t\tvar regionMap = {};\n\t\t\t\tvar totalMap = {};   // PMS-2690-ydg : 서버가 내려준 전체합계 행을 그대로 사용(중복합산 방지)\n\n\t\t\t\tlist.forEach(function (item) {\n\n\t\t\t\t\tif (!item.nation_name) return;\n\n\t\t\t\t\tvar parsed = parseNationAndMonth(item.nation_name);\n\t\t\t\t\tif (!parsed.yearMonth) return;\n\n\t\t\t\t\tvar ym = parsed.yearMonth;\n\t\t\t\t\tmonthSet.add(ym);\n\n\t\t\t\t\tvar value = item[selectedType] ? Number(item[selectedType]) : 0;\n\n\t\t\t\t\t// PMS-2690-ydg : 전체합계 행은 지역 rowspan 그룹(regionMap)에 안 들어가게 분리\n\t\t\t\t\tif (parsed.nation === '전체 합계') {\n\t\t\t\t\t\ttotalMap[ym] = value;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tvar area ="
+      ],
+      "airportSnippets": [],
+      "selectOptions": [
+        {
+          "id": "startYear",
+          "options": []
+        },
+        {
+          "id": "startMonth",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            },
+            {
+              "value": "5",
+              "label": "5"
+            },
+            {
+              "value": "6",
+              "label": "6"
+            },
+            {
+              "value": "7",
+              "label": "7"
+            },
+            {
+              "value": "8",
+              "label": "8"
+            },
+            {
+              "value": "9",
+              "label": "9"
+            },
+            {
+              "value": "10",
+              "label": "10"
+            },
+            {
+              "value": "11",
+              "label": "11"
+            },
+            {
+              "value": "12",
+              "label": "12"
+            }
+          ]
+        },
+        {
+          "id": "endYear",
+          "options": []
+        },
+        {
+          "id": "endMonth",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            },
+            {
+              "value": "4",
+              "label": "4"
+            },
+            {
+              "value": "5",
+              "label": "5"
+            },
+            {
+              "value": "6",
+              "label": "6"
+            },
+            {
+              "value": "7",
+              "label": "7"
+            },
+            {
+              "value": "8",
+              "label": "8"
+            },
+            {
+              "value": "9",
+              "label": "9"
+            },
+            {
+              "value": "10",
+              "label": "10"
+            },
+            {
+              "value": "11",
+              "label": "11"
+            },
+            {
+              "value": "12",
+              "label": "12"
+            }
+          ]
+        },
+        {
+          "id": "diGubun",
+          "options": [
+            {
+              "value": "total",
+              "label": "국내선+국제선"
+            },
+            {
+              "value": "D",
+              "label": "국내선"
+            },
+            {
+              "value": "I",
+              "label": "국제선"
+            }
+          ]
+        },
+        {
+          "id": "arvlType",
+          "options": [
+            {
+              "value": "total",
+              "label": "출발+도착"
+            },
+            {
+              "value": "D",
+              "label": "출발"
+            },
+            {
+              "value": "A",
+              "label": "도착"
+            }
+          ]
+        }
+      ],
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/chartDetail5.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    },
+    "dailyRoute": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/dailyRoute.do",
+      "title": "항공정보포털시스템",
+      "controls": [
+        {
+          "tag": "input",
+          "id": "headerSearchText",
+          "name": "",
+          "type": "text"
+        },
+        {
+          "tag": "input",
+          "id": "startDate",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "input",
+          "id": "endDate",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "koreaAirportSelect",
+          "name": "",
+          "type": ""
+        }
+      ],
+      "inlinePaths": [
+        "/library/ebookSearchList.do",
+        "/login/login.do",
+        "/login/userInfo.do",
+        "/oauth2/removeAccessToken.do",
+        "/getMainMenu.do",
+        "/airport/airport.do",
+        "/airport/aircraftInfo.do",
+        "//aim.koca.go.kr/aim/main.do",
+        "/airline/airCompanyInfo.do",
+        "/airline/airplaneSchedule.do",
+        "/airline/invest.do",
+        "/airline/reservation.do",
+        "/airplane/airplaneInfo.do",
+        "/airplane/uamMain.do",
+        "/airplane/leisure.do",
+        "/stats/transport/dashboard.do",
+        "/stats/industry/industryTransit.do",
+        "/stats/survey/odMain.do",
+        "/stats/leisure/flight01.do",
+        ".pdf/downloadFile.do",
+        "/library/history.do",
+        "/library/statute.do",
+        "/library/ebookLink.do",
+        "/library/international.do",
+        "/library/ebookinfo.do",
+        "/library/safety.do",
+        "/library/security.do",
+        "/news/eventAirzine.do",
+        "/news/newsMain.do",
+        "/news/eventScheduleImg.do",
+        "/news/airplaneVideo.do",
+        "/work/workMain.do",
+        "/work/employment/workList.do",
+        "/work/fair/workFair.do",
+        "/work/guide/jobQuest.do",
+        "/work/program/programList.do",
+        "/work/alarm/alarmBoardList.do",
+        "/work/center/center.do",
+        "/oauth2/oauthLogin.do",
+        "/main.do",
+        "/search/searchResult.do",
+        "/login/checkPw.do",
+        "/login/logoutProc.do",
+        "/stats/leisure/certification01.do",
+        "/stats/leisure/accident.do",
+        "/stats/leisure/etc.do",
+        "/stats/industry/industryData.do",
+        "/stats/industry/industryAirData.do",
+        "/stats/industry/industryWork.do",
+        "/stats/industry/industryAirplane.do",
+        "/stats/industry/oilPrice.do",
+        "/stats/transport/selectDailyStatisticsByRoute.do",
+        "/stats/transport/selectDailyStatisticsByRouteExcel.do"
+      ],
+      "relevantSnippets": [
+        "onth = '0' + startMonth;\n\n\t\t}\n\n\t\tif(endMonth < 10) {\n\n\t\t\tendMonth = '0' + endMonth;\n\n\t\t}\n\n\t\tif(startDate < 10) {\n\n\t\t\tstartDate = '0' + startDate;\n\n\t\t}\n\n\t\tif(endDate < 10) {\n\n\t\t\tendDate = '0' + endDate;\n\n\t\t}\n\t\t*/\n\t\tvar param = {};\n\t\t\n\t\tvar startDate = $('#startDate').val().replaceAll('-', '');\n\t\tvar endDate = $('#endDate').val().replaceAll('-', '');\n\t\t\n\t\tparam['startDt'] = startDate; //startYear + startMonth + startDate;\n\t\tparam['endDt'] = endDate; //endYear + endMonth + endDate;;\n\t\t\n\t\tparam['koreaAirport'] = $('#koreaAirportSelect').val();\n\t\tparam['airlineType'] = $('.sel_min_tab').find('.active').data('type');\n\t\t\n\t\tparam = JSON.stringify(param);\n\t\t\n\t\tvar result = cmm.call(\"/stats/transport/selectDailyStatisticsByRoute.do\", param);\n\t\t\n\t\t$('#tblTbody').empty();\n\t\t\n\t\tif(result != null && result.content != null && result.content.length > 0) {\n\t\t\t\n\t\t\tvar list = result.content;\n\t\t\t\n\t\t\tfor(var i = 0; i < list.length; i++) {\n\t\t\t\t\n\t\t\t\tvar tr = $(\"<tr></tr>\");\n\t\t\t\t\n\t\t\t\t\ttr.append(\"<td>\" + list[i].ap1 + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + list[i].ap2 + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + list[i].al_ICAO + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].dep_FP) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].arr_FP) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].total_FP) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].dep_PERSON) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].arr_PERSON) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].total_PERSON) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].dep_WEIGHT) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>"
+      ],
+      "airportSnippets": [
+        "n value='\" + i + \"'>\" + i + \"</option>\");\n\n\t\t}\n\n\t\t// 시작일 selected\n\t\t$('#startDate option[value=\"' + startDate + '\"]').prop(\"selected\", true);\n\n\t\t// 종료일 selected\n\t\t$('#endDate option[value=\"' + endDate + '\"]').prop(\"selected\", true);\n\n\t}\n\t\n\t\n\t/** 국내 공항 조회 **/\n\tfunction selectKoreaAirportFn(){\n\n\t\tvar data = cmm.koreaAirportIaco();\n\n\t\tif(data != null && data.resultCode == \"200\" && data.content.length > 0) {\n\n\t\t\tvar list = data.content;\n\t\t\t\n\t\t\t//$('#koreaAirportSelect').prepend(\"<option value='all'>전체</option>\"); sironge 좀더 확인 하자\n\n\t\t\tfor(var i = 0; i < list.length; i++) {\n\n\t\t\t\tif(list[i].apIata == \"ICN\") {\n\n\t\t\t\t\t$('#koreaAirportSelect').prepend(\"<option value='\" + list[i].codeId + \"' selected='selected'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t} else {\n\n\t\t\t\t\t$('#koreaAirportSelect').append(\"<option value='\" + list[i].codeId + \"'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t}\n\t\t\t}\n\n\t\t} else {\n\n\t\t\t$('#koreaAirportSelect').prepend(\"<option value='ICN'>인천공항</option>\");\n\n\t\t}\n\t}\n\t\n\t\n\t/** 일자별 통계 - 노선별 조회 **/\n\tfunction searchFn() {\n\t/*\t\n\t\tvar startYear = $('#startYear').val();\n\t\tvar endYear = $('#en",
+        "Date option[value=\"' + endDate + '\"]').prop(\"selected\", true);\n\n\t}\n\t\n\t\n\t/** 국내 공항 조회 **/\n\tfunction selectKoreaAirportFn(){\n\n\t\tvar data = cmm.koreaAirportIaco();\n\n\t\tif(data != null && data.resultCode == \"200\" && data.content.length > 0) {\n\n\t\t\tvar list = data.content;\n\t\t\t\n\t\t\t//$('#koreaAirportSelect').prepend(\"<option value='all'>전체</option>\"); sironge 좀더 확인 하자\n\n\t\t\tfor(var i = 0; i < list.length; i++) {\n\n\t\t\t\tif(list[i].apIata == \"ICN\") {\n\n\t\t\t\t\t$('#koreaAirportSelect').prepend(\"<option value='\" + list[i].codeId + \"' selected='selected'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t} else {\n\n\t\t\t\t\t$('#koreaAirportSelect').append(\"<option value='\" + list[i].codeId + \"'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t}\n\t\t\t}\n\n\t\t} else {\n\n\t\t\t$('#koreaAirportSelect').prepend(\"<option value='ICN'>인천공항</option>\");\n\n\t\t}\n\t}\n\t\n\t\n\t/** 일자별 통계 - 노선별 조회 **/\n\tfunction searchFn() {\n\t/*\t\n\t\tvar startYear = $('#startYear').val();\n\t\tvar endYear = $('#endYear').val();\n\t\tvar startMonth = $('#startMonth').val();\n\t\tvar endMonth = $('#endMonth').val();\n\t\tvar startDate = $('#startDate').val();\n\t\tvar endDate = $('#endDate').va",
+        "portIaco();\n\n\t\tif(data != null && data.resultCode == \"200\" && data.content.length > 0) {\n\n\t\t\tvar list = data.content;\n\t\t\t\n\t\t\t//$('#koreaAirportSelect').prepend(\"<option value='all'>전체</option>\"); sironge 좀더 확인 하자\n\n\t\t\tfor(var i = 0; i < list.length; i++) {\n\n\t\t\t\tif(list[i].apIata == \"ICN\") {\n\n\t\t\t\t\t$('#koreaAirportSelect').prepend(\"<option value='\" + list[i].codeId + \"' selected='selected'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t} else {\n\n\t\t\t\t\t$('#koreaAirportSelect').append(\"<option value='\" + list[i].codeId + \"'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t}\n\t\t\t}\n\n\t\t} else {\n\n\t\t\t$('#koreaAirportSelect').prepend(\"<option value='ICN'>인천공항</option>\");\n\n\t\t}\n\t}\n\t\n\t\n\t/** 일자별 통계 - 노선별 조회 **/\n\tfunction searchFn() {\n\t/*\t\n\t\tvar startYear = $('#startYear').val();\n\t\tvar endYear = $('#endYear').val();\n\t\tvar startMonth = $('#startMonth').val();\n\t\tvar endMonth = $('#endMonth').val();\n\t\tvar startDate = $('#startDate').val();\n\t\tvar endDate = $('#endDate').val();\n\t\t\n\t\tvar currentDate = new Date(year, month, date);\n\t\tvar start = new Date(startYear, startMonth - 1, startDate);\n\t\tvar end = new Date(endYear, ",
+        "AirportSelect').prepend(\"<option value='all'>전체</option>\"); sironge 좀더 확인 하자\n\n\t\t\tfor(var i = 0; i < list.length; i++) {\n\n\t\t\t\tif(list[i].apIata == \"ICN\") {\n\n\t\t\t\t\t$('#koreaAirportSelect').prepend(\"<option value='\" + list[i].codeId + \"' selected='selected'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t} else {\n\n\t\t\t\t\t$('#koreaAirportSelect').append(\"<option value='\" + list[i].codeId + \"'>\" + list[i].codeVal + \"</option>\");\n\n\t\t\t\t}\n\t\t\t}\n\n\t\t} else {\n\n\t\t\t$('#koreaAirportSelect').prepend(\"<option value='ICN'>인천공항</option>\");\n\n\t\t}\n\t}\n\t\n\t\n\t/** 일자별 통계 - 노선별 조회 **/\n\tfunction searchFn() {\n\t/*\t\n\t\tvar startYear = $('#startYear').val();\n\t\tvar endYear = $('#endYear').val();\n\t\tvar startMonth = $('#startMonth').val();\n\t\tvar endMonth = $('#endMonth').val();\n\t\tvar startDate = $('#startDate').val();\n\t\tvar endDate = $('#endDate').val();\n\t\t\n\t\tvar currentDate = new Date(year, month, date);\n\t\tvar start = new Date(startYear, startMonth - 1, startDate);\n\t\tvar end = new Date(endYear, endMonth - 1, endDate);\n\t\t\n\t\tvar startDiffTime = currentDate.getTime() - start.getTime();\n\t\tvar endDiffTime = currentDate.getTime() - en",
+        "'0' + endMonth;\n\n\t\t}\n\n\t\tif(startDate < 10) {\n\n\t\t\tstartDate = '0' + startDate;\n\n\t\t}\n\n\t\tif(endDate < 10) {\n\n\t\t\tendDate = '0' + endDate;\n\n\t\t}\n\t\t*/\n\t\tvar param = {};\n\t\t\n\t\tvar startDate = $('#startDate').val().replaceAll('-', '');\n\t\tvar endDate = $('#endDate').val().replaceAll('-', '');\n\t\t\n\t\tparam['startDt'] = startDate; //startYear + startMonth + startDate;\n\t\tparam['endDt'] = endDate; //endYear + endMonth + endDate;;\n\t\t\n\t\tparam['koreaAirport'] = $('#koreaAirportSelect').val();\n\t\tparam['airlineType'] = $('.sel_min_tab').find('.active').data('type');\n\t\t\n\t\tparam = JSON.stringify(param);\n\t\t\n\t\tvar result = cmm.call(\"/stats/transport/selectDailyStatisticsByRoute.do\", param);\n\t\t\n\t\t$('#tblTbody').empty();\n\t\t\n\t\tif(result != null && result.content != null && result.content.length > 0) {\n\t\t\t\n\t\t\tvar list = result.content;\n\t\t\t\n\t\t\tfor(var i = 0; i < list.length; i++) {\n\t\t\t\t\n\t\t\t\tvar tr = $(\"<tr></tr>\");\n\t\t\t\t\n\t\t\t\t\ttr.append(\"<td>\" + list[i].ap1 + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + list[i].ap2 + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + list[i].al_ICAO + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].dep_FP",
+        "< 10) {\n\n\t\t\tstartDate = '0' + startDate;\n\n\t\t}\n\n\t\tif(endDate < 10) {\n\n\t\t\tendDate = '0' + endDate;\n\n\t\t}\n\t\t*/\n\t\tvar param = {};\n\t\t\n\t\tvar startDate = $('#startDate').val().replaceAll('-', '');\n\t\tvar endDate = $('#endDate').val().replaceAll('-', '');\n\t\t\n\t\tparam['startDt'] = startDate; //startYear + startMonth + startDate;\n\t\tparam['endDt'] = endDate; //endYear + endMonth + endDate;;\n\t\t\n\t\tparam['koreaAirport'] = $('#koreaAirportSelect').val();\n\t\tparam['airlineType'] = $('.sel_min_tab').find('.active').data('type');\n\t\t\n\t\tparam = JSON.stringify(param);\n\t\t\n\t\tvar result = cmm.call(\"/stats/transport/selectDailyStatisticsByRoute.do\", param);\n\t\t\n\t\t$('#tblTbody').empty();\n\t\t\n\t\tif(result != null && result.content != null && result.content.length > 0) {\n\t\t\t\n\t\t\tvar list = result.content;\n\t\t\t\n\t\t\tfor(var i = 0; i < list.length; i++) {\n\t\t\t\t\n\t\t\t\tvar tr = $(\"<tr></tr>\");\n\t\t\t\t\n\t\t\t\t\ttr.append(\"<td>\" + list[i].ap1 + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + list[i].ap2 + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + list[i].al_ICAO + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].dep_FP) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" +",
+        "\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].arr_WEIGHT) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].total_WEIGHT) + \"</td>\");\n\t\t\t\t\t\n\t\t\t\t\t$('#tblTbody').append(tr);\n\t\t\t\t\n\t\t\t}\n\t\t}\n\t}\n\t\n\tfunction excelFn() {\n\n\t\tvar param = {};\n\t\t\n\t\tvar startDate = $('#startDate').val().replaceAll('-', '');\n\t\tvar endDate = $('#endDate').val().replaceAll('-', '');\n\t\t\n\t\tparam['startDt'] = startDate;\n\t\tparam['endDt'] = endDate;\n\t\t\n\t\tparam['koreaAirport'] = $('#koreaAirportSelect').val();\n\t\tparam['airlineType'] = $('.sel_min_tab').find('.active').data('type');\n\t\t\n\t\tparam = JSON.stringify(param);\n\t\t\n\t\tvar data = cmm.excel(\"/stats/transport/selectDailyStatisticsByRouteExcel.do\", param, \"일자별통계(노선)\");\n\t}\n\t\n\t\n\t/** 일 세팅 **/\n\tfunction setDateFn(monthSelect) {\n\n\t\tvar date = new Date();\n\t\tvar currentYear = date.getFullYear();\n\t\tvar month = monthSelect.val();\n\t\tvar last = new Date(currentYear, month, 0);\n\t\tvar lastDate = last.getDate();\n\t\tvar dateSelect = monthSelect.next('div').find('select');\n\n\t\tdateSelect.empty();\n\n\t\tfor(var i = 1; i <= lastDate + 1; i++) {\n\n\t\t\tdateSelect.append(\"<option>\" + i + \"</option>",
+        "t[i].arr_WEIGHT) + \"</td>\");\n\t\t\t\t\ttr.append(\"<td>\" + truncComma(list[i].total_WEIGHT) + \"</td>\");\n\t\t\t\t\t\n\t\t\t\t\t$('#tblTbody').append(tr);\n\t\t\t\t\n\t\t\t}\n\t\t}\n\t}\n\t\n\tfunction excelFn() {\n\n\t\tvar param = {};\n\t\t\n\t\tvar startDate = $('#startDate').val().replaceAll('-', '');\n\t\tvar endDate = $('#endDate').val().replaceAll('-', '');\n\t\t\n\t\tparam['startDt'] = startDate;\n\t\tparam['endDt'] = endDate;\n\t\t\n\t\tparam['koreaAirport'] = $('#koreaAirportSelect').val();\n\t\tparam['airlineType'] = $('.sel_min_tab').find('.active').data('type');\n\t\t\n\t\tparam = JSON.stringify(param);\n\t\t\n\t\tvar data = cmm.excel(\"/stats/transport/selectDailyStatisticsByRouteExcel.do\", param, \"일자별통계(노선)\");\n\t}\n\t\n\t\n\t/** 일 세팅 **/\n\tfunction setDateFn(monthSelect) {\n\n\t\tvar date = new Date();\n\t\tvar currentYear = date.getFullYear();\n\t\tvar month = monthSelect.val();\n\t\tvar last = new Date(currentYear, month, 0);\n\t\tvar lastDate = last.getDate();\n\t\tvar dateSelect = monthSelect.next('div').find('select');\n\n\t\tdateSelect.empty();\n\n\t\tfor(var i = 1; i <= lastDate + 1; i++) {\n\n\t\t\tdateSelect.append(\"<option>\" + i + \"</option>\");\n\n\t\t}\n\t}\n\n\t$(function() {\n\n\t\t// da"
+      ],
+      "selectOptions": [
+        {
+          "id": "koreaAirportSelect",
+          "options": []
+        }
+      ],
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/jquery-ui.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dailyRoute.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    }
+  },
+  "helper": {
+    "status": 200,
+    "callSnippets": [
+      "var cmm = {\n\t\n\t// 전역 페이지 수\n\tpageCnt : 10\n\n\t// 전역 리스트 수\n\t, listCnt : 5\n\n\t// jwt 토큰 헤더명\n\t, jwtHeaderName : \"Authorization\"\n\n\t// ajax 호출\n\t, call : function(url, param, callback) {\n\n\t\tvar result = null;\n\t\t\n\t\t// 콜백이 존재하면 비동기(async: true) 통신으로 전환하여 브라우저 UI 멈춤(Freezing) 현상을 해결합니다.\n\t\tvar isAsync = (callback != null && callback != undefined && callback != '');\n\n\t\t$.ajax({\n\t\t\turl: url,\n\t\t\ttype:'POST',\n\t\t\tasync: isAsync,\n\t\t\t//contentType: 'application/x-www-form-urlencoded',\n\t\t\tcontentType: 'application/json;charset=UTF-8',\n\t\t\tdataType: 'json',\n\t\t\tdata: param,\n\n\t\t\tbeforeSend : function(xhr) {\n\t\t\t\txhr.setRequestHeader(\"Authorization\", sessionStorage.getItem(cmm.jwtHeaderName));\n\t\t\t\txhr.setRequestHeader(\"request-call\", \"web-rest\");\n\t\t\t\t//xhr.setRequestHeader(\"Accept\",\"application/json\");\n\t\t\t\t//xhr.setRequestHeader(\"Content-type\",\"application/json\");\n\t\t\t},\n\n\t\t\tsuccess: function (data, status, request) {\n\n\t\t\t\t// 콜백 함수가 있는 경우\n\t\t\t\tif(callback) {\n\n\t\t\t\t\tif (typeof callback === 'function') {\n\t\t\t\t\t\t// 익명 함수 직접 호출 지원 (콜백 객체 자체 실행)\n\t\t\t\t\t\tcallback(data, status, request);\n\t\t\t\t\t} else if( typeof window[callback] == 'function' ) {\n\t\t\t\t\t\t// 기존 레거시: 콜백 이름(String)으로 전달된 전역 함수 호출\n\t\t\t\t\t\twindow[callback](data, status, request);\n\t\t\t\t\t} else {\n\t\t\t\t\t\t// 콜백이 유효한 함수가 아닌 경우 데이터 리턴\n\t\t\t\t\t\tresult = data;\n\t\t\t\t\t}\n\n\t\t\t\t} else {\n\n\t\t\t\t\t// 콜백 함수가 없는 경우 데이터 리턴\n\t\t\t\t\tresult = data;\n\n\t\t\t\t}\n\t\t\t},\n\n\t\t\terror:function(request, status, error) {\n\n\t\t\t\tif(request.status ==",
+      ".status + \"\\n\" + \"message : \" + request.responseText + \"\\n\" + \"error : \" + error);\n\n\t\t\t\treturn;\n\t\t\t\t\n\t\t\t}\n\t\t});\n\n\t\treturn result;\n\n\t}\n\n\t// 엑셀 다운로드\n\t, excel : function(url, param, fileName) {\n\n\t\tvar result = null;\n\n\t\t$.ajax({\n\t\t\turl: url,\n\t\t\ttype:'POST',\n\t\t\tcontentType: 'application/json;charset=UTF-8',\n\t\t\tdata: param,\n\t\t\txhrFields: {\n\t\t\t\tresponseType: \"blob\" // 바이너리 데이터를 받기 위해 설정\n\t\t\t},\n\n\t\t\tbeforeSend : function(xhr) {\n\t\t\t\txhr.setRequestHeader(\"Authorization\", sessionStorage.getItem(cmm.jwtHeaderName));\n\t\t\t\txhr.setRequestHeader(\"request-call\", \"web-rest\");\n\t\t\t},\n\n\t\t\tsuccess: function (data, status, request) {\n\t\t\t\t\n\t\t\t\tif(fileName == null || fileName == undefined || fileName == '') {\n\n\t\t\t\t\tfileName = \"Airportal\";\n\n\t\t\t\t}\n\n\t\t\t\t// Blob 객체 생성\n\t\t\t\tvar blob = new Blob([data], { type: \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\" });\n\n\t\t\t\t// 다운로드 링크 생성 및 클릭\n\t\t\t\tvar link = document.createElement('a');\n\n\t\t\t\tlink.href = window.URL.createObjectURL(blob);\n\t\t\t\tlink.download = fileName;\n\t\t\t\tlink.click();\n\n\t\t\t\t// 메모리 정리\n\t\t\t\twindow.URL.revokeObjectURL(link.href);\n\n\t\t\t},\n\n\t\t\terror:function(request, status, error) {\n\n\t\t\t\talert(\"code : \" + request.status + \"\\n\" + \"message : \" + request.responseText + \"\\n\" + \"error : \" + error);\n\n\t\t\t\treturn;\n\n\t\t\t}\n\t\t});\n\n\t\treturn result;\n\n\t}\n\n\t// csv 다운로드\n\t, csv : function(url, param, fileName) {\n\n\t\tvar result = null;\n\n\t\t$.ajax({\n\t\t\turl: url,\n\t\t\ttype:'POST',\n\t\t\tcontentType: 'application/json;c"
+    ]
+  }
+}
