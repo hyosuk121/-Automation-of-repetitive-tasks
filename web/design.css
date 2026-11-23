@@ -182,3 +182,9 @@ dialog::backdrop { background: #1c294d55; backdrop-filter: blur(2px); }
   .release-card .release-published strong { font-size: 16px; }
   .release-description .release-notes { padding: 14px; }
 }
+.aviation-preview { border-block: 1px solid var(--border); }
+.aviation-preview .panel-heading { padding-block: 14px; }
+.aviation-preview .help-content { padding: 24px; }
+.aviation-preview h3 { margin: 24px 0 12px; }
+.aviation-preview meter { display: block; }
+#aviation-available-month select { margin-left: 8px; min-height: 34px; border: 1px solid var(--border); border-radius: 6px; background: white; }

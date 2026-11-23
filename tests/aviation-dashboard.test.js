@@ -4,3 +4,10 @@ test('preview excludes every ambiguous row and never adds transfers or missing d
  const result=summarizeRows([row,{...row,totalEff:'200'},{...row,airportCode:'KIX',totalEff:'50'},{...row,airportCode:'YCU',nationCode:'',nationName:''},{...row,yearMonth:'202610'}],'202609');
  assert.equal(result.total,4);assert.equal(result.excluded,3);assert.equal(result.countries.find(c=>c.name==='일본').paid,50);assert.equal(result.countries.find(c=>c.name==='국가 미분류').included,0);
 });
+test('country code groups labels together and unsafe totals stay out of the preview',()=>{
+ const result=summarizeRows([{...row,airportCode:'NRT',totalEff:'100'}, {...row,airportCode:'KIX',nationName:'일본 ',totalEff:'200'}, {...row,airportCode:'HND',totalEff:String(Number.MAX_SAFE_INTEGER)}],'202609');
+ assert.equal(result.countries.length,1);
+ assert.equal(result.countries[0].paid,300);
+ assert.equal(result.excluded,1);
+ assert.equal(result.rows[2].reason,'합계 범위 초과');
+});
