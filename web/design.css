@@ -188,3 +188,31 @@ dialog::backdrop { background: #1c294d55; backdrop-filter: blur(2px); }
 .aviation-preview h3 { margin: 24px 0 12px; }
 .aviation-preview meter { display: block; }
 #aviation-available-month select { margin-left: 8px; min-height: 34px; border: 1px solid var(--border); border-radius: 6px; background: white; }
+.aviation-preview-heading { align-items: flex-start; }
+.aviation-preview-heading p { margin-top: 4px; color: var(--muted); font-size: 12px; }
+.aviation-preview-heading label { white-space: nowrap; color: var(--muted); font-size: 12px; }
+.aviation-preview-heading select, #aviation-month { min-height: 38px; margin-left: 8px; padding: 6px 10px; border: 1px solid #dce3ed; border-radius: 8px; color: var(--ink); background: white; font: inherit; }
+.aviation-preview-body { padding: 24px; }
+.aviation-quality { border: 1px solid #dfe7f6; border-radius: 9px; background: #f3f6fc; padding: 14px 18px; }
+.aviation-quality strong { color: #435988; }
+.aviation-quality p { margin: 4px 0 0; color: #607292; font-size: 12px; line-height: 1.7; }
+.aviation-kpis { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin: 20px 0 28px; }
+.aviation-kpis > div { border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; }
+.aviation-kpis span { display: block; font-size: 12px; color: var(--muted); }
+.aviation-kpis strong { display: block; margin-top: 4px; font-size: 22px; font-variant-numeric: tabular-nums; }
+.aviation-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.aviation-section-heading h3 { margin: 0 0 15px; font-size: 15px; }
+.aviation-section-heading span, .aviation-source-note { color: var(--muted); font-size: 12px; }
+.aviation-bar-row { margin: 0 0 15px; }
+.aviation-bar-caption { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; margin-bottom: 6px; font-size: 13px; }
+.aviation-bar-caption small { color: var(--muted); }
+.aviation-bar-caption em { margin-left: 8px; color: #9b681e; font-size: 11px; font-style: normal; }
+.aviation-bar-caption strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.aviation-bar-track { height: 9px; overflow: hidden; border-radius: 20px; background: #e9edf4; }
+.aviation-bar-track span { display: block; height: 100%; border-radius: inherit; background: #4e67d7; }
+.aviation-details { border-top: 1px solid var(--border); padding: 14px 0; }
+.aviation-details summary { cursor: pointer; font-weight: 600; color: #43536c; }
+.aviation-details .table-scroll, .aviation-details ul { margin-top: 14px; }
+.aviation-source-table { max-height: 440px; overflow: auto; }
+.aviation-empty { padding: 24px; color: var(--muted); }
+@media(max-width:800px){.aviation-preview-heading{flex-wrap:wrap}.aviation-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.aviation-preview-body{padding:16px}}

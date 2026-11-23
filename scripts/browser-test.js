@@ -55,7 +55,7 @@ try{
   await page.getByRole('button',{name:'항공 데이터 보기'}).click();
   await page.getByRole('heading',{name:'시장·계절 패턴'}).waitFor();
   await page.getByRole('button',{name:'최근 변화',exact:true}).click();
-  await page.getByRole('heading',{name:'일별 데이터 미연결'}).waitFor();
+  await page.getByRole('heading',{name:'일별 변화'}).waitFor();
   await page.locator('[data-home]').first().click();
   await page.getByRole('button',{name:'다음 도구'}).click();
   await page.getByRole('button',{name:'이전 도구'}).click();
@@ -90,6 +90,23 @@ try{
   await page.getByRole('button',{name:'조회 및 응답 보관',exact:true}).click();
   await page.locator('#aviation-result').getByText('Vercel에 INCHEON_API_SERVICE_KEY를 입력하고 재배포해 주세요.',{exact:true}).waitFor();
   await page.getByRole('button',{name:'닫기',exact:true}).click();
+  await page.route('**/api/aviation/archives**',route=>{
+    const detail=/\/archives\/fixture$/.test(new URL(route.request().url()).pathname);
+    return route.fulfill({contentType:'application/json',body:JSON.stringify(detail?{source_rows:[
+      {yearMonth:'202609',nationCode:'JP',nationName:'일본',airlineIataCode:'AA',airportCode:'NRT',regularCode:'0',departuresOrArrivals:'D',paxCode:'Y',totalEff:'100',totalNff:'0',totalTrf:'5',flightCount:'1'},
+      {yearMonth:'202609',nationCode:'',nationName:'',airlineIataCode:'BB',airportCode:'YCU',regularCode:'1',departuresOrArrivals:'D',paxCode:'Y',totalEff:'20',totalNff:'0',totalTrf:'0',flightCount:'1'}
+    ]}:{archives:[{id:'fixture',months:['202609'],row_count:2,quality:'review_required',first_seen_at:'2026-10-01T00:00:00Z',last_seen_at:'2026-10-02T00:00:00Z'}],checks:[]})});
+  });
+  await page.goto(base+'/aviation');
+  await page.getByRole('heading',{name:'2026.09 국가별 관측'}).waitFor();
+  assert.equal(await page.locator('#aviation-month').count(),1);
+  assert.equal(await page.locator('#aviation-country').inputValue(),'all');
+  await page.locator('#aviation-country').selectOption('__missing__');
+  await page.getByText('이 조건에 집계 가능한 행이 없습니다.').waitFor();
+  await page.locator('#aviation-country').selectOption('all');
+  await page.getByText('100명',{exact:true}).waitFor();
+  await page.unroute('**/api/aviation/archives**');
+  await page.locator('[data-home]').first().click();
   await page.getByRole('button',{name:'실행하기',exact:true}).click();
   await page.getByRole('button',{name:'경쟁사 등록',exact:true}).click();
   await page.getByLabel(/경쟁사명/).fill('테스트 경쟁사');
