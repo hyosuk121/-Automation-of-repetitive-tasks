@@ -21,6 +21,8 @@ for(const [name,url] of Object.entries(pages)){
   const $=load(html);
   result.pages[name]={
    status:response.status,url:final.href,title:clean($('title').text()),
+   controls:$('input,select').toArray().slice(0,100).map(el=>({tag:el.tagName,id:clean($(el).attr('id')),name:clean($(el).attr('name')),type:clean($(el).attr('type'))})).filter(x=>x.id||x.name),
+   inlinePaths:[...new Set($('script:not([src])').toArray().flatMap(el=>($(el).html()||'').match(/[\w./-]+\.(?:do|json|csv|xlsx?)/g)||[]))].filter(path=>!path.includes('..')).slice(0,120),
    forms:$('form').toArray().slice(0,25).map(el=>({method:clean($(el).attr('method')||'GET').toUpperCase(),action:absolute($(el).attr('action')||'',final.href),fields:$(el).find('input[name],select[name],textarea[name]').toArray().slice(0,60).map(field=>({name:clean($(field).attr('name')),type:clean($(field).attr('type')||field.tagName)}))})),
    scripts:$('script[src]').toArray().map(el=>absolute($(el).attr('src'),final.href)).filter(Boolean).slice(0,60),
    candidateLinks:$('a[href]').toArray().filter(el=>/다운로드|엑셀|excel|csv|api|통계/i.test($(el).text()+' '+$(el).attr('href'))).slice(0,40).map(el=>({label:clean($(el).text()),href:absolute($(el).attr('href'),final.href)}))
