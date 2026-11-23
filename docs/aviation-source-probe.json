@@ -1,0 +1,531 @@
+{
+  "checkedAt": "2026-11-23T05:46:07.638Z",
+  "pages": {
+    "monthlyCountry": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/chartDetail4.do",
+      "title": "항공정보포털시스템",
+      "controls": [
+        {
+          "tag": "input",
+          "id": "headerSearchText",
+          "name": "",
+          "type": "text"
+        },
+        {
+          "tag": "select",
+          "id": "startYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "startMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "snGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "passGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "cargeGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "pYNGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "arvlType",
+          "name": "",
+          "type": ""
+        }
+      ],
+      "inlinePaths": [
+        "/library/ebookSearchList.do",
+        "/login/login.do",
+        "/login/userInfo.do",
+        "/oauth2/removeAccessToken.do",
+        "/getMainMenu.do",
+        "/airport/airport.do",
+        "/airport/aircraftInfo.do",
+        "//aim.koca.go.kr/aim/main.do",
+        "/airline/airCompanyInfo.do",
+        "/airline/airplaneSchedule.do",
+        "/airline/invest.do",
+        "/airline/reservation.do",
+        "/airplane/airplaneInfo.do",
+        "/airplane/uamMain.do",
+        "/airplane/leisure.do",
+        "/stats/transport/dashboard.do",
+        "/stats/industry/industryTransit.do",
+        "/stats/survey/odMain.do",
+        "/stats/leisure/flight01.do",
+        ".pdf/downloadFile.do",
+        "/library/history.do",
+        "/library/statute.do",
+        "/library/ebookLink.do",
+        "/library/international.do",
+        "/library/ebookinfo.do",
+        "/library/safety.do",
+        "/library/security.do",
+        "/news/eventAirzine.do",
+        "/news/newsMain.do",
+        "/news/eventScheduleImg.do",
+        "/news/airplaneVideo.do",
+        "/work/workMain.do",
+        "/work/employment/workList.do",
+        "/work/fair/workFair.do",
+        "/work/guide/jobQuest.do",
+        "/work/program/programList.do",
+        "/work/alarm/alarmBoardList.do",
+        "/work/center/center.do",
+        "/oauth2/oauthLogin.do",
+        "/main.do",
+        "/search/searchResult.do",
+        "/login/checkPw.do",
+        "/login/logoutProc.do",
+        "/stats/leisure/certification01.do",
+        "/stats/leisure/accident.do",
+        "/stats/leisure/etc.do",
+        "/stats/industry/industryData.do",
+        "/stats/industry/industryAirData.do",
+        "/stats/industry/industryWork.do",
+        "/stats/industry/industryAirplane.do",
+        "/stats/industry/oilPrice.do",
+        "/common/getNationGubun.do",
+        "/stats/transport/getAirTransportStatsYearMonthCount.do",
+        "/stats/transport/getDetailedAirTransportStats4TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats4Excel.do",
+        "/stats/transport/getDetailedAirTransportStats4Time.do",
+        "/stats/transport/getDetailedAirTransportStats4.do"
+      ],
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/chartDetail4.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    },
+    "monthlySeries": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/chartDetail5.do",
+      "title": "항공정보포털시스템",
+      "controls": [
+        {
+          "tag": "input",
+          "id": "headerSearchText",
+          "name": "",
+          "type": "text"
+        },
+        {
+          "tag": "select",
+          "id": "startYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "startMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endYear",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "endMonth",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "input",
+          "id": "division01",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division02",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division03",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division04",
+          "name": "division",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division13",
+          "name": "division2",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division11",
+          "name": "division2",
+          "type": "radio"
+        },
+        {
+          "tag": "input",
+          "id": "division12",
+          "name": "division2",
+          "type": "radio"
+        },
+        {
+          "tag": "select",
+          "id": "diGubun",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "arvlType",
+          "name": "",
+          "type": ""
+        }
+      ],
+      "inlinePaths": [
+        "/library/ebookSearchList.do",
+        "/login/login.do",
+        "/login/userInfo.do",
+        "/oauth2/removeAccessToken.do",
+        "/getMainMenu.do",
+        "/airport/airport.do",
+        "/airport/aircraftInfo.do",
+        "//aim.koca.go.kr/aim/main.do",
+        "/airline/airCompanyInfo.do",
+        "/airline/airplaneSchedule.do",
+        "/airline/invest.do",
+        "/airline/reservation.do",
+        "/airplane/airplaneInfo.do",
+        "/airplane/uamMain.do",
+        "/airplane/leisure.do",
+        "/stats/transport/dashboard.do",
+        "/stats/industry/industryTransit.do",
+        "/stats/survey/odMain.do",
+        "/stats/leisure/flight01.do",
+        ".pdf/downloadFile.do",
+        "/library/history.do",
+        "/library/statute.do",
+        "/library/ebookLink.do",
+        "/library/international.do",
+        "/library/ebookinfo.do",
+        "/library/safety.do",
+        "/library/security.do",
+        "/news/eventAirzine.do",
+        "/news/newsMain.do",
+        "/news/eventScheduleImg.do",
+        "/news/airplaneVideo.do",
+        "/work/workMain.do",
+        "/work/employment/workList.do",
+        "/work/fair/workFair.do",
+        "/work/guide/jobQuest.do",
+        "/work/program/programList.do",
+        "/work/alarm/alarmBoardList.do",
+        "/work/center/center.do",
+        "/oauth2/oauthLogin.do",
+        "/main.do",
+        "/search/searchResult.do",
+        "/login/checkPw.do",
+        "/login/logoutProc.do",
+        "/stats/leisure/certification01.do",
+        "/stats/leisure/accident.do",
+        "/stats/leisure/etc.do",
+        "/stats/industry/industryData.do",
+        "/stats/industry/industryAirData.do",
+        "/stats/industry/industryWork.do",
+        "/stats/industry/industryAirplane.do",
+        "/stats/industry/oilPrice.do",
+        "/common/getAirlineGubun.do",
+        "/stats/transport/getAirTransportStatsYearMonthCount.do",
+        "/stats/transport/getDetailedAirTransportStats1TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats2TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats3TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats4TimeExcel.do",
+        "/stats/transport/getDetailedAirTransportStats1Time.do",
+        "/stats/transport/getDetailedAirTransportStats2Time.do",
+        "/stats/transport/getDetailedAirTransportStats3Time.do",
+        "/stats/transport/getDetailedAirTransportStats4Time.do"
+      ],
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/chartDetail5.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    },
+    "dailyRoute": {
+      "status": 200,
+      "url": "https://www.airportal.go.kr/stats/transport/dailyRoute.do",
+      "title": "항공정보포털시스템",
+      "controls": [
+        {
+          "tag": "input",
+          "id": "headerSearchText",
+          "name": "",
+          "type": "text"
+        },
+        {
+          "tag": "input",
+          "id": "startDate",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "input",
+          "id": "endDate",
+          "name": "",
+          "type": ""
+        },
+        {
+          "tag": "select",
+          "id": "koreaAirportSelect",
+          "name": "",
+          "type": ""
+        }
+      ],
+      "inlinePaths": [
+        "/library/ebookSearchList.do",
+        "/login/login.do",
+        "/login/userInfo.do",
+        "/oauth2/removeAccessToken.do",
+        "/getMainMenu.do",
+        "/airport/airport.do",
+        "/airport/aircraftInfo.do",
+        "//aim.koca.go.kr/aim/main.do",
+        "/airline/airCompanyInfo.do",
+        "/airline/airplaneSchedule.do",
+        "/airline/invest.do",
+        "/airline/reservation.do",
+        "/airplane/airplaneInfo.do",
+        "/airplane/uamMain.do",
+        "/airplane/leisure.do",
+        "/stats/transport/dashboard.do",
+        "/stats/industry/industryTransit.do",
+        "/stats/survey/odMain.do",
+        "/stats/leisure/flight01.do",
+        ".pdf/downloadFile.do",
+        "/library/history.do",
+        "/library/statute.do",
+        "/library/ebookLink.do",
+        "/library/international.do",
+        "/library/ebookinfo.do",
+        "/library/safety.do",
+        "/library/security.do",
+        "/news/eventAirzine.do",
+        "/news/newsMain.do",
+        "/news/eventScheduleImg.do",
+        "/news/airplaneVideo.do",
+        "/work/workMain.do",
+        "/work/employment/workList.do",
+        "/work/fair/workFair.do",
+        "/work/guide/jobQuest.do",
+        "/work/program/programList.do",
+        "/work/alarm/alarmBoardList.do",
+        "/work/center/center.do",
+        "/oauth2/oauthLogin.do",
+        "/main.do",
+        "/search/searchResult.do",
+        "/login/checkPw.do",
+        "/login/logoutProc.do",
+        "/stats/leisure/certification01.do",
+        "/stats/leisure/accident.do",
+        "/stats/leisure/etc.do",
+        "/stats/industry/industryData.do",
+        "/stats/industry/industryAirData.do",
+        "/stats/industry/industryWork.do",
+        "/stats/industry/industryAirplane.do",
+        "/stats/industry/oilPrice.do",
+        "/stats/transport/selectDailyStatisticsByRoute.do",
+        "/stats/transport/selectDailyStatisticsByRouteExcel.do"
+      ],
+      "forms": [],
+      "scripts": [
+        "https://www.airportal.go.kr/js/egovframework/url/jquery.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/moment.min.js",
+        "https://www.airportal.go.kr/js/egovframework/core.min.js",
+        "https://www.airportal.go.kr/js/egovframework/sha256.min.js",
+        "https://www.airportal.go.kr/js/egovframework/util.js",
+        "https://www.airportal.go.kr/js/egovframework/default.js",
+        "https://www.airportal.go.kr/js/egovframework/skydesign/layout.js",
+        "https://www.airportal.go.kr/js/egovframework/url/swiper-bundle.min.js",
+        "https://www.airportal.go.kr/js/egovframework/url/jquery-ui.js"
+      ],
+      "candidateLinks": [
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dailyRoute.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "항공통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공운송통계",
+          "href": "https://www.airportal.go.kr/stats/transport/dashboard.do"
+        },
+        {
+          "label": "항공여객OD조사통계",
+          "href": "https://www.airportal.go.kr/stats/survey/odMain.do"
+        },
+        {
+          "label": "레저통계",
+          "href": "https://www.airportal.go.kr/stats/leisure/flight01.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        },
+        {
+          "label": "일자별 통계",
+          "href": "https://www.airportal.go.kr/stats/transport/liveAirplane.do"
+        }
+      ]
+    }
+  }
+}
