@@ -30,7 +30,7 @@ test('public APIs isolate the published owner, strip internal data, cache only s
   assert.equal((await fetch(base+`/api/public/store-apps/${privateApp.id}/history`)).status,404);
   assert.equal((await fetch(base+'/api/public/rankings?days=7')).status,200);
   for(const [path,method] of [['/api/public/competitors','POST'],['/api/public/competitors','DELETE'],['/api/public/imports/july','POST']])assert.equal((await fetch(base+path,{method})).status,405);
-  for(const [path,method] of [['/api/competitors','POST'],[`/api/competitors/${a.id}`,'PATCH'],[`/api/competitors/${a.id}`,'DELETE'],['/api/collections','POST'],['/api/automation/install','POST'],['/api/export','GET'],['/api/aviation/status','GET'],['/api/aviation/inspect','POST'],['/api/aviation/capture','POST'],['/api/aviation/archives','GET'],['/api/aviation/personal','GET'],['/api/aviation/personal','POST']]){
+  for(const [path,method] of [['/api/competitors','POST'],[`/api/competitors/${a.id}`,'PATCH'],[`/api/competitors/${a.id}`,'DELETE'],['/api/collections','POST'],['/api/automation/install','POST'],['/api/export','GET'],['/api/aviation/status','GET'],['/api/aviation/inspect','POST'],['/api/aviation/capture','POST'],['/api/aviation/archives','GET'],['/api/aviation/portal','GET'],['/api/aviation/personal','GET'],['/api/aviation/personal','POST']]){
    const result=await fetch(base+path,{method,headers:{origin:base}});assert.equal(result.status,401);assert.equal(result.headers.get('cache-control'),'no-store');
   }
   await db.query('UPDATE competitors SET archived_at=now() WHERE id=$1',[a.id]);

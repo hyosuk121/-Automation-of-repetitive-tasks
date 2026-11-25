@@ -55,7 +55,7 @@ try{
   await page.getByRole('button',{name:'항공 데이터 보기'}).click();
   await page.getByRole('heading',{name:'시장·계절 패턴'}).waitFor();
   await page.getByRole('button',{name:'최근 변화',exact:true}).click();
-  await page.getByRole('heading',{name:'일별 변화'}).waitFor();
+  await page.getByRole('heading',{name:'최근 변화'}).waitFor();
   await page.locator('[data-home]').first().click();
   await page.getByRole('button',{name:'다음 도구'}).click();
   await page.getByRole('button',{name:'이전 도구'}).click();
@@ -90,6 +90,10 @@ try{
   await page.getByRole('button',{name:'조회 및 응답 보관',exact:true}).click();
   await page.locator('#aviation-result').getByText('Vercel에 INCHEON_API_SERVICE_KEY를 입력하고 재배포해 주세요.',{exact:true}).waitFor();
   await page.getByRole('button',{name:'닫기',exact:true}).click();
+  await page.route('**/api/aviation/portal',route=>{
+    const daily=Array.from({length:14},(_,i)=>{const date=new Date('2026-11-01T00:00:00Z');date.setUTCDate(date.getUTCDate()+i);return {period:date.toISOString().slice(0,10).replaceAll('-',''),kind:'daily',status:'observed',countries:[{code:'JP',value:i+1}]};});
+    return route.fulfill({contentType:'application/json',body:JSON.stringify({monthly:[{period:'202101',kind:'monthly',status:'observed',countries:[{code:'JP',value:50}]}],daily,checks:[]})});
+  });
   await page.route('**/api/aviation/archives**',route=>{
     const detail=/\/archives\/fixture$/.test(new URL(route.request().url()).pathname);
     return route.fulfill({contentType:'application/json',body:JSON.stringify(detail?{source_rows:[
@@ -100,6 +104,8 @@ try{
   });
   await page.goto(base+'/aviation');
   await page.getByRole('heading',{name:'2026.09 국가별 관측'}).waitFor();
+  await page.getByRole('heading',{name:'인천공항 국제선 출발 · 월간 유임여객'}).waitFor();
+  await page.getByText('월별 계절 패턴 보기 · 미확보 월은 —').waitFor();
   assert.equal(await page.locator('#aviation-month').count(),1);
   assert.equal(await page.locator('#aviation-country').inputValue(),'all');
   await page.locator('#aviation-country').selectOption('__missing__');
@@ -107,9 +113,12 @@ try{
   await page.locator('#aviation-country').selectOption('all');
   await page.getByText('100명',{exact:true}).waitFor();
   await page.getByRole('button',{name:'최근 변화',exact:true}).click();
+  await page.getByRole('heading',{name:'인천공항 국제선 출발 · 일별 여객'}).waitFor();
+  await page.locator('.aviation-kpis span').getByText('최근 7일',{exact:true}).waitFor();
   await page.getByRole('heading',{name:'최근 두 실적월 · 주요 국가 관측값'}).waitFor();
   await page.locator('#aviation-comparison').getByText('90',{exact:true}).waitFor();
   await page.unroute('**/api/aviation/archives**');
+  await page.unroute('**/api/aviation/portal');
   await page.locator('[data-home]').first().click();
   await page.getByRole('button',{name:'실행하기',exact:true}).click();
   await page.getByRole('button',{name:'경쟁사 등록',exact:true}).click();

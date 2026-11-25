@@ -220,4 +220,16 @@ dialog::backdrop { background: #1c294d55; backdrop-filter: blur(2px); }
 .aviation-recent-intro p { margin: 0 0 8px; }
 #aviation-comparison { margin: 18px 0 26px; }
 #aviation-comparison > p { color: var(--muted); font-size: 12px; }
+.aviation-portal-controls { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+.aviation-portal-controls label { color: var(--muted); font-size: 12px; }
+.aviation-portal-controls select { margin-left: 8px; min-height: 36px; padding: 5px 9px; border: 1px solid var(--border); border-radius: 7px; background: white; }
+.portal-bars { display: flex; gap: 7px; overflow-x: auto; padding: 30px 0 14px; min-height: 230px; border-bottom: 1px solid var(--border); }
+.portal-bar { display: flex; flex: 1 0 38px; flex-direction: column; align-items: center; min-width: 38px; text-align: center; font-size: 11px; color: var(--muted); }
+.portal-bar strong { font-size: 10px; font-weight: 500; white-space: nowrap; }
+.portal-bar-track { display: flex; align-items: end; justify-content: center; width: 100%; height: 145px; margin: 7px 0; background: #f4f6fa; border-radius: 4px; }
+.portal-bar-track span { display: block; width: 70%; min-height: 2px; border-radius: 3px 3px 0 0; background: #4e67d7; }
+.portal-bar small { white-space: nowrap; font-size: 10px; }
+.portal-seasonality { min-width: 900px; text-align: right; }
+.portal-seasonality th:first-child { position: sticky; left: 0; background: white; z-index: 1; }
+.portal-seasonality td { padding: 8px; font-size: 11px; }
 @media(max-width:800px){.aviation-preview-heading{flex-wrap:wrap}.aviation-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.aviation-preview-body{padding:16px}}
