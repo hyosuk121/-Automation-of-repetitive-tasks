@@ -103,8 +103,10 @@ try{
     ]}:{archives:[{id:'fixture',months:['202608','202609'],row_count:3,quality:'review_required',first_seen_at:'2026-10-01T00:00:00Z',last_seen_at:'2026-10-02T00:00:00Z'}],monthArchives:['202609','202608'].map(month=>({id:'fixture',months:[month],row_count:3,quality:'review_required',first_seen_at:'2026-10-01T00:00:00Z',last_seen_at:'2026-10-02T00:00:00Z'})),checks:[]})});
   });
   await page.goto(base+'/aviation');
+  await page.locator('.aviation-legacy > summary').first().click();
   await page.getByRole('heading',{name:'2026.09 국가별 관측'}).waitFor();
   await page.getByRole('heading',{name:'인천공항 국제선 출발 · 월간 유임여객'}).waitFor();
+  await page.locator('#aviation-portal-market .portal-coverage').getByText('1개월').waitFor();
   await page.getByText('월별 계절 패턴 보기 · 미확보 월은 —').waitFor();
   assert.equal(await page.locator('#aviation-month').count(),1);
   assert.equal(await page.locator('#aviation-country').inputValue(),'all');
@@ -115,6 +117,7 @@ try{
   await page.getByRole('button',{name:'최근 변화',exact:true}).click();
   await page.getByRole('heading',{name:'인천공항 국제선 출발 · 일별 여객'}).waitFor();
   await page.locator('.aviation-kpis span').getByText('최근 7일',{exact:true}).waitFor();
+  await page.locator('.aviation-legacy > summary').first().click();
   await page.getByRole('heading',{name:'최근 두 실적월 · 주요 국가 관측값'}).waitFor();
   await page.locator('#aviation-comparison').getByText('90',{exact:true}).waitFor();
   await page.unroute('**/api/aviation/archives**');

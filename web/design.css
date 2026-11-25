@@ -232,4 +232,13 @@ dialog::backdrop { background: #1c294d55; backdrop-filter: blur(2px); }
 .portal-seasonality { min-width: 900px; text-align: right; }
 .portal-seasonality th:first-child { position: sticky; left: 0; background: white; z-index: 1; }
 .portal-seasonality td { padding: 8px; font-size: 11px; }
+.portal-coverage { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 18px; }
+.portal-coverage > div { display: flex; flex-direction: column; gap: 5px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 9px; background: #f8faff; }
+.portal-coverage span, .portal-coverage small { color: var(--muted); font-size: 11px; }
+.portal-coverage strong { color: var(--ink); font-size: 15px; line-height: 1.4; }
+.aviation-legacy { margin: 18px 0; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.aviation-legacy > summary { cursor: pointer; padding: 16px 20px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.aviation-legacy[open] > summary { border-bottom: 1px solid var(--border); }
+.aviation-legacy > .data-panel, .aviation-legacy > .notice { margin: 12px; }
+@media (max-width: 700px) { .portal-coverage { grid-template-columns: 1fr; } }
 @media(max-width:800px){.aviation-preview-heading{flex-wrap:wrap}.aviation-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.aviation-preview-body{padding:16px}}

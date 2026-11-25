@@ -347,7 +347,7 @@ setInterval(()=>{if(state.user && !document.hidden && !$('#modal').open && !$('#
 
 async function aviationCheck(){
  if(needsLogin())return;
- modal('항공 데이터 · API 연결 확인',`<div class="help-content"><p>공식 월간 API의 출발·여객편을 조회합니다. 정기편과 부정기편의 전체 페이지를 확인하며, 최대 90초가 걸릴 수 있습니다.</p><p>조회가 완료되면 응답 항목을 모두 보관합니다. 검토가 필요한 행도 삭제하지 않으며, 확정 통계로 합산하지 않습니다. 기존 자동 실행이 설정되어 있으면 오전 9시 이후 실행 여유가 있는 회차에 하루 한 번 응답을 보관합니다. 과거 연월 조회·일별 자료는 아직 연결되지 않았습니다.</p><p>Vercel → Settings → Environment Variables에 <strong>INCHEON_API_SERVICE_KEY</strong>를 입력하고 재배포해 주세요.</p><button class="button primary" id="aviation-inspect">조회 및 응답 보관</button><div id="aviation-result" role="status" aria-live="polite"></div><hr><h3>보관된 월간 응답</h3><p>수치가 변경되면 새 응답으로 남기고, 동일 응답은 확인 횟수만 갱신합니다. 최신 50건을 표시합니다.</p><div id="aviation-archives"></div></div>`,true);
+ modal('항공 데이터 · API 연결 확인',`<div class="help-content"><p>공식 월간 API의 출발·여객편을 조회합니다. 정기편과 부정기편의 전체 페이지를 확인하며, 최대 90초가 걸릴 수 있습니다.</p><p>조회가 완료되면 응답 항목을 모두 보관합니다. 검토가 필요한 행도 삭제하지 않으며, 확정 통계로 합산하지 않습니다. 기존 자동 실행이 설정되어 있으면 오전 9시 이후 실행 여유가 있는 회차에 하루 한 번 응답을 보관합니다. 이 API 자체에는 과거 연월·일별 조회가 없으며, 해당 자료는 항공정보포털 공개 통계 경로에서 별도로 수집합니다.</p><p>Vercel → Settings → Environment Variables에 <strong>INCHEON_API_SERVICE_KEY</strong>를 입력하고 재배포해 주세요.</p><button class="button primary" id="aviation-inspect">조회 및 응답 보관</button><div id="aviation-result" role="status" aria-live="polite"></div><hr><h3>보관된 월간 응답</h3><p>수치가 변경되면 새 응답으로 남기고, 동일 응답은 확인 횟수만 갱신합니다. 최신 50건을 표시합니다.</p><div id="aviation-archives"></div></div>`,true);
  const button=$('#aviation-inspect'),result=$('#aviation-result');
  const archives=$('#aviation-archives');
  async function showArchives(){
