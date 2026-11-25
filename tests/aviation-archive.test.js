@@ -62,5 +62,7 @@ test('daily archive checks are KST scoped, lease protected, retry bounded, and f
   await d.query("INSERT INTO aviation_daily_checks(owner_id,check_day,status,lease_token,retry_after) VALUES($1,'2026-11-22','running',gen_random_uuid(),'2026-11-22T00:03:00Z')",[owner]);
   await collectAviationDaily(d,{...options,at:new Date('2026-11-22T00:01:00Z')});assert.equal(calls,4);
   await collectAviationDaily(d,{...options,at:new Date('2026-11-22T00:04:00Z')});assert.equal(calls,5);
+  assert.equal((await collectAviationDaily(d,{...options,at:new Date('2026-11-22T15:00:00Z'),force:true})).status,'succeeded');
+  assert.equal(calls,6);
  }finally{await d.close();}
 });

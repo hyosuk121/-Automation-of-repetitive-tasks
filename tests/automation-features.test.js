@@ -83,6 +83,7 @@ test('authenticated setup status/import/ranking routes and server-only cron POST
   assert.equal((await fetch(base+'/api/automation/schema',{method:'POST',headers:{authorization:'admin',origin:'https://evil.test'}})).status,403);
   assert.equal((await fetch(base+'/api/automation',{headers:{authorization:'admin'}})).status,200);
   assert.equal((await fetch(base+'/api/cron',{method:'POST'})).status,401);
+  assert.equal((await fetch(base+'/api/cron/aviation')).status,401);
   const tick=await fetch(base+'/api/cron',{method:'POST',headers:{authorization:'Bearer fixture-only-secret'}});
   assert.equal(tick.status,200);assert.ok((await tick.json()).processed>=1);
   assert.equal((await automationStatus(d)).lastTick.status,'succeeded');

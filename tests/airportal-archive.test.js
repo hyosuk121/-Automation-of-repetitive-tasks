@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {PGlite} from '@electric-sql/pglite';
 import {applyFeatureSchema} from '../lib/automation.js';
 import {capturePortal,listPortalSnapshots} from '../lib/airportal-archive.js';
-import {collectPortalTick,portalPeriods} from '../lib/airportal-schedule.js';
+import {collectPortalTick,collectPortalNightly,portalPeriods} from '../lib/airportal-schedule.js';
 import {fetchPortal} from '../lib/airportal-source.js';
 const owner='00000000-0000-4000-8000-000000000001',other='00000000-0000-4000-8000-000000000002';
 const samples=JSON.parse(await readFile(new URL('./fixtures/airportal-observed-20261123.json',import.meta.url),'utf8'));
@@ -31,5 +31,16 @@ test('portal scheduler claims one missing day and month per tick after 09 KST',a
   assert.equal((await collectPortalTick(db,{...options,at:new Date('2026-11-22T23:59:00Z')})).status,'not_due');
   await collectPortalTick(db,options);await collectPortalTick(db,options);
   assert.deepEqual(calls,[['daily','20261115'],['monthly','202610'],['daily','20261114'],['monthly','202609']]);
+ }finally{await db.close();}
+});
+test('midnight aviation run batches missing periods and records its own completion',async()=>{
+ const db=new PGlite();try{
+  await db.exec(await readFile('supabase/migrations/20261020000000_initial.sql','utf8'));await applyFeatureSchema(db);
+  const calls=[],capture=async(_db,_owner,kind,period)=>{calls.push([kind,period]);return {snapshot:{id:'test'},status:'observed'};};
+  const result=await collectPortalNightly(db,{at:new Date('2026-11-24T15:00:00Z'),resolveOwner:async()=>owner,capture,maxIterations:3});
+  assert.equal(result.status,'succeeded');assert.equal(result.monthly,3);assert.equal(result.daily,3);
+  assert.deepEqual(calls.filter(([kind])=>kind==='monthly').map(([,period])=>period),['202610','202609','202608']);
+  const run=(await db.query('SELECT status,summary FROM aviation_portal_runs WHERE owner_id=$1',[owner])).rows[0];
+  assert.equal(run.status,'succeeded');assert.equal(run.summary.iterations,3);
  }finally{await db.close();}
 });

@@ -92,7 +92,7 @@ try{
   await page.getByRole('button',{name:'닫기',exact:true}).click();
   await page.route('**/api/aviation/portal',route=>{
     const daily=Array.from({length:14},(_,i)=>{const date=new Date('2026-11-01T00:00:00Z');date.setUTCDate(date.getUTCDate()+i);return {period:date.toISOString().slice(0,10).replaceAll('-',''),kind:'daily',status:'observed',countries:[{code:'JP',value:i+1}]};});
-    return route.fulfill({contentType:'application/json',body:JSON.stringify({monthly:[{period:'202101',kind:'monthly',status:'observed',countries:[{code:'JP',value:50}]}],daily,checks:[],automation:{schedulerInstalled:true,lastTick:{started_at:'2026-11-23T00:00:00Z',status:'succeeded'}}})});
+    return route.fulfill({contentType:'application/json',body:JSON.stringify({monthly:[{period:'202101',kind:'monthly',status:'observed',countries:[{code:'JP',value:50}]}],daily,checks:[],nightly:{started_at:'2026-11-23T15:00:00Z',status:'succeeded',summary:{monthly:1,daily:1}}})});
   });
   await page.route('**/api/aviation/archives**',route=>{
     const detail=/\/archives\/fixture$/.test(new URL(route.request().url()).pathname);
@@ -107,7 +107,7 @@ try{
   await page.getByRole('heading',{name:'2026.09 국가별 관측'}).waitFor();
   await page.getByRole('heading',{name:'인천공항 국제선 출발 · 월간 유임여객'}).waitFor();
   await page.locator('#aviation-portal-market .portal-coverage').getByText('1개월').waitFor();
-  await page.locator('#aviation-portal-market .portal-automation-status').getByText('Supabase 5분 간격 등록됨').waitFor();
+  await page.locator('#aviation-portal-market .portal-automation-status').getByText('항공 자동 수집 · 매일 00:00').waitFor();
   await page.getByText('월별 계절 패턴 보기 · 미확보 월은 —').waitFor();
   assert.equal(await page.locator('#aviation-month').count(),1);
   assert.equal(await page.locator('#aviation-country').inputValue(),'all');
