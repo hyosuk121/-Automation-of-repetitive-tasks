@@ -233,6 +233,8 @@ dialog::backdrop { background: #1c294d55; backdrop-filter: blur(2px); }
 .portal-seasonality th:first-child { position: sticky; left: 0; background: white; z-index: 1; }
 .portal-seasonality td { padding: 8px; font-size: 11px; }
 .portal-coverage { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 18px; }
+.portal-automation-status { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 18px; margin: 0 0 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 12px; }
+.portal-automation-status strong { color: var(--ink); }
 .portal-coverage > div { display: flex; flex-direction: column; gap: 5px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 9px; background: #f8faff; }
 .portal-coverage span, .portal-coverage small { color: var(--muted); font-size: 11px; }
 .portal-coverage strong { color: var(--ink); font-size: 15px; line-height: 1.4; }
